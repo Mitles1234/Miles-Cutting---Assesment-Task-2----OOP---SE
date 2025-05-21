@@ -7,6 +7,10 @@ class Weapons:
         self.wtrdmg = wtrdmg
         self.firdmg = firdmg
         self.natdmg = natdmg
+
+    def get_name(self):
+        return self.name
+    
     # Weapon(Crayon, Shortsword, 14, 8, 1.2, 0.9, 1)
 
 class Armour:
@@ -20,6 +24,15 @@ class Armour:
         self.natpro = natpro
     # Armour(Iron Armour, Helmet, 3, 5, 1, 1, 1)
 
-    def get_artype():
+    def get_artype(self):
         return self.artype
     
+class Item:
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
+    def get_artype(self):
+        return self.artype
+
+
