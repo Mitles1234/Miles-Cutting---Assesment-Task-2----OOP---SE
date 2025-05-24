@@ -4,77 +4,71 @@ import story
 import items
 import variables
 import json
+import saves
 
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
     os.system('cls')
-    print(f'''
 
-        {story.Title(Room)}
+    map_lines = Map(Room).splitlines()
+    stats_lines = DisplayStats().splitlines()
+    inventory_lines = DisplayInventory().splitlines()
+    MapKey_lines = DisplayMapKey().splitlines()
 
-        {Map(Room)}
-        {story.Story(Room)}
+    side_panel = stats_lines + inventory_lines + MapKey_lines
+    max_lines = max(len(map_lines), len(side_panel))
 
-        +----------------==Stats==--------------+
-        |   Health:  ♥️  \033[31m{StatBar(variables.Health, variables.Max_Health)} \033[0m {f'({variables.Health}/{variables.Max_Health})':<12}|
-        |   Stamina: 🔋 \033[32m{StatBar(variables.Stamina, variables.Max_Stamina)} \033[0m {f'({variables.Stamina}/{variables.Max_Stamina})':<12}|
-        |   Mana:    💠 \033[34m{StatBar(variables.Mana, variables.Max_Mana)} \033[0m {f'({variables.Mana}/{variables.Max_Mana})':<12}|
-        +---------------------------------------+
+    print()
 
-        +----------------------------==Inventory==----------------------------+
-        |   {'🪙  Gold':<12} -   {variables.Gold:<48} |
-        |   {'Weapon':<12} -   {variables.Inventory['WeaponSlot'].name:<15} {'Chestplate':<12} -   {variables.Inventory['ChestplateSlot'].name:<15} |
-        |   {'Helmet':<12} -   {variables.Inventory['HelmetSlot'].name:<15} {'Boots':<12} -   {variables.Inventory['BootSlot'].name:<15} |
-        +---------------------------------------------------------------------+
-        |   {variables.Inventory['OtherSlot1']['Item'].name:<18} -   {variables.Inventory['OtherSlot1']['Qty']:<9} {variables.Inventory['OtherSlot2']['Item'].name:<18} -   {variables.Inventory['OtherSlot2']['Qty']:<9} |
-        |   {variables.Inventory['OtherSlot3']['Item'].name:<18} -   {variables.Inventory['OtherSlot3']['Qty']:<9} {variables.Inventory['OtherSlot4']['Item'].name:<18} -   {variables.Inventory['OtherSlot4']['Qty']:<9} |
-        +---------------------------------------------------------------------+
+    for i in range(max_lines):
+        map_line = map_lines[i] if i < len(map_lines) else ""
+        side_line = side_panel[i] if i < len(side_panel) else ""
+        print(f"{map_line:<60} {side_line}")
 
-    {MoveOptions(Room)}
-    ''')
-    
+    print()  # Space after UI
+
+    # Story and options below
+    print(story.Story(Room))
+    print(MoveOptions(Room))
     InputHandling(Room)
 
 def Map(Room):
+
+    def TitleGenerator(Title):
+        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
+
     if Room == 'Forest1':
-        return '''       
-        +--------------------==Map==---------------------+-------------------------+
-        |                                                |   ██ - You              |
-        | ⬆                             🌲------⭐---+   |   🏠 - Village          |
-        | N                            /              \\  |   ⭐ - Special Place    |
-        |                /------------+-------🏠----- 🌲 |   ☠️  - Enemy            |
-        |██ ----------- ☠️                                |   🌲 - Forest           |
-        |                \\------------------ 🌲          |                         |
-        |                                                |                         |
-        +------------------------------------------------+-------------------------+
-    '''
+        return f'''        {TitleGenerator('Dark Forest')}
+        │                                                       │
+        │           ┌──────☠️           🌲─────┐                 │
+        │           │       │           │     │                 │
+        │     ⛰️  ───┘       │           │     │                 │
+        │                   │           │     └────🏠           │
+        │               ☠️ ──┴────🔮     │                       │
+        │                │              │                       │
+        │        ┌───────┴────────┬─────┤                       │
+        │        │                │     └───────┐               │
+        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
+        │        │       │            🏠────────┘               │
+        │        └────┬──┴──┬──────────┘                        │
+        │             │     │                                   │
+        │             │     └──┐                                │
+        │             │        │                                │
+        │       🌲  ──┘        │                             ⬆  │
+        │                      └────────────🔮               N  │
+        │                                                       │
+        +───────────────────────────────────────────────────────+'''
     
     elif Room == 'Enemy1':
-        return '''       
-        +--------------------==Map==---------------------+-------------------------+
-        |                                                |   ██ - You              |
-        | ⬆                             🌲------⭐---+   |   🏠 - Village          |
-        | N                            /              \\  |   ⭐ - Special Place    |
-        |                /------------+-------🏠----- 🌲 |   ☠️  - Enemy            |
-        | 🌲----------- ██                               |   🌲 - Forest           |
-        |                \\------------------ 🌲          |                         |
-        |                                                |                         |
-        +------------------------------------------------+-------------------------+
-        '''
-
-def StatBar(Stat, Max_Stat):
-    StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
-
-    if StatBar == '' and Stat > 0:
-        StatBar = '█'
-
-    elif len(StatBar) > 10:
-        Statbar = '█'*10
-        return Statbar
-
-    while len(StatBar) < 10:
-        StatBar += '-'
-    return StatBar
+        return '''+────────────────────==Map==──────────────────────────────────────────────
+│                                                |   ██ - You              |
+│ ⬆                             🌲------⭐---+   |   🏠 - Village          |
+│ N                            /              \\  |   ⭐ - Special Place    |
+│                /------------+-------🏠----- 🌲 |   ☠️  - Enemy            |
+│ 🌲----------- ██                               |   🌲 - Forest           |
+│                \\------------------ 🌲          |                         |
+│                                                |                         |
++────────────────────────────────────────────────+─────────────────────────+'''
 
 def MoveOptions(Room):
     if Room == 'Forest1':
@@ -117,9 +111,54 @@ def InputHandling(Room):
             pass
         else:
             ReplaceInput()
+
+def DisplayStats():
+    def StatBar(Stat, Max_Stat):
+        StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
+        DeadBar = ''
+
+        if StatBar == '' and Stat > 0:
+            StatBar = '█'
+
+        elif len(StatBar) > 10:
+            Statbar = '█'*10
+            return Statbar
+
+        while len(StatBar) < 10:
+            DeadBar += f'-'
+        #StatBar = StatBar + f'\033[37m{DeadBar}'
+        return StatBar + f'\033[37m{DeadBar}'
     
+    return f'''+───────────--==| Stats |==--───────────+
+│                                       │
+│   Health:  ♥️  \033[31m{StatBar(variables.Health, variables.Max_Health)} \033[0m {f'({variables.Health}/{variables.Max_Health})':<12}│
+│   Stamina: 🔋 \033[32m{StatBar(variables.Stamina, variables.Max_Stamina)} \033[0m {f'({variables.Stamina}/{variables.Max_Stamina})':<12}│
+│   Mana:    💠 \033[34m{StatBar(variables.Mana, variables.Max_Mana)} \033[0m {f'({variables.Mana}/{variables.Max_Mana})':<12}│
+│                                       │
++───────────────────────────────────────+'''
+
+    
+
+def DisplayInventory():
+    return f'''+────────────────────────--==| Inventory |==--────────────────────────+
+│   {'🪙  Gold':<12} -   {variables.Gold:<48} |
+│   {'Weapon':<12} -   {variables.Inventory['WeaponSlot'].name:<15} {'Chestplate':<12} -   {variables.Inventory['ChestplateSlot'].name:<15} │
+│   {'Helmet':<12} -   {variables.Inventory['HelmetSlot'].name:<15} {'Boots':<12} -   {variables.Inventory['BootSlot'].name:<15} │
++─────────────────────────────────────────────────────────────────────+
+│   {variables.Inventory['OtherSlot1']['Item'].name:<18} -   {variables.Inventory['OtherSlot1']['Qty']:<9} {variables.Inventory['OtherSlot2']['Item'].name:<18} -   {variables.Inventory['OtherSlot2']['Qty']:<9} │
+│   {variables.Inventory['OtherSlot3']['Item'].name:<18} -   {variables.Inventory['OtherSlot3']['Qty']:<9} {variables.Inventory['OtherSlot4']['Item'].name:<18} -   {variables.Inventory['OtherSlot4']['Qty']:<9} │
++─────────────────────────────────────────────────────────────────────+ '''
+
+def DisplayMapKey():
+    return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
+│   ██ - You              🔮 - Wizard Tower                           │
+│   🏠 - Village          ☠️  - Enemy            👑 - Goblin King      │
+│   🌲 - Forest           ⛰️  - Mountain                               │
++─────────────────────────────────────────────────────────────────────+'''
+
 def TitleScreen():
     os.system('cls')
+    saves.Load()
     print(f'''
     +------------------------------------------------------------------------------------------------------------------------------------+     
     |                                                                                                                                    |

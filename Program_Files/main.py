@@ -6,5 +6,3 @@ import UI
 import variables
 
 UI.TitleScreen()
-
-#print(story.TitleGenerator(''))
