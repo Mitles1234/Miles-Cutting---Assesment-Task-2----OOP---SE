@@ -130,3 +130,326 @@ Mana / Magical:
 
 
     Another key element of the Magic system, will be the use of enchanted items, which may increase the players speed (Lowering the )
+
+
+### Review:
+
+#### main.py
+```Python
+import items
+import story
+import UI
+import variables
+
+UI.TitleScreen()
+```
+
+
+#### UI.py
+```Python
+import os
+import math
+import story
+import variables
+import saves
+
+#--- Displays the UI Screen for the User ---
+def PrintMainUI(Room):
+    os.system('cls')
+
+    map_lines = Map(Room).splitlines()
+    stats_lines = DisplayStats().splitlines()
+    inventory_lines = DisplayInventory().splitlines()
+    MapKey_lines = DisplayMapKey().splitlines()
+
+    side_panel = stats_lines + inventory_lines + MapKey_lines
+    max_lines = max(len(map_lines), len(side_panel))
+
+    print()
+
+    for i in range(max_lines):
+        map_line = map_lines[i] if i < len(map_lines) else ""
+        side_line = side_panel[i] if i < len(side_panel) else ""
+        print(f"{map_line:<60} {side_line}")
+
+    print()
+
+    print(story.Story(Room))
+    print(MoveOptions(Room))
+    InputHandling(Room)
+
+def Map(Room):
+
+    def TitleGenerator(Title):
+        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
+
+    if Room == 'Forest1':
+        return f'''        {TitleGenerator('Dark Forest')}
+        │                                                       │
+        │           ┌──────☠️           🌲─────┐                 │
+        │           │       │           │     │                 │
+        │     ⛰️  ───┘       │           │     │                 │
+        │                   │           │     └────🏠           │
+        │               ☠️ ──┴────🔮     │                       │
+        │                │              │                       │
+        │        ┌───────┴────────┬─────┤                       │
+        │        │                │     └───────┐               │
+        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
+        │        │       │            🏠────────┘               │
+        │        └────┬──┴──┬──────────┘                        │
+        │             │     │                                   │
+        │             │     └──┐                                │
+        │             │        │                                │
+        │       🌲  ──┘        │                             ⬆  │
+        │                      └────────────🔮               N  │
+        │                                                       │
+        +───────────────────────────────────────────────────────+'''
+    
+    elif Room == 'Enemy1':
+        return f'''        {TitleGenerator('Dark Forest')}
+        │                                                       │
+        │           ┌──────☠️           🌲─────┐                 │
+        │           │       │           │     │                 │
+        │     ⛰️  ───┘       │           │     │                 │
+        │                   │           │     └────🏠           │
+        │               ☠️ ──┴────🔮     │                       │
+        │                │              │                       │
+        │        ┌───────┴────────┬─────┤                       │
+        │        │                │     └───────┐               │
+        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
+        │        │       │            🏠────────┘               │
+        │        └────┬──┴──┬──────────┘                        │
+        │             │     │                                   │
+        │             │     └──┐                                │
+        │             │        │                                │
+        │       🌲  ──┘        │                             ⬆  │
+        │                      └────────────🔮               N  │
+        │                                                       │
+        +───────────────────────────────────────────────────────+'''
+
+def MoveOptions(Room):
+    if Room == 'Forest1':
+        return '''
+            0. Inventory
+            1. East
+        '''
+    
+    elif Room == 'Enemy1':
+        return '''
+            0. Inventory
+            1. North
+            2. South
+        '''
+
+def InputHandling(Room):
+    def ReplaceInput():
+            print("\033[2A", end="")
+            print('Error With Input')
+            NextMove = ''
+            InputHandling(Room)
+
+    NextMove = input(f'What do You want to do? ')
+
+    if Room == 'Forest1':
+        if NextMove == '1':
+            PrintMainUI('Enemy1')
+
+        elif NextMove == '0':
+            pass
+
+        else:
+            ReplaceInput()
+
+    elif Room == 'Enemy1':
+        if NextMove == '1':
+            PrintMainUI('Enemy1', story.Enemy1())
+            
+        elif NextMove == '0':
+            pass
+        else:
+            ReplaceInput()
+
+def DisplayStats():
+    def StatBar(Stat, Max_Stat):
+        StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
+        DeadBar = ''
+
+        if StatBar == '' and Stat > 0:
+            StatBar = '█'
+
+        elif len(StatBar) > 10:
+            Statbar = '█'*10
+            return Statbar
+
+        for i in range(0, 10-len(StatBar)):
+            DeadBar += f'-'
+        return StatBar + f'\033[37m{DeadBar}'
+    
+    return f'''+───────────--==| Stats |==--───────────+
+│                                       │
+│   Health:  ♥️  \033[31m{StatBar(variables.Health, variables.Max_Health)} \033[0m {f'({variables.Health}/{variables.Max_Health})':<12}│
+│   Stamina: 🔋 \033[32m{StatBar(variables.Stamina, variables.Max_Stamina)} \033[0m {f'({variables.Stamina}/{variables.Max_Stamina})':<12}│
+│   Mana:    💠 \033[34m{StatBar(variables.Mana, variables.Max_Mana)} \033[0m {f'({variables.Mana}/{variables.Max_Mana})':<12}│
+│                                       │
++───────────────────────────────────────+'''
+
+def DisplayInventory():
+    return f'''+────────────────────────--==| Inventory |==--────────────────────────+
+│   {'🪙  Gold':<12} -   {variables.Gold:<48} |
+│   {'Weapon':<12} -   {variables.Inventory['WeaponSlot']:<15} {'Chestplate':<12} -   {variables.Inventory['ChestplateSlot']:<15} │
+│   {'Helmet':<12} -   {variables.Inventory['HelmetSlot']:<15} {'Boots':<12} -   {variables.Inventory['BootSlot']:<15} │
++─────────────────────────────────────────────────────────────────────+
+│   {variables.Inventory['OtherSlot1']['Item']:<18} -   {variables.Inventory['OtherSlot1']['Qty']:<9} {variables.Inventory['OtherSlot2']['Item']:<18} -   {variables.Inventory['OtherSlot2']['Qty']:<9} │
+│   {variables.Inventory['OtherSlot3']['Item']:<18} -   {variables.Inventory['OtherSlot3']['Qty']:<9} {variables.Inventory['OtherSlot4']['Item']:<18} -   {variables.Inventory['OtherSlot4']['Qty']:<9} │
++─────────────────────────────────────────────────────────────────────+ '''
+
+def DisplayMapKey():
+    return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
+│   ██ - You              🔮 - Wizard Tower                           │
+│   🏠 - Village          ☠️  - Enemy            👑 - Goblin King      │
+│   🌲 - Forest           ⛰️  - Mountain                               │
++─────────────────────────────────────────────────────────────────────+'''
+
+def TitleScreen():
+    os.system('cls')
+    saves.Load() # Fill in for loading saves later
+    print(f'''
+    +------------------------------------------------------------------------------------------------------------------------------------+     
+    |                                                                                                                                    |
+    |   ███╗   ██╗██╗ █████╗ ██████╗  ██████╗ ███╗   ██╗          _____ _            _              _     ____            _              |
+    |   ████╗  ██║██║██╔══██╗██╔══██╗██╔═══██╗████╗  ██║         |_   _| |__   ___  | |    ___  ___| |_  |  _ \ ___  __ _| |_ __ ___     |
+    |   ██╔██╗ ██║██║███████║██║  ██║██║   ██║██╔██╗ ██║  _____    | | | '_ \ / _ \ | |   / _ \/ __| __| | |_) / _ \/ _` | | '_ ` _ \    |
+    |   ██║╚██╗██║██║██╔══██║██║  ██║██║   ██║██║╚██╗██║ |_____|   | | | | | |  __/ | |__| (_) \__ \ |_  |  _ <  __/ (_| | | | | | | |   |
+    |   ██║ ╚████║██║██║  ██║██████╔╝╚██████╔╝██║ ╚████║           |_| |_| |_|\___| |_____\___/|___/\__| |_| \_\___|\__,_|_|_| |_| |_|   |
+    |   ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝                                                                                 |
+    |                                                                                                                                    |
+    +------------------------------------------------------------------------------------------------------------------------------------+     
+          
+   Welcome to Your Adventure, Continue with your adventure, or start a new one!
+    
+    +----------Save 1----------+    +----------Save 2----------+    +----------Save 3----------+    +----------Save 4----------+
+    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|
+    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|
+    +--------------------------+    +--------------------------+    +--------------------------+    +--------------------------+
+
+    0. Exit
+    
+    1. Save 1
+    2. Save 2
+    3. Save 3
+    4. Save 4
+
+    ''')
+    def TitleSelection():
+
+        def ReplaceInput():
+                print("\033[2A", end="")
+                print('Error With Input')
+                SaveSelection = ''
+                TitleSelection()
+        
+        SaveSelection = input('Choice: ')
+
+        if SaveSelection == '0':
+            quit()
+
+        elif SaveSelection == '1':
+            PrintMainUI('Forest1')
+
+        elif SaveSelection == '2':
+            PrintMainUI('Enemy1')
+
+        elif SaveSelection == '3':
+            PrintMainUI('Enemy1')
+
+        elif SaveSelection == '4':
+            PrintMainUI('Enemy1')
+
+        else:
+            ReplaceInput()
+    
+    TitleSelection()
+```
+
+#### story.py
+```Python
+import math
+
+def Story(Room):
+    if Room == 'Forest1':
+        return 'Interesting Story'
+    
+    elif Room == 'Enemy1':
+        return 'You Have Encountered and Enemy!!! You will have to fight'
+    
+def Title(Room):
+    if Room == 'Forest1':
+        return TitleGenerator('Dark Forest')
+
+
+def TitleGenerator(Title):
+    return f'''
+    +{'-'*64}+
+    |{' '*((32-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{' '*((32-(math.ceil(len(Title)/2)))-6)}|
+    +{'-'*64}+
+    '''
+```
+
+####  variables.py
+```Python
+Health = 98
+Max_Health = 100
+Stamina = 65
+Max_Stamina = 100
+Mana = 23
+Max_Mana = 100
+
+Gold = 5
+
+Name = 'John'
+Room = 'Dark Forest'
+
+#--- Weapons ---
+Stick = 'Stick'
+Wooden_Sword = 'Wooden_Sword'
+Iron_Sword = 'Iron_Sword'
+
+#--- Helmets ---
+None_Helmet = 'None'
+
+#--- ChestPlate ---
+None_Chestplate = 'None'
+
+#--- Boot ---
+None_Boot = 'None'
+
+#--- Item ---
+None_Item = 'None'
+
+Inventory = {
+            'Player_Name': Name,
+            'WeaponSlot': Wooden_Sword, 
+            'HelmetSlot': None_Helmet, 
+            'ChestplateSlot': None_Chestplate,
+            'BootSlot': None_Boot,
+            'OtherSlot1': {'Item': None_Item, 'Qty': 0},
+            'OtherSlot2': {'Item': None_Item, 'Qty': 0},
+            'OtherSlot3': {'Item': None_Item, 'Qty': 0},
+            'OtherSlot4': {'Item': None_Item, 'Qty': 0}
+    }
+```
+
+### Review Questions:
+
+#### Evaluate how effectively your project meets the functional and non-functional requirements defined in your planning.
+ - 
+
+#### Analyse the performance of your program against the key use-cases you identified.
+ - 
+
+#### Assess the quality of your code in terms of readability, structure, and maintainability.
+ - Based on Feedback from my previous task, I took lots of extra time in planning out my code to be more easily readable and conventional. I have made heavy uses of functions to sperate code blocks into smaller chuncks that can be more easily understood, and maintained. Furthermore, I have spread my code accross multiple files, making it easier and faster to fund and modify parts of the code based on the function. Their is also a strong use of comments to explain what code does, and why it works. These aspects of my code make my code a high qualilty in terms of readability, structure, and maintainaility.
+
+#### Explain the improvements that should be made in the next stage of development.
+ - 
+
