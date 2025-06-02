@@ -5,12 +5,13 @@ import items
 import variables
 import json
 import saves
+import movement
 
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
     os.system('cls')
 
-    map_lines = Map(Room).splitlines()
+    map_lines = movement.Map(Room).splitlines()
     stats_lines = DisplayStats().splitlines()
     inventory_lines = DisplayInventory().splitlines()
     MapKey_lines = DisplayMapKey().splitlines()
@@ -28,99 +29,8 @@ def PrintMainUI(Room):
     print()
 
     print(story.Story(Room))
-    print(MoveOptions(Room))
-    InputHandling(Room)
-
-def Map(Room):
-
-    def TitleGenerator(Title):
-        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
-
-    if Room == 'Forest1':
-        return f'''        {TitleGenerator('Dark Forest')}
-        │                                                       │
-        │           ┌──────☠️           🌲─────┐                 │
-        │           │       │           │     │                 │
-        │     ⛰️  ───┘       │           │     │                 │
-        │                   │           │     └────🏠           │
-        │               ☠️ ──┴────🔮     │                       │
-        │                │              │                       │
-        │        ┌───────┴────────┬─────┤                       │
-        │        │                │     └───────┐               │
-        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
-        │        │       │            🏠────────┘               │
-        │        └────┬──┴──┬──────────┘                        │
-        │             │     │                                   │
-        │             │     └──┐                                │
-        │             │        │                                │
-        │       🌲  ──┘        │                             ⬆  │
-        │                      └────────────🔮               N  │
-        │                                                       │
-        +───────────────────────────────────────────────────────+'''
-    
-    elif Room == 'Enemy1':
-        return f'''        {TitleGenerator('Dark Forest')}
-        │                                                       │
-        │           ┌──────☠️           🌲─────┐                 │
-        │           │       │           │     │                 │
-        │     ⛰️  ───┘       │           │     │                 │
-        │                   │           │     └────🏠           │
-        │               ☠️ ──┴────🔮     │                       │
-        │                │              │                       │
-        │        ┌───────┴────────┬─────┤                       │
-        │        │                │     └───────┐               │
-        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
-        │        │       │            🏠────────┘               │
-        │        └────┬──┴──┬──────────┘                        │
-        │             │     │                                   │
-        │             │     └──┐                                │
-        │             │        │                                │
-        │       🌲  ──┘        │                             ⬆  │
-        │                      └────────────🔮               N  │
-        │                                                       │
-        +───────────────────────────────────────────────────────+'''
-
-def MoveOptions(Room):
-    if Room == 'Forest1':
-        return '''
-            0. Inventory
-            1. East
-        '''
-    
-    elif Room == 'Enemy1':
-        return '''
-            0. Inventory
-            1. North
-            2. South
-        '''
-
-def InputHandling(Room):
-    def ReplaceInput():
-            print("\033[2A", end="")
-            print('Error With Input')
-            NextMove = ''
-            InputHandling(Room)
-
-    NextMove = input(f'What do You want to do? ')
-
-    if Room == 'Forest1':
-        if NextMove == '1':
-            PrintMainUI('Enemy1')
-
-        elif NextMove == '0':
-            pass
-
-        else:
-            ReplaceInput()
-
-    elif Room == 'Enemy1':
-        if NextMove == '1':
-            PrintMainUI('Enemy1', story.Enemy1())
-            
-        elif NextMove == '0':
-            pass
-        else:
-            ReplaceInput()
+    print(movement.MoveOptions(Room))
+    movement.InputHandling(Room)
 
 def DisplayStats():
     def StatBar(Stat, Max_Stat):
@@ -136,7 +46,7 @@ def DisplayStats():
 
         for i in range(0, 10-len(StatBar)):
             DeadBar += f'-'
-        #StatBar = StatBar + f'\033[37m{DeadBar}'
+            
         return StatBar + f'\033[37m{DeadBar}'
     
     return f'''+───────────--==| Stats |==--───────────+
@@ -163,6 +73,12 @@ def DisplayMapKey():
 │   🏠 - Village          ☠️  - Enemy            👑 - Goblin King      │
 │   🌲 - Forest           ⛰️  - Mountain                               │
 +─────────────────────────────────────────────────────────────────────+'''
+
+def DisplayInventoryScreen():
+    print('''
+
+
+''')
 
 def TitleScreen():
     os.system('cls')

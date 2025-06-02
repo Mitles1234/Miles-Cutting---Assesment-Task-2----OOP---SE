@@ -3,9 +3,6 @@
 
 ***
 
-Notes of Later Miles:
-https://azgaar.github.io/Fantasy-Map-Generator/
-
 
 # Sprint 1:
 ### **Requirements Outline**
@@ -98,7 +95,7 @@ https://azgaar.github.io/Fantasy-Map-Generator/
 - Reliability:
     - To ensure the program is handling inputs and outputs correctly, their will be a range of validation and *** to ensure it is handling data correctly, and if it isn't, the User will be informed with not only what has happened, but with the measures that should be taken to rectify the issues, such as re-entering the information, or restarting the program.
 
-#### **Use Cases:**
+### **Use Cases:**
 
 **Actors:**
 
@@ -107,29 +104,30 @@ https://azgaar.github.io/Fantasy-Map-Generator/
 
 **Preconditions:**
 
-    The program has began with the programs that need to run to initialize the program have run. ** Need Help
+    The game begins by initializing the required systems, including loading maps, setting up the UI, and preparing the stat systems. There is a login system that is password-protected, ensuring only authorized players can access their game data. All players start with the same base stats, so there is no need for the user to input personal character data. A stat setup system automatically configures each player's initial statistics, providing a consistent and fair starting point for every user. Once the system is initialized and the user is logged in, the main game loop begins.
 
 
 **Main Flow:**
 
-    Each 'Scene' the user is presented with, will present the user with a variety of options, numbered to allow for faster interaction. The user will then select what to do based of of those options, such as purchase an item, move on the map, or preform a move in combat.
+    Each 'Scene' the user is presented with will offer a variety of options, numbered for fast and easy interaction. These options allow the user to make choices such as purchasing an item, moving around the map, inspecting their inventory, or engaging in combat. The player selects actions by entering the associated number or shortcut command, like N, S, E, or W for movement. The system is designed to provide a clear and intuitive flow from one situation to the next, ensuring the player always has multiple options and can see the results of their decisions.
+
+
 
 **Alternate Flows:**
 
-Movement: ###### FINSH
+Movement:
 
-    The User is presented with up to 4 options (N S E W), that will move them to new locations on the wider map. Each time the player moves, they will use part of their stamina, which requires food, water, or a stamina potion to replenish. Alternately, the user can use other forms of travel, such as horse and cart, to move quickly between key locations, at a cost, and with missing possibly key locations along the way. 
+    The user is presented with up to four directional option (N S E W) which move them to new locations across the map. Each movement uses a portion of the player's stamina, which can be replenished by consuming food items like bread or using certain magical items. Players can also travel quickly between key locations using methods like horse and cart, but doing so may skip over important side locations or hidden items. While most areas are accessible, some are designed to be ‘soft locked,’ meaning the player can enter them at any time but will likely be under-equipped and face much stronger enemies. Villages provide safe spots where the player can rest without using stamina and prepare for future travel.
+
+
 
 Combat:
 
-    The user will have up to 2 damage items to use at any given point, that may be more or less effective against a range of different opponents which will further interact with the mana / magical system, such as a Fire Enchanted Item will do more damage against nature enemies, but be less effective against water enemies. Another example is a Sword being less effective against Goblins, who might be weak to daggers, verses a sword doing more damage to Trolls.
+    In combat, the player can equip and use only one physical damage item at a time, such as a sword, dagger, or axe. This item is their primary melee weapon, but its effectiveness varies depending on the enemy type—certain enemies may be resistant or vulnerable to specific weapon types. In addition to their physical weapon, the player can access a range of offensive spells, each consuming mana when cast. These spells may include elemental attacks like fireball, ice shard, or lightning strike, and can be more effective against specific enemy classes, for example, fire-based spells dealing extra damage to nature-type enemies. Combat remains turn-based, giving the player time to consider their options and adapt to enemy behavior over multiple rounds. This allows for strategic decision, making, where the player might switch between physical attacks and magical abilities depending on the opponent’s strengths and weaknesses. The combat system encourages experimentation and progression as the player learns which tactics are most effective in different encounters.
 
 Mana / Magical:
 
-    Their will be a heavy use of a Magical system, that will allow the player to better weapons in some aspects, and limit them in others. The Player will be able to receive better and better Magical items through the use of Experience, which will be collected when defeating enemies, making trades, or using a magical item. The Max Level for this system will allow for stronger damage on harder enemies. To preform each of these abilities, the player will use their 'Mana' values, which will be used each time a magical item is used. If the mana value runs out, all the enchantments the player has will stop working. To replenish their values, they can go to a towns priest, or if they are away from town, use a Mana Potion.
-
-
-    Another key element of the Magic system, will be the use of enchanted items, which may increase the players speed (Lowering the )
+    The magic system plays a major role in gameplay, with mana being consumed whenever a magical item is used. This includes attacking with enchanted weapons, taking damage while wearing enchanted armor, casting spells like fireball, or activating magical items such as stamina necklaces. If the player runs out of mana, all enchantments become inactive until mana is replenished. Mana can be restored either by visiting a priest in a town or using a mana potion in the field. As the player earns experience from combat, trades, and magical item use, they gain access to stronger magical items and abilities. One key feature of this system is the use of enchanted gear, which can grant passive bonuses—such as increased speed, which reduces stamina usage when moving or gives the player stronger actions during combat.
 
 
 ### Review:
@@ -194,7 +192,7 @@ def Map(Room):
         │                │              │                       │
         │        ┌───────┴────────┬─────┤                       │
         │        │                │     └───────┐               │
-        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
+        │ ██────☠️       🏠       🌲             ├────☠️ ─────👑  │
         │        │       │            🏠────────┘               │
         │        └────┬──┴──┬──────────┘                        │
         │             │     │                                   │
@@ -216,7 +214,7 @@ def Map(Room):
         │                │              │                       │
         │        ┌───────┴────────┬─────┤                       │
         │        │                │     └───────┐               │
-        │ 🌲────☠️       🏠       🌲             ├────☠️ ─────👑  │
+        │ 🌲────██       🏠       🌲             ├────☠️ ─────👑  │
         │        │       │            🏠────────┘               │
         │        └────┬──┴──┬──────────┘                        │
         │             │     │                                   │
@@ -442,14 +440,14 @@ Inventory = {
 ### Review Questions:
 
 #### Evaluate how effectively your project meets the functional and non-functional requirements defined in your planning.
- - 
+ - The project meets most of the planned functional and non-functional requirements effectively, offering clear player statistics, intuitive ASCII and emoji-based UI elements, and responsive text-based interactions. Players can view and manage inventory, health, and location, with meaningful turn-based gameplay that includes multiple decision points and combat strategy. The game performs quickly due to its lightweight design and organized file structure, ensuring consistent tracking of stats and player actions. While usability is already strong with labeled commands and accessible options, some features, such as expanded scenario interactions and second-chance events, will be more fully implimented and polished in the second and third sprint.
 
 #### Analyse the performance of your program against the key use-cases you identified.
- - 
+ - The program largely behaves as expected and handles input/output effectively according to the planned design. Basic command systems have been successfully implemented, with more advanced interactions scheduled for future sprints. Input handling works well, although there is a minor bug where incorrect inputs are removed, but the display of previous inputs isn't fully cleared—this visual glitch does not affect functionality or performance and is planned to be resolved in a later sprint. Player statistics such as health, stamina, mana, and location are clearly displayed, making excellent use of terminal space, and emojis render correctly, though their irregular print sizes present a slight challenge during development. The game provides clear textual feedback for player actions and events, and the map system effectively tracks player movement in real time. Because the game operates on a turn-based system, player stats are accurately updated after each action, keeping the interface consistent and informative throughout gameplay.
 
 #### Assess the quality of your code in terms of readability, structure, and maintainability.
  - Based on Feedback from my previous task, I took lots of extra time in planning out my code to be more easily readable and conventional. I have made heavy uses of functions to sperate code blocks into smaller chuncks that can be more easily understood, and maintained. Furthermore, I have spread my code accross multiple files, making it easier and faster to fund and modify parts of the code based on the function. Their is also a strong use of comments to explain what code does, and why it works. These aspects of my code make my code a high qualilty in terms of readability, structure, and maintainaility.
 
 #### Explain the improvements that should be made in the next stage of development.
- - 
+ - In the next stage of development, the primary focus will be on completing and refining the movement, combat, and trading systems, which are currently only partially implemented. These features are essential for the core gameplay loop and will provide players with a more interactive and dynamic experience. Alongside these enhancements, improvements to code quality will also be prioritized. Although the codebase is already readable due to previous planning, the next sprint will focus on adding more detailed comments throughout the program to better document how each system functions. Additionally, there are plans to implement a more robust and efficient system for tracking the player’s location, which will improve consistency across scenes and interactions. These refinements will help streamline development in future sprints and make the codebase easier to expand and maintain.
 
