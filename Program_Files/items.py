@@ -1,10 +1,10 @@
 class Weapons:
-    def __init__(self, name, wptype, level, damage, wtrdmg, firdmg, natdmg):
+    def __init__(self, name, wptype, level, damage, watdmg, firdmg, natdmg):
         self.name = name
         self.wptype = wptype
         self.level = level
         self.damage = damage
-        self.wtrdmg = wtrdmg
+        self.wtrdmg = watdmg
         self.firdmg = firdmg
         self.natdmg = natdmg
 
@@ -14,12 +14,12 @@ class Weapons:
     # Weapon(Crayon, Shortsword, 14, 8, 1.2, 0.9, 1)
 
 class Armour:
-    def __init__(self, name, artype, level, protection, wtrpro, firpro, natpro):
+    def __init__(self, name, artype, level, protection, watpro, firpro, natpro):
         self.name = name
         self.artype = artype
         self.level = level
         self.protection = protection
-        self.wtrpro = wtrpro
+        self.watpro = watpro
         self.firpro = firpro
         self.natpro = natpro
     # Armour(Iron Armour, Helmet, 3, 5, 1, 1, 1)

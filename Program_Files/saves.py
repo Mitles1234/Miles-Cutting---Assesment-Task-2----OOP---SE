@@ -25,9 +25,9 @@ savestats = {
 }
 
 
-def Load(Save):
-    with open(f'{Save}.json', 'w') as f:
+def Load():
+    with open(f'Save1.json', 'w') as f:
         json.dump(savestats, f)
 
 
-Load('Save1')
+Load()

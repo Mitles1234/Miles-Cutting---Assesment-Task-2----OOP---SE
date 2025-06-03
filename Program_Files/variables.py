@@ -1,4 +1,3 @@
-import UI
 import items
 
 Health = 98
