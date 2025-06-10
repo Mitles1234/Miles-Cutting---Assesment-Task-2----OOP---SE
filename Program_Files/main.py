@@ -5,6 +5,4 @@ import trading
 import UI
 import variables
 
-#UI.TitleScreen()
-
-UI.PrintMainUI('Forest4')
+UI.TitleScreen()

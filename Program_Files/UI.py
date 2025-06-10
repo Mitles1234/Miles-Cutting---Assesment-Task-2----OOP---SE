@@ -6,6 +6,8 @@ import variables
 import json
 import saves
 import movement
+import trading
+import magic
 
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
@@ -82,7 +84,20 @@ def DisplayInventoryScreen():
 
 def TitleScreen():
     os.system('cls')
-    saves.Load()
+    
+    with open(f'Save1.json', 'r') as f:
+            Player_Data_1 = json.load(f)
+
+    with open(f'Save2.json', 'r') as f:
+            Player_Data_2 = json.load(f)
+
+    with open(f'Save3.json', 'r') as f:
+            Player_Data_3 = json.load(f)
+
+    with open(f'Save4.json', 'r') as f:
+            Player_Data_4 = json.load(f)
+
+
     print(f'''
     +------------------------------------------------------------------------------------------------------------------------------------+     
     |                                                                                                                                    |
@@ -98,8 +113,8 @@ def TitleScreen():
    Welcome to Your Adventure, Continue with your adventure, or start a new one!
     
     +----------Save 1----------+    +----------Save 2----------+    +----------Save 3----------+    +----------Save 4----------+
-    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|    |Name: {variables.Name:<20}|
-    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|    |Room: {variables.Room:<20}|
+    |Name: {Player_Data_1.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_2.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_3.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_4.get('Player_Name', 'None'):<20}|
+    |Room: {Player_Data_1.get('Location', 'None'):<20}|    |Room: {Player_Data_2.get('Location', 'None'):<20}|    |Room: {Player_Data_3.get('Location', 'None'):<20}|    |Room: {Player_Data_4.get('Location', 'None'):<20}|
     +--------------------------+    +--------------------------+    +--------------------------+    +--------------------------+
 
     0. Exit
@@ -139,3 +154,63 @@ def TitleScreen():
             ReplaceInput()
     
     TitleSelection()
+
+def VillagerMenu(Village):
+    os.system('cls')
+    
+    print(f'''
+    +------------------==| Villager Menu |==------------------+
+    |                                                         |
+    |   Name:           {Village.name:<38}|
+    |                                                         |
+    |   Profession:     {Village.profession:<38}|
+    |                                                         |
+    +---------------------------------------------------------+
+    
+    0. Exit
+    1. Trade with {Village.name}
+    ''')
+
+    def VillagerSelection():
+        Selection = input('Choice: ')
+
+        if Selection == '1':
+            print(Village.Inventory_Trading())
+
+        else:
+            print("Invalid selection, please try again.")
+            VillagerSelection()
+
+    VillagerSelection()
+
+def EnchantmentScreen(Wizard):
+    print(f'''
+    +------------------==| Villager Menu |==------------------+
+    |                                                         |
+    |   Name:           {Wizard.name:<38}|
+    |                                                         |
+    +---------------------------------------------------------+
+    
+    0. Exit
+    1. Enchant Item with {Wizard.name}
+    ''') 
+
+    def VillagerSelection():
+        def Inventory_Display():
+            return f'''
+            +---+{'-'*30}+- Wat -+- Fir -+- Nat -+
+            |1  |Weapon Slot: {saves.User.WeaponSlot:<20}|{saves.User.WeaponSlot['multiplyers']['Fir']}
+            '''
+        Selection = input('Choice: ')
+
+        if Selection == '1':
+            print('''Select Item to Enchant: ''')
+
+        else:
+            print("Invalid selection, please try again.")
+            VillagerSelection()
+
+    VillagerSelection()
+
+Bob = trading.ArmourSmith('Bob')
+VillagerMenu(Bob)
