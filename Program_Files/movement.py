@@ -3,109 +3,109 @@ import math
 
 def MoveOptions(Room):
     if Room == 'Enemy1':
-        return '''
-            0. Inventory
-            1. East (Dark Forest) (2)
-            2. South (Village1) (4)
-            3. West (Forest1) (2)
-            4. North (Enemy 3) (8)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "East (Dark Forest) (2)": lambda: UI.PrintMainUI('Dark Forest'),
+            "South (Village1) (4)": lambda: UI.PrintMainUI('Village1'),
+            "West (Forest 1) (2)": lambda: UI.PrintMainUI('Forest1'),
+            "North (Enemy 3) (8)": lambda: UI.PrintMainUI('Enemy3'),
+        }
     elif Room == 'Enemy2':
-        return '''
-            0. Inventory
-            1. West (Dark Forest) (5)
-            2. East (Wizard 1) (3)
-            3. South (Forest 2) (6)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Dark Forest) (5)": lambda: UI.PrintMainUI('Dark Forest'),
+            "East (Wizard 1) (3)": lambda: UI.PrintMainUI('Wizard1'),
+            "South (Forest 2) (6)": lambda: UI.PrintMainUI('Forest2'),
+        }
     elif Room == 'Enemy3':
-        return '''
-            0. Inventory
-            1. South East (Wizard Tower) (7)
-            1. South West (Enemy) (7)
-            2. West (Mountain) (20)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "South East (Wizard Tower) (7)": lambda: UI.PrintMainUI('Wizard1'),
+            "South West (Enemy) (7)": lambda: UI.PrintMainUI('Enemy1'),
+            "West (Mountain) (20)": lambda: UI.PrintMainUI('Mountain'),
+        }
     elif Room == 'Enemy4':
-        return '''
-            0. Inventory
-            1. West (Galamdor City) (6)
-            2. East (Goblin King) (4)
-            3. South (Another City) (8)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Galamdor City) (6)": lambda: UI.PrintMainUI('Village2'),
+            "East (Goblin King) (4)": lambda: UI.PrintMainUI('GoblinKing'),
+            "South (Another City) (8)": lambda: UI.PrintMainUI('Village3'),
+        }
     elif Room == 'Village1':
-        return '''
-            0. Inventory
-            1. North (Enemy) (8)
-            2. South (Forset) (7)
-            3. East (Village) (5)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "North (Enemy) (8)": lambda: UI.PrintMainUI('Enemy1'),
+            "South (Forest) (7)": lambda: UI.PrintMainUI('Forest2'),
+            "East (Village) (5)": lambda: UI.PrintMainUI('Village2'),
+        }
     elif Room == 'Village2':
-        return '''
-            0. Inventory
-            1. North (Aldwin Village) (8)
-            2. West (Forest 3) (7)
-            3. South (Forest 4) (10)
-            4. East (Enemy 4) (6)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "North (Aldwin Village) (8)": lambda: UI.PrintMainUI('Village1'),
+            "West (Forest 3) (7)": lambda: UI.PrintMainUI('Forest3'),
+            "South (Forest 4) (10)": lambda: UI.PrintMainUI('Forest4'),
+            "East (Enemy 4) (6)": lambda: UI.PrintMainUI('Enemy4'),
+        }
     elif Room == 'Village3':
-        return '''
-            0. Inventory
-            1. South (Forest 4) (12)
-            2. West (Forest 4) (12)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "South (Forest 4) (12)": lambda: UI.PrintMainUI('Forest4'),
+            "West (Forest 4) (12)": lambda: UI.PrintMainUI('Forest4'),
+        }
     elif Room == 'Forest1':
-        return '''
-            0. Inventory
-            1. East (Enemy) (2)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "East (Enemy) (2)": lambda: UI.PrintMainUI('Enemy1'),
+        }
     elif Room == 'Forest2':
-        return '''
-            0. Inventory
-            1. North (Forest 1) (4)
-            2. East (Wizard 2) (7)
-            3. South (Forest 3) (5)
-            4. West (Enemy 1) (5)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "North (Forest 1) (4)": lambda: UI.PrintMainUI('Forest1'),
+            "East (Wizard 2) (7)": lambda: UI.PrintMainUI('Wizard2'),
+            "South (Forest 3) (5)": lambda: UI.PrintMainUI('Forest3'),
+            "West (Enemy 1) (5)": lambda: UI.PrintMainUI('Enemy1'),
+        }
     elif Room == 'Forest3':
-        return '''
-            0. Inventory
-            1. West (Village1) (9)
-            2. East (Galamdor City) (7)
-            3. South (Forest 4) (6)
-            4. North (Forest 2) (5)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Village1) (9)": lambda: UI.PrintMainUI('Village1'),
+            "East (Galamdor City) (7)": lambda: UI.PrintMainUI('Village2'),
+            "South (Forest 4) (6)": lambda: UI.PrintMainUI('Forest4'),
+            "North (Forest 2) (5)": lambda: UI.PrintMainUI('Forest2'),
+        }
     elif Room == 'Forest4':
-        return '''
-            0. Inventory
-            1. North (Forest 3) (6)
-            2. East (Another City) (12)
-            3. West (Galamdor City) (10)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "North (Forest 3) (6)": lambda: UI.PrintMainUI('Forest3'),
+            "East (Another City) (12)": lambda: UI.PrintMainUI('Village3'),
+            "West (Galamdor City) (10)": lambda: UI.PrintMainUI('Village2'),
+        }
     elif Room == 'Wizard1':
-        return '''
-            0. Inventory
-            1. West (Enemy 2) (3)
-            2. South (Wizard 2) (8)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Enemy 2) (3)": lambda: UI.PrintMainUI('Enemy2'),
+            "South (Wizard 2) (8)": lambda: UI.PrintMainUI('Wizard2'),
+        }
     elif Room == 'Wizard2':
-        return '''
-            0. Inventory
-            1. West (Forest 2) (7)
-            2. North (Wizard 1) (8)
-        '''   
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Forest 2) (7)": lambda: UI.PrintMainUI('Forest2'),
+            "North (Wizard 1) (8)": lambda: UI.PrintMainUI('Wizard1'),
+        }
     elif Room == 'Mountain':
-        return '''
-            0. Inventory
-            1. East (Mountain) (20)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "East (Mountain) (20)": lambda: UI.PrintMainUI('Mountain'),
+        }
     elif Room == 'GoblinKing':
-        return '''
-            0. Inventory
-            1. West (Enemy 4) (4)
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+            "West (Enemy 4) (4)": lambda: UI.PrintMainUI('Enemy4'),
+        }
     else:
-        return '''
-            0. Inventory
-        '''
+        return {
+            "Inventory": lambda: UI.DisplayInventoryScreen(),
+        }
 
 def InputHandling(Room):
     def ReplaceInput():

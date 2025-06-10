@@ -1,47 +1,93 @@
+import variables
+
 def Story(Room):
     
     if Room == 'Enemy1':
-        return 'You Have Encountered and Enemy!!! You will have to fight'
+        if variables.Enemy1 == False:
+            return f'''You enclounter a fearsome enemy in the dark forest. The air is thick with tension as you prepare for battle.'''
+        else:
+            return f'''You See the remains of a battle fought here. The ground is scorched, and the air is heavy with the scent of burnt wood and blood.'''
     
     elif Room == 'Enemy2':
-        return f'''None'''
+        if variables.Enemy2 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Enemy3':
-        return f'''None'''
+        if variables.Enemy3 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Enemy4':
-        return f'''None'''
+        if variables.Enemy4 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Village1':
-        return f'''None'''
+        if variables.Village1 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Village2':
-        return f'''None'''
+        if variables.Village2 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Village3':
-        return f'''None'''
+        if variables.Village3 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Forest1':
-        return f'''None'''
+        if variables.Forest1 == False:
+            return f'''Your Eyes flutter open...'''
+        else:
+            return f'''You return to the Dark Forest, where you first awoke. The trees are still as dark and foreboding as ever, but you feel a sense of familiarity here.'''
     
     elif Room == 'Forest2':
-        return f'''None'''
+        if variables.Forest2 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Forest3':
-        return f'''None'''
+        if variables.Forest3 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Forest4':
-        return f'''None'''
+        if variables.Forest4 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Wizard1':
-        return f'''None'''
+        if variables.Wizard1 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Wizard2':
-        return f'''None'''
+        if variables.Wizard2 == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'Mountain':
-        return f'''None'''
+        if variables.Mountain == False:
+            return f'''None'''
+        else:
+            return f'''None'''
     
     elif Room == 'GoblinKing':
-        return f'''None'''
-    
+        if variables.GoblinKing == False:
+            return f'''None'''
+        else:
+            return f'''None'''

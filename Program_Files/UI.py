@@ -12,7 +12,7 @@ import magic
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
     os.system('cls')
-
+    
     map_lines = movement.Map(Room).splitlines()
     stats_lines = DisplayStats().splitlines()
     inventory_lines = DisplayInventory().splitlines()
@@ -27,12 +27,11 @@ def PrintMainUI(Room):
         map_line = map_lines[i] if i < len(map_lines) else ""
         side_line = side_panel[i] if i < len(side_panel) else ""
         print(f"{map_line:<60} {side_line}")
-
+    
     print()
 
     print(story.Story(Room))
-    print(movement.MoveOptions(Room))
-    movement.InputHandling(Room)
+    Input_Selection(movement.MoveOptions(Room))
 
 def DisplayStats():
     def StatBar(Stat, Max_Stat):
@@ -196,11 +195,15 @@ def EnchantmentScreen(Wizard):
     ''') 
 
     def VillagerSelection():
-        def Inventory_Display():
+        def EnchantmentDisplay():
             return f'''
-            +---+{'-'*30}+- Wat -+- Fir -+- Nat -+
-            |1  |Weapon Slot: {saves.User.WeaponSlot:<20}|{saves.User.WeaponSlot['multiplyers']['Fir']}
-            '''
+            +---+{'-'*39}+- Wat -+- Fir -+- Nat -+
+            | 1 | Weapon Slot:     {saves.User.WeaponSlot.name:<20} | {saves.User.WeaponSlot.multiplyers['Wat']:<3.3f} | {saves.User.WeaponSlot.multiplyers['Fir']:<3.3f} | {saves.User.WeaponSlot.multiplyers['Nat']:<3.3f} |
+            | 2 | Helmet Slot:     {saves.User.HelmetSlot.name:<20} | {saves.User.HelmetSlot.multiplyers['Wat']:<3.3f} | {saves.User.HelmetSlot.multiplyers['Fir']:<3.3f} | {saves.User.HelmetSlot.multiplyers['Nat']:<3.3f} |
+            | 3 | Chestplate Slot: {saves.User.ChestplateSlot.name:<20} | {saves.User.ChestplateSlot.multiplyers['Wat']:<3.3f} | {saves.User.ChestplateSlot.multiplyers['Fir']:<3.3f} | {saves.User.ChestplateSlot.multiplyers['Nat']:<3.3f} |
+            | 4 | Boot Slot:       {saves.User.BootSlot.name:<20} | {saves.User.BootSlot.multiplyers['Wat']:<3.3f} | {saves.User.BootSlot.multiplyers['Fir']:<3.3f} | {saves.User.BootSlot.multiplyers['Nat']:<3.3f} |
+            +---+{'-'*39}+-------+-------+-------+'''
+        
         Selection = input('Choice: ')
 
         if Selection == '1':
@@ -212,5 +215,28 @@ def EnchantmentScreen(Wizard):
 
     VillagerSelection()
 
-Bob = trading.ArmourSmith('Bob')
-VillagerMenu(Bob)
+def Input_Selection(options: dict):
+    def ReplaceInput():
+        print("\033[2A", end="")  # Move cursor up 2 lines
+        print('Error With Input')
+        return get_input()  # Re-prompt
+    
+    def get_input():
+        try:
+            SaveSelection = input('Choice: ')
+
+            SaveSelection = int(SaveSelection)
+            if 1 <= SaveSelection <= len(option_list):
+                option_list[SaveSelection - 1][1]()  # Call the corresponding function
+            else:
+                ReplaceInput()
+        except (ValueError, IndexError):
+            ReplaceInput()
+
+    # Print options
+    option_list = list(options.items())
+    print("Select an option:")
+    for i, (name, _) in enumerate(option_list, start=1):
+        print(f"{i}. {name}")
+    print()
+    get_input()

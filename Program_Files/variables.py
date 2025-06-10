@@ -1,13 +1,18 @@
 import items
 
-Health = 98
-Max_Health = 100
-Stamina = 65
-Max_Stamina = 100
-Mana = 23
-Max_Mana = 100
-
-Gold = 5
-
-Name = 'John'
-Room = 'Dark Forest'
+#--- Has the Player been in Room ---
+Enemy1 = False
+Enemy2 = False
+Enemy3 = False
+Enemy4 = False
+Village1 = False
+Village2 = False
+Village3 = False
+Forest1 = False
+Forest2 = False
+Forest3 = False
+Forest4 = False
+Wizard1 = False
+Wizard2 = False
+Mountain = False
+GoblinKing = False

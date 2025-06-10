@@ -39,7 +39,6 @@ class Potion(Item):
         if Target.self.effect[self.effect] > Target.self.effect[f'Max_{self.effect}']:
             Target.self.effect[self.effect] = Target.self.effect[f'Max_{self.effect}']
 
-
 class Spells(Item):
     def __init__(self, name, level, type, mana_cost, damage):
         super().__init__(name, level)
@@ -49,9 +48,10 @@ class Spells(Item):
 
 
 #--- Weapons ---
-# Swords
-Stick = Weapons('Stick', 1, 'Sword', 2)
 
+Stick = Weapons('Stick', 1, 'Stick', 2)
+
+# Swords
 Wooden_Sword = Weapons('Wooden_Sword', 3, 'Sword', 4)
 Bronze_Sword = Weapons('Bronze_Sword', 6, 'Sword', 5)
 Iron_Sword = Weapons('Iron_Sword', 12, 'Sword', 6)
