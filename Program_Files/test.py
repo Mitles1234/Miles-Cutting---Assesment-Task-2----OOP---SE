@@ -30,7 +30,7 @@ def Input_Selection(options: dict):
                 option_list[SaveSelection - 1][1]()  # Call the corresponding function
             else:
                 ReplaceInput()
-        except (ValueError, IndexError):
+        except:
             ReplaceInput()
 
     # Print options

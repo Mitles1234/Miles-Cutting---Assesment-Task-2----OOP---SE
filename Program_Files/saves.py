@@ -2,13 +2,29 @@ import variables
 import json
 import items
 
+player_data = {
+    "Name": "John"
+}
+class Playerv2():
+    def __init__(self, Save, PlayerName=None):
+
+        if PlayerName == None:
+            self.Player_Name = Save['Name']
+        else:
+            self.Player_Name = PlayerName
+
+        print(self.Player_Name)
 
 class Player():
-    def __init__(self, Save):
+    def __init__(self, Save, PlayerName=None):
         with open(f'Save{Save}.json', 'r') as f:
             Player_Data = json.load(f)
 
-        self.Player_Name = Player_Data.get('Player_Name', 'John')
+        if PlayerName == None:
+            self.Player_Name = Player_Data.get('Player_Name', 'John')
+        else:
+            self.Player_Name = PlayerName
+
         self.Health = Player_Data.get('Health', {'Health': 100, 'Max_Health': 100})
         self.Stamina = Player_Data.get('Stamina', {'Stamina': 100, 'Max_Stamina': 100})
         self.Mana = Player_Data.get('Mana', {'Mana': 100, 'Max_Mana': 100})
@@ -58,6 +74,28 @@ class Player():
     def Attacked(self, Damage, Type):
         self.Health['Health'] -= (Damage / ((self.HelmetSlot.multiplyers[Type] + self.ChestplateSlot.multiplyers[Type] + self.BootSlot.multiplyers[Type]) / 3))
 
-User = Player(1)
 
+def load(Player_Data, SaveNum):
+    if len(Player_Data) == 0:
+        CreateCharacter(SaveNum)
+    else:
+        User = Player(Player_Data)
+
+def leave():
+    pass
+
+def CreateCharacter(SaveNum):
+    print('Welcome New Adventurer!')
+    while True:
+        Name_Input = input("What's your Name Adventurer? ")
+
+        if len(Name_Input) == 0:
+            pass
+        else:
+            print(f'Welcome {Name_Input}, This is where your Journey Begins!')
+            break
+
+    #User = Player(SaveNum, Name_Input)
+
+User = Playerv2(player_data)
 #User.Save(1)

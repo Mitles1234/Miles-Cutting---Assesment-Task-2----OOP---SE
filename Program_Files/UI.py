@@ -83,18 +83,29 @@ def DisplayInventoryScreen():
 
 def TitleScreen():
     os.system('cls')
-    
-    with open(f'Save1.json', 'r') as f:
+    try:
+        with open(f'Save1.json', 'r') as f:
             Player_Data_1 = json.load(f)
-
-    with open(f'Save2.json', 'r') as f:
+    except:
+        Player_Data_1 = {}
+    
+    try:
+        with open(f'Save2.json', 'r') as f:
             Player_Data_2 = json.load(f)
+    except:
+        Player_Data_2 = {}
 
-    with open(f'Save3.json', 'r') as f:
+    try:
+        with open(f'Save3.json', 'r') as f:
             Player_Data_3 = json.load(f)
-
-    with open(f'Save4.json', 'r') as f:
-            Player_Data_4 = json.load(f)
+    except:
+        Player_Data_3 = {}
+   
+    try:
+        with open(f'Save4.json', 'r') as f:
+                Player_Data_4 = json.load(f)
+    except:
+        Player_Data_4 = {}
 
 
     print(f'''
@@ -116,43 +127,16 @@ def TitleScreen():
     |Room: {Player_Data_1.get('Location', 'None'):<20}|    |Room: {Player_Data_2.get('Location', 'None'):<20}|    |Room: {Player_Data_3.get('Location', 'None'):<20}|    |Room: {Player_Data_4.get('Location', 'None'):<20}|
     +--------------------------+    +--------------------------+    +--------------------------+    +--------------------------+
 
-    0. Exit
-    
-    1. Save 1
-    2. Save 2
-    3. Save 3
-    4. Save 4
 
     ''')
-    def TitleSelection():
+    Input_Selection({
+         'Save 1': lambda: saves.load(Player_Data_1, 1),
+         'Save 2': lambda: saves.load(Player_Data_2, 2),
+         'Save 3': lambda: saves.load(Player_Data_3, 3),
+         'Save 4': lambda: saves.load(Player_Data_4, 4),
 
-        def ReplaceInput():
-                print("\033[2A", end="")
-                print('Error With Input')
-                SaveSelection = ''
-                TitleSelection()
-        
-        SaveSelection = input('Choice: ')
-
-        if SaveSelection == '0':
-            quit()
-
-        elif SaveSelection == '1':
-            PrintMainUI('Forest1')
-
-        elif SaveSelection == '2':
-            PrintMainUI('Enemy1')
-
-        elif SaveSelection == '3':
-            PrintMainUI('Enemy1')
-
-        elif SaveSelection == '4':
-            PrintMainUI('Enemy1')
-
-        else:
-            ReplaceInput()
-    
-    TitleSelection()
+         'Exit': lambda: saves.leave()
+    })
 
 def VillagerMenu(Village):
     os.system('cls')

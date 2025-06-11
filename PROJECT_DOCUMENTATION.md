@@ -119,8 +119,6 @@ Movement:
 
     The user is presented with up to four directional option (N S E W) which move them to new locations across the map. Each movement uses a portion of the player's stamina, which can be replenished by consuming food items like bread or using certain magical items. Players can also travel quickly between key locations using methods like horse and cart, but doing so may skip over important side locations or hidden items. While most areas are accessible, some are designed to be ‘soft locked,’ meaning the player can enter them at any time but will likely be under-equipped and face much stronger enemies. Villages provide safe spots where the player can rest without using stamina and prepare for future travel.
 
-
-
 Combat:
 
     In combat, the player can equip and use only one physical damage item at a time, such as a sword, dagger, or axe. This item is their primary melee weapon, but its effectiveness varies depending on the enemy type—certain enemies may be resistant or vulnerable to specific weapon types. In addition to their physical weapon, the player can access a range of offensive spells, each consuming mana when cast. These spells may include elemental attacks like fireball, ice shard, or lightning strike, and can be more effective against specific enemy classes, for example, fire-based spells dealing extra damage to nature-type enemies. Combat remains turn-based, giving the player time to consider their options and adapt to enemy behavior over multiple rounds. This allows for strategic decision, making, where the player might switch between physical attacks and magical abilities depending on the opponent’s strengths and weaknesses. The combat system encourages experimentation and progression as the player learns which tactics are most effective in different encounters.
@@ -134,17 +132,21 @@ Mana / Magical:
 
 #### main.py
 ```Python
+# --- Imports ---
+'''Imports the Necessary Files so the Main file can access informations'''
 import items
 import story
 import UI
 import variables
 
-UI.TitleScreen()
+UI.TitleScreen() # From the File 'UI' run Titlescreen
 ```
 
 
 #### UI.py
 ```Python
+# --- Imports ---
+'''Imports the Necessary Files so the file can access informations'''
 import os
 import math
 import story
@@ -153,35 +155,39 @@ import saves
 
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
-    os.system('cls')
+    '''This function is the Key UI screen for each Room, where it pulls information from a range of sources, and lays it out in a efficent layout'''
+    os.system('cls') # Clears the screen (This makes for a more adaptive, and engaing UI)
 
-    map_lines = Map(Room).splitlines()
-    stats_lines = DisplayStats().splitlines()
-    inventory_lines = DisplayInventory().splitlines()
-    MapKey_lines = DisplayMapKey().splitlines()
+    # Each of these retrieves the UI data, i.e StatBars, Maps, and Inventory, and splits them up into their individual lines
+    # This allows them to be printed next to eachother by printing it layer by layer rather than section by section
+    map_lines = Map(Room).splitlines() # Splits Map lines
+    stats_lines = DisplayStats().splitlines() # Splits Stat lines
+    inventory_lines = DisplayInventory().splitlines() # Splits Inventory lines
+    MapKey_lines = DisplayMapKey().splitlines() # Splits Map Key lines
 
-    side_panel = stats_lines + inventory_lines + MapKey_lines
-    max_lines = max(len(map_lines), len(side_panel))
+    side_panel = stats_lines + inventory_lines + MapKey_lines # Alligns the Stat Line, Inventoy Line, and Map Key lines to be ontop of eachother
+    max_lines = max(len(map_lines), len(side_panel)) # Calculates how many lines it needs to print for the UI
 
-    print()
+    print() # Spacer in the Terminal
 
-    for i in range(max_lines):
-        map_line = map_lines[i] if i < len(map_lines) else ""
-        side_line = side_panel[i] if i < len(side_panel) else ""
-        print(f"{map_line:<60} {side_line}")
+    for i in range(max_lines): # For each line in Max_Lines
+        map_line = map_lines[i] if i < len(map_lines) else "" # Retrieve Map line of the Value of i, or if too big, return blank
+        side_line = side_panel[i] if i < len(side_panel) else "" # Retrieve Side Panel line of the Value of i, or if too big, return blank
+        print(f"{map_line:<60} {side_line}") # Prints the two elements next to eachother, using the :<60 to keep the side pannel allined if it is bigger than the map
 
-    print()
+    print() # Spacer in the Terminal
 
-    print(story.Story(Room))
-    print(MoveOptions(Room))
-    InputHandling(Room)
+    print(story.Story(Room)) # From the File Story, Retrieves and prnts the story
+    print(MoveOptions(Room)) # Prints the Move options for this room
+    InputHandling(Room) # Runs the Input handling for this room
 
 def Map(Room):
-
+    '''This functions runs the Map handling for the room, containing all of the maps, for all the rooms'''
     def TitleGenerator(Title):
+        '''This function creates a title for each of the rooms, ensuring it is alligned in the center'''
         return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
 
-    if Room == 'Forest1':
+    if Room == 'Forest1': # If requested the map for Forest1, returns the map for Forest1 (The map doesn't look alligned but it is due to the emojis.)
         return f'''        {TitleGenerator('Dark Forest')}
         │                                                       │
         │           ┌──────☠️           🌲─────┐                 │
@@ -203,7 +209,7 @@ def Map(Room):
         │                                                       │
         +───────────────────────────────────────────────────────+'''
     
-    elif Room == 'Enemy1':
+    elif Room == 'Enemy1': # If requested the map for Enemy1, returns the map for Enemy1
         return f'''        {TitleGenerator('Dark Forest')}
         │                                                       │
         │           ┌──────☠️           🌲─────┐                 │
@@ -226,13 +232,14 @@ def Map(Room):
         +───────────────────────────────────────────────────────+'''
 
 def MoveOptions(Room):
-    if Room == 'Forest1':
+    '''This function contains the possible moves for each room, and tells the player where they can go'''
+    if Room == 'Forest1': # If room is Forest1, return the Move options Inventory, and East
         return '''
             0. Inventory
             1. East
         '''
     
-    elif Room == 'Enemy1':
+    elif Room == 'Enemy1': # If room is Enemy1, return the Move options Inventory, North, and South
         return '''
             0. Inventory
             1. North
@@ -240,49 +247,57 @@ def MoveOptions(Room):
         '''
 
 def InputHandling(Room):
+    '''This function handles the user inputs for each room'''
     def ReplaceInput():
-            print("\033[2A", end="")
-            print('Error With Input')
-            NextMove = ''
-            InputHandling(Room)
+        '''This function removes incorrect user inputs, and alerts the player their is an issue'''
+            print("\033[2A", end="") # Removes the past two lines in the Terminal
+            print('Error With Input') # Alerts the Player of the Error with Input
+            NextMove = '' # Resets the Player input
+            InputHandling(Room) # Re-Runs Input handling
 
-    NextMove = input(f'What do You want to do? ')
+    NextMove = input(f'What do You want to do? ') # Retieves the Input for what the player wants to do
 
-    if Room == 'Forest1':
-        if NextMove == '1':
-            PrintMainUI('Enemy1')
+    if Room == 'Forest1': # If the Room is Forest1, continue
+        if NextMove == '1': # If the Move input was 1, continue
+            PrintMainUI('Enemy1') # Prints the Next UI screen for the Room Ememy1
 
-        elif NextMove == '0':
-            pass
+        elif NextMove == '0': # If the Input was 0, pass (Adding this functionality in a later sprint)
+            pass 
 
-        else:
-            ReplaceInput()
+        else: # If none of these options, continue
+            ReplaceInput() # Re-Runs the Input selection process
 
-    elif Room == 'Enemy1':
-        if NextMove == '1':
-            PrintMainUI('Enemy1', story.Enemy1())
+    elif Room == 'Enemy1': # If the Room is Enemy1, continue (This was mostly a fill in for and idea as for how the program should handle inputs)
+        if NextMove == '1': # If the Move input was 1, continue
+            PrintMainUI('Village1') # Prints the Next UI screen for the Room Village1
+
+        # Adding other inputs in later sprints when the final input handling is worked out
             
-        elif NextMove == '0':
+        elif NextMove == '0':# If the Input was 0, pass (Adding this functionality in a later sprint)
             pass
-        else:
-            ReplaceInput()
+
+        else: # If none of these options, continue
+            ReplaceInput() # Re-Runs the Input selection process
 
 def DisplayStats():
+    '''This function returns the Player statistic's to be printed in the UI (This whole program used to be much simpler, but I wanted the dashes to be white instead of the colour they where origionally, which tripled the complexity of this function)'''
     def StatBar(Stat, Max_Stat):
-        StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
-        DeadBar = ''
+        '''This function turns the players 'Number Statistics', into visually represented bars, allowing for faster, and more effective communication'''
+        StatBar = (math.floor(Stat/(Max_Stat/10)))*'█' # Calculates the amount of Bars depending on Max Health to fit 10 unit bar
+        DeadBar = '' # Creates value DeadBar
+ 
+        if StatBar == '' and Stat > 0: # Statbar is blank, but the the player isnt dead, continue
+            StatBar = '█' # Adds one bar to stat bar
 
-        if StatBar == '' and Stat > 0:
-            StatBar = '█'
+        elif len(StatBar) > 10: # If the statbar is more than 10 units long (More Health than Max Health - Bonus Health/Extra Life)
+            Statbar = '█'*10 # Sets stat bar to 10
+            return Statbar # Returns Statbar as Full
 
-        elif len(StatBar) > 10:
-            Statbar = '█'*10
-            return Statbar
-
-        for i in range(0, 10-len(StatBar)):
-            DeadBar += f'-'
-        return StatBar + f'\033[37m{DeadBar}'
+        for i in range(0, 10-len(StatBar)): # Calculates how many dashes to add to take up the full amount of space
+            DeadBar += f'-' # For each blank space, adds a dash
+        return StatBar + f'\033[37m{DeadBar}' # Returns the completed bar plus the Missing health (In White), back to the function that called it.
     
+    # This returns the 'Stat Block', completed with fully coloured bars representing the players statistics and values, also giving them a numericl value.
     return f'''+───────────--==| Stats |==--───────────+
 │                                       │
 │   Health:  ♥️  \033[31m{StatBar(variables.Health, variables.Max_Health)} \033[0m {f'({variables.Health}/{variables.Max_Health})':<12}│
@@ -292,6 +307,8 @@ def DisplayStats():
 +───────────────────────────────────────+'''
 
 def DisplayInventory():
+    '''This function returns the player inventory block, which is a grid system (Using the :<Number) to align each of the title for what it is with the equipment the player has by retrieving it from the variables file'''
+
     return f'''+────────────────────────--==| Inventory |==--────────────────────────+
 │   {'🪙  Gold':<12} -   {variables.Gold:<48} |
 │   {'Weapon':<12} -   {variables.Inventory['WeaponSlot']:<15} {'Chestplate':<12} -   {variables.Inventory['ChestplateSlot']:<15} │
@@ -302,6 +319,7 @@ def DisplayInventory():
 +─────────────────────────────────────────────────────────────────────+ '''
 
 def DisplayMapKey():
+    '''This function returns the Map Key block, which is used to make sense of the map and its icon based system'''
     return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
 │   ██ - You              🔮 - Wizard Tower                           │
 │   🏠 - Village          ☠️  - Enemy            👑 - Goblin King      │
@@ -309,8 +327,12 @@ def DisplayMapKey():
 +─────────────────────────────────────────────────────────────────────+'''
 
 def TitleScreen():
-    os.system('cls')
+    '''This function runs the process for the Title Screen - Some of the functionality works, but most is a fill in until the later sprints where it will be more cohesively filled out'''
+    os.system('cls') # Clears the Terminal for a more sleek and engaing appearence.
     saves.Load() # Fill in for loading saves later
+    # Prints the Titlescreen in large Ascii Letters
+    # Welcomes the User
+    # Shows them their save files and gives them instrusctions on how to pick
     print(f'''
     +------------------------------------------------------------------------------------------------------------------------------------+     
     |                                                                                                                                    |
@@ -338,54 +360,65 @@ def TitleScreen():
     4. Save 4
 
     ''')
+
     def TitleSelection():
-
+        '''This function allow the user to select which save file they would like to chose, and then runs dummy code until other parts of the code are finished in later sprints'''
         def ReplaceInput():
-                print("\033[2A", end="")
-                print('Error With Input')
-                SaveSelection = ''
-                TitleSelection()
+            '''This function removes incorrect user inputs, and alerts the player their is an issue'''
+            print("\033[2A", end="") # Removes the past two lines in the Terminal
+            print('Error With Input') # Alerts the Player of the Error with Input
+            SaveSelection = '' # Resets the Player input
+            TitleSelection() # Re-Runs Input handling
         
-        SaveSelection = input('Choice: ')
+        SaveSelection = input('Choice: ') # Retrieves the User input
 
-        if SaveSelection == '0':
+        if SaveSelection == '0': # If user input is 0, quits the program
             quit()
 
-        elif SaveSelection == '1':
+        elif SaveSelection == '1': # If the user input is 1, Runs the MainUI for the Room Forest1 (Dummy Code)
             PrintMainUI('Forest1')
 
-        elif SaveSelection == '2':
+        elif SaveSelection == '2': # If the user input is 2, Runs the MainUI for the Room Enemy1 (Dummy Code)
             PrintMainUI('Enemy1')
 
-        elif SaveSelection == '3':
+        elif SaveSelection == '3': # If the user input is 3, Runs the MainUI for the Room Enemy1 (Dummy Code)
             PrintMainUI('Enemy1')
 
-        elif SaveSelection == '4':
+        elif SaveSelection == '4': # If the user input is 4, Runs the MainUI for the Room Enemy1 (Dummy Code)
             PrintMainUI('Enemy1')
 
-        else:
+        else: # If input is not known, runs replace input, restarting the input process
             ReplaceInput()
     
-    TitleSelection()
+    TitleSelection() # Runs the Title Selection process as the end of the Printing the Titlescreen UI elements.
 ```
 
 #### story.py
 ```Python
+# --- Imports ---
+'''Imports the Necessary Files so the Main file can access informations'''
 import math
 
 def Story(Room):
-    if Room == 'Forest1':
-        return 'Interesting Story'
+    '''This function consolidates the story line, allowing for simpler expansion in future sprints. It works by taking a Room input, and returning the neccessary story elements.'''
+    if Room == 'Forest1': # If the Room is Forest1
+        return 'Interesting Story' # Returns Fill in Text
     
-    elif Room == 'Enemy1':
-        return 'You Have Encountered and Enemy!!! You will have to fight'
+    elif Room == 'Enemy1': # if the Room is Enemy1
+        return 'You Have Encountered and Enemy!!! You will have to fight' # Returns Fill in Text
     
 def Title(Room):
-    if Room == 'Forest1':
-        return TitleGenerator('Dark Forest')
+    '''This function, similar to story, returns a title for each of the rooms'''
+    if Room == 'Forest1': # If room is Forest1
+        return TitleGenerator('Dark Forest') # Returns a title made with TitleGerator for the Title 'Dark Forest'
 
 
 def TitleGenerator(Title):
+    '''This function generates titles that are centered, bassed on the length of the title'''
+    # Generates the Top wall of the box
+    # Calculates how much padding is required on each side to center it (If it is odd it is slightly to the left)
+    # Generates the Bottom wall of the box
+    # Returns the Generated Title
     return f'''
     +{'-'*64}+
     |{' '*((32-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{' '*((32-(math.ceil(len(Title)/2)))-6)}|
@@ -395,36 +428,37 @@ def TitleGenerator(Title):
 
 ####  variables.py
 ```Python
-Health = 98
-Max_Health = 100
-Stamina = 65
-Max_Stamina = 100
-Mana = 23
-Max_Mana = 100
+'''This file contains all the neccessary Variables, that need to be accessed and changed when being used accross files'''
+Health = 98 # Sets Health to 98
+Max_Health = 100 # Sets Max Health to 100
+Stamina = 65 # Sets Stamina to 65
+Max_Stamina = 100 # Sets Max Stamina to 100
+Mana = 23 # Sets Mana to 23
+Max_Mana = 100 # Sets Max Mana to 100
 
-Gold = 5
+Gold = 5 # Sets Gold to 5
 
-Name = 'John'
-Room = 'Dark Forest'
+Name = 'John' # Sets name to John
+Room = 'Dark Forest' # Sets Room to 'Dark Forest'
 
 #--- Weapons ---
-Stick = 'Stick'
-Wooden_Sword = 'Wooden_Sword'
-Iron_Sword = 'Iron_Sword'
+Stick = 'Stick' # Sets stick to 'Stick'
+Wooden_Sword = 'Wooden_Sword' # Sets Wooden_Sword to 'Wooden_Sword'
+Iron_Sword = 'Iron_Sword' # Sets Iron_Sword to 'Iron_Sword'
 
 #--- Helmets ---
-None_Helmet = 'None'
+None_Helmet = 'None' # Sets None_Helmet = 'None' 
 
 #--- ChestPlate ---
-None_Chestplate = 'None'
+None_Chestplate = 'None'# Sets None_Chestplate = 'None' 
 
 #--- Boot ---
-None_Boot = 'None'
+None_Boot = 'None'# Sets None_Boot = 'None' 
 
 #--- Item ---
-None_Item = 'None'
+None_Item = 'None'# Sets None_Item = 'None' 
 
-Inventory = {
+Inventory = { # Creates a Dictionary based on the information set previously (Designed to be used later with saving functionality)
             'Player_Name': Name,
             'WeaponSlot': Wooden_Sword, 
             'HelmetSlot': None_Helmet, 
@@ -451,3 +485,12 @@ Inventory = {
 #### Explain the improvements that should be made in the next stage of development.
  - In the next stage of development, the primary focus will be on completing and refining the movement, combat, and trading systems, which are currently only partially implemented. These features are essential for the core gameplay loop and will provide players with a more interactive and dynamic experience. Alongside these enhancements, improvements to code quality will also be prioritized. Although the codebase is already readable due to previous planning, the next sprint will focus on adding more detailed comments throughout the program to better document how each system functions. Additionally, there are plans to implement a more robust and efficient system for tracking the player’s location, which will improve consistency across scenes and interactions. These refinements will help streamline development in future sprints and make the codebase easier to expand and maintain.
 
+# Sprint 2
+
+### Review Questions
+
+#### Evaluate how effectively your project meets the functional and non-functional requirements defined in your planning.
+ - After sprint 2, my project more closely alligns with my functional and non function requirements in terms of what can be done with the program, however, many of these functions still need to be linked together to work in Unison. (I have a variety of functions that can all preform the physical functions that need to happen, but I still need to make them call eachother through the content of the game) For these reasons, my project has mildly achieved the success criteria.
+
+#### Analyse the performance of your program against the key use-cases you identified.
+ - 
