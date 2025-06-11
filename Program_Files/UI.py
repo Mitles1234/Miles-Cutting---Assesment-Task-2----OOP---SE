@@ -52,20 +52,20 @@ def DisplayStats():
     
     return f'''+───────────--==| Stats |==--───────────+
 │                                       │
-│   Health:  ♥️  \033[31m{StatBar(variables.Health, variables.Max_Health)} \033[0m {f'({variables.Health}/{variables.Max_Health})':<12}│
-│   Stamina: 🔋 \033[32m{StatBar(variables.Stamina, variables.Max_Stamina)} \033[0m {f'({variables.Stamina}/{variables.Max_Stamina})':<12}│
-│   Mana:    💠 \033[34m{StatBar(variables.Mana, variables.Max_Mana)} \033[0m {f'({variables.Mana}/{variables.Max_Mana})':<12}│
+│   Health:  ♥️  \033[31m{StatBar(saves.User.Health['Health'], saves.User.Health['Max_Health'])} \033[0m {f'({saves.User.Health['Health']}/{saves.User.Health['Max_Health']})':<12}│
+│   Stamina: 🔋 \033[32m{StatBar(saves.User.Stamina['Stamina'], saves.User.Stamina['Max_Stamina'])} \033[0m {f'({saves.User.Stamina['Stamina']}/{saves.User.Stamina['Max_Stamina']})':<12}│
+│   Mana:    💠 \033[34m{StatBar(saves.User.Mana['Mana'], saves.User.Mana['Max_Mana'])} \033[0m {f'({saves.User.Mana['Mana']}/{saves.User.Mana['Max_Mana']})':<12}│
 │                                       │
 +───────────────────────────────────────+'''
 
 def DisplayInventory():
     return f'''+────────────────────────--==| Inventory |==--────────────────────────+
-│   {'🪙  Gold':<12} -   {variables.Gold:<48} |
-│   {'Weapon':<12} -   {variables.Inventory['WeaponSlot'].name:<15} {'Chestplate':<12} -   {variables.Inventory['ChestplateSlot'].name:<15} │
-│   {'Helmet':<12} -   {variables.Inventory['HelmetSlot'].name:<15} {'Boots':<12} -   {variables.Inventory['BootSlot'].name:<15} │
+│   {'🪙  Gold':<12} -   {saves.User.Gold:<48} |
+│   {'Weapon':<12} -   {saves.User.WeaponSlot.name:<15} {'Chestplate':<12} -   {saves.User.ChestplateSlot.name:<15} │
+│   {'Helmet':<12} -   {saves.User.HelmetSlot.name:<15} {'Boots':<12} -   {saves.User.BootSlot.name:<15} │
 +─────────────────────────────────────────────────────────────────────+
-│   {variables.Inventory['OtherSlot1']['Item'].name:<18} -   {variables.Inventory['OtherSlot1']['Qty']:<9} {variables.Inventory['OtherSlot2']['Item'].name:<18} -   {variables.Inventory['OtherSlot2']['Qty']:<9} │
-│   {variables.Inventory['OtherSlot3']['Item'].name:<18} -   {variables.Inventory['OtherSlot3']['Qty']:<9} {variables.Inventory['OtherSlot4']['Item'].name:<18} -   {variables.Inventory['OtherSlot4']['Qty']:<9} │
+│   {saves.User.OtherSlot1['Item'].name:<18} -   {saves.User.OtherSlot1['Qty']:<9} {saves.User.OtherSlot2['Item'].name:<18} -   {saves.User.OtherSlot2['Qty']:<9} │
+│   {saves.User.OtherSlot3['Item'].name:<18} -   {saves.User.OtherSlot3['Qty']:<9} {saves.User.OtherSlot4['Item'].name:<18} -   {saves.User.OtherSlot4['Qty']:<9} │
 +─────────────────────────────────────────────────────────────────────+ '''
 
 def DisplayMapKey():
@@ -123,7 +123,7 @@ def TitleScreen():
    Welcome to Your Adventure, Continue with your adventure, or start a new one!
     
     +----------Save 1----------+    +----------Save 2----------+    +----------Save 3----------+    +----------Save 4----------+
-    |Name: {Player_Data_1.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_2.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_3.get('Player_Name', 'None'):<20}|    |Name: {Player_Data_4.get('Player_Name', 'None'):<20}|
+    |Name: {Player_Data_1.get('Name', 'None'):<20}|    |Name: {Player_Data_2.get('Name', 'None'):<20}|    |Name: {Player_Data_3.get('Name', 'None'):<20}|    |Name: {Player_Data_4.get('Name', 'None'):<20}|
     |Room: {Player_Data_1.get('Location', 'None'):<20}|    |Room: {Player_Data_2.get('Location', 'None'):<20}|    |Room: {Player_Data_3.get('Location', 'None'):<20}|    |Room: {Player_Data_4.get('Location', 'None'):<20}|
     +--------------------------+    +--------------------------+    +--------------------------+    +--------------------------+
 
@@ -137,6 +137,8 @@ def TitleScreen():
 
          'Exit': lambda: saves.leave()
     })
+
+    PrintMainUI(saves.User.Location)
 
 def VillagerMenu(Village):
     os.system('cls')

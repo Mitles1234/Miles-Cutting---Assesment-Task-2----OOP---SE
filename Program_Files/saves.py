@@ -2,71 +2,53 @@ import variables
 import json
 import items
 
-player_data = {
-    "Name": "John"
-}
-class Playerv2():
-    def __init__(self, Save, PlayerName=None):
-
-        if PlayerName == None:
-            self.Player_Name = Save['Name']
-        else:
-            self.Player_Name = PlayerName
-
-        print(self.Player_Name)
+User = None  # Global variable to hold the player instance
 
 class Player():
-    def __init__(self, Save, PlayerName=None):
-        with open(f'Save{Save}.json', 'r') as f:
-            Player_Data = json.load(f)
+    def __init__(self, Save):
+        self.Player_Name = Save['Name']
 
-        if PlayerName == None:
-            self.Player_Name = Player_Data.get('Player_Name', 'John')
-        else:
-            self.Player_Name = PlayerName
+        self.Health = {'Health': Save['Health']['Health'], 'Max_Health': Save['Health']['Max_Health']}
+        self.Stamina = {'Stamina': Save['Stamina']['Stamina'], 'Max_Stamina': Save['Stamina']['Max_Stamina']}
+        self.Mana = {'Mana': Save['Mana']['Mana'], 'Max_Mana': Save['Mana']['Max_Mana']}
 
-        self.Health = Player_Data.get('Health', {'Health': 100, 'Max_Health': 100})
-        self.Stamina = Player_Data.get('Stamina', {'Stamina': 100, 'Max_Stamina': 100})
-        self.Mana = Player_Data.get('Mana', {'Mana': 100, 'Max_Mana': 100})
-        self.WeaponSlot = getattr(items, Player_Data.get('WeaponSlot', 'Stick'))
-        self.HelmetSlot = getattr(items, Player_Data.get('HelmetSlot', 'Bronze_Helmet'))
-        self.ChestplateSlot = getattr(items, Player_Data.get('ChestplateSlot', 'Bronze_Chestplate'))
-        self.BootSlot = getattr(items, Player_Data.get('BootSlot', 'Bronze_Boot'))
-        self.OtherSlot1 = {
-            'Item': getattr(items, Player_Data.get('OtherSlot1', {}).get('Item', 'None_Item')),
-            'Qty': Player_Data.get('OtherSlot1', {}).get('Qty', 0)
-        }
-        self.OtherSlot2 = {
-            'Item': getattr(items, Player_Data.get('OtherSlot2', {}).get('Item', 'None_Item')),
-            'Qty': Player_Data.get('OtherSlot2', {}).get('Qty', 0)
-        }
-        self.OtherSlot3 = {
-            'Item': getattr(items, Player_Data.get('OtherSlot3', {}).get('Item', 'None_Item')),
-            'Qty': Player_Data.get('OtherSlot3', {}).get('Qty', 0)
-        }
-        self.OtherSlot4 = {
-            'Item': getattr(items, Player_Data.get('OtherSlot4', {}).get('Item', 'None_Item')),
-            'Qty': Player_Data.get('OtherSlot4', {}).get('Qty', 0)
-        }
-        self.Location = Player_Data.get('Location', 'Forest1')
+        self.WeaponSlot = Save['WeaponSlot']
+        self.HelmetSlot = Save['HelmetSlot']
+        self.ChestplateSlot = Save['ChestplateSlot']
+        self.BootSlot = Save['BootSlot']
+
+        self.OtherSlot1 = {'Item': Save['OtherSlot1']['Item'], 'Qty': Save['OtherSlot1']['Qty']}
+        self.OtherSlot2 = {'Item': Save['OtherSlot2']['Item'], 'Qty': Save['OtherSlot2']['Qty']}
+        self.OtherSlot3 = {'Item': Save['OtherSlot3']['Item'], 'Qty': Save['OtherSlot3']['Qty']}
+        self.OtherSlot4 = {'Item': Save['OtherSlot4']['Item'], 'Qty': Save['OtherSlot4']['Qty']}
+        
+        self.Location = Save['Location']
+        self.Gold = Save['Gold']
 
     def Save(self, Save):
         Player_Stats = {
-            'Player_Name': self.Player_Name,
+            'Name': self.Player_Name,
             'Health': self.Health,
             'Stamina': self.Stamina,
             'Mana': self.Mana,
-            'WeaponSlot': self.WeaponSlot.name,
-            'HelmetSlot': self.HelmetSlot.name,
-            'ChestplateSlot': self.ChestplateSlot.name,
-            'BootSlot': self.BootSlot.name,
-            'OtherSlot1': {'Item': self.OtherSlot1['Item'].name, 'Qty': self.OtherSlot1['Qty']},
-            'OtherSlot2': {'Item': self.OtherSlot2['Item'].name, 'Qty': self.OtherSlot2['Qty']},
-            'OtherSlot3': {'Item': self.OtherSlot3['Item'].name, 'Qty': self.OtherSlot3['Qty']},
-            'OtherSlot4': {'Item': self.OtherSlot4['Item'].name, 'Qty': self.OtherSlot4['Qty']}
+            'WeaponSlot': self.WeaponSlot,
+            'HelmetSlot': self.HelmetSlot,
+            'ChestplateSlot': self.ChestplateSlot,
+            'BootSlot': self.BootSlot,
+            'OtherSlot1': self.OtherSlot1,
+            'OtherSlot2': self.OtherSlot2,
+            'OtherSlot3': self.OtherSlot3,
+            'OtherSlot4': self.OtherSlot4,
+            'Location': self.Location
         }
+
         with open(f'Save{Save}.json', 'w') as f:
-            json.dump(Player_Stats, f)
+            def make_serializable(obj):
+                '''This function converts objects to a serializable format (Because json's cant handle items from other classes)'''
+                if hasattr(obj, '__dict__'):
+                    return obj.__dict__
+                return obj
+            json.dump(Player_Stats, f, default=make_serializable)
 
     def Attacking(self, Target):
         Target.Player_Attacked(self.WeaponSlot.damage)
@@ -74,8 +56,8 @@ class Player():
     def Attacked(self, Damage, Type):
         self.Health['Health'] -= (Damage / ((self.HelmetSlot.multiplyers[Type] + self.ChestplateSlot.multiplyers[Type] + self.BootSlot.multiplyers[Type]) / 3))
 
-
 def load(Player_Data, SaveNum):
+    global User
     if len(Player_Data) == 0:
         CreateCharacter(SaveNum)
     else:
@@ -85,6 +67,7 @@ def leave():
     pass
 
 def CreateCharacter(SaveNum):
+    global User
     print('Welcome New Adventurer!')
     while True:
         Name_Input = input("What's your Name Adventurer? ")
@@ -95,7 +78,27 @@ def CreateCharacter(SaveNum):
             print(f'Welcome {Name_Input}, This is where your Journey Begins!')
             break
 
-    #User = Player(SaveNum, Name_Input)
+    Player_Data = {
+        'Name': Name_Input,
 
-User = Playerv2(player_data)
-#User.Save(1)
+        'Health': {'Health': 100, 'Max_Health': 100},
+        'Stamina': {'Stamina': 100, 'Max_Stamina': 100},
+        'Mana': {'Mana': 100, 'Max_Mana': 100},
+
+        'WeaponSlot': items.Stick,
+        'HelmetSlot': items.None_Helmet,
+        'ChestplateSlot': items.None_Chestplate,
+        'BootSlot': items.None_Boot,
+        
+        'OtherSlot1': {'Item': items.None_Item, 'Qty': 0},
+        'OtherSlot2': {'Item': items.None_Item, 'Qty': 0},
+        'OtherSlot3': {'Item': items.None_Item, 'Qty': 0},
+        'OtherSlot4': {'Item': items.None_Item, 'Qty': 0},
+
+        'Location': 'Forest1',
+        'Gold': 10
+    }
+
+    User = Player(Player_Data)
+
+
