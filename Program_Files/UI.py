@@ -6,8 +6,8 @@ import variables
 import json
 import saves
 import movement
-import trading
-import magic
+#import trading
+#import magic
 
 #--- Displays the UI Screen for the User ---
 def PrintMainUI(Room):
@@ -33,8 +33,7 @@ def PrintMainUI(Room):
     print(story.Story(Room))
     Input_Selection(movement.MoveOptions(Room))
 
-def DisplayStats():
-    def StatBar(Stat, Max_Stat):
+def StatBar(Stat, Max_Stat):
         StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
         DeadBar = ''
 
@@ -49,7 +48,8 @@ def DisplayStats():
             DeadBar += f'-'
             
         return StatBar + f'\033[37m{DeadBar}'
-    
+
+def DisplayStats():
     return f'''+───────────--==| Stats |==--───────────+
 │                                       │
 │   Health:  ♥️  \033[31m{StatBar(saves.User.Health['Health'], saves.User.Health['Max_Health'])} \033[0m {f'({saves.User.Health['Health']}/{saves.User.Health['Max_Health']})':<12}│
@@ -77,9 +77,16 @@ def DisplayMapKey():
 
 def DisplayInventoryScreen():
     print('''
-
-
-''')
+    Which Item would you like to use?
+    ''')
+    
+    Input_Selection({
+        saves.User.OtherSlot1['Item'].name: (lambda: items.saves.User.OtherSlot1['Item'].Use_Potion(saves.User)) if saves.User.OtherSlot1['Item'].name != 'None' else None,
+        #saves.User.OtherSlot2['Item'].name: (lambda: saves.User.UseItem(saves.User.OtherSlot2)) if saves.User.OtherSlot2['Item'].name != 'None' else None,
+        #saves.User.OtherSlot3['Item'].name: (lambda: saves.User.UseItem(saves.User.OtherSlot3)) if saves.User.OtherSlot3['Item'].name != 'None' else None,
+        #saves.User.OtherSlot4['Item'].name: (lambda: saves.User.UseItem(saves.User.OtherSlot4)) if saves.User.OtherSlot4['Item'].name != 'None' else None,
+        'Exit': lambda: ''
+    })
 
 def TitleScreen():
     os.system('cls')
@@ -130,11 +137,10 @@ def TitleScreen():
 
     ''')
     Input_Selection({
-         'Save 1': lambda: saves.load(Player_Data_1, 1),
-         'Save 2': lambda: saves.load(Player_Data_2, 2),
-         'Save 3': lambda: saves.load(Player_Data_3, 3),
-         'Save 4': lambda: saves.load(Player_Data_4, 4),
-
+         'Save 1': lambda: (saves.load(Player_Data_1, 1), setattr(variables, 'Load_File', 1)),
+         'Save 2': lambda: (saves.load(Player_Data_2, 2), setattr(variables, 'Load_File', 2)),
+         'Save 3': lambda: (saves.load(Player_Data_3, 3), setattr(variables, 'Load_File', 3)),
+         'Save 4': lambda: (saves.load(Player_Data_4, 4), setattr(variables, 'Load_File', 4)),
          'Exit': lambda: saves.leave()
     })
 

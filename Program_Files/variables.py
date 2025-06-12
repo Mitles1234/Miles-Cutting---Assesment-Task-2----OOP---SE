@@ -1,5 +1,7 @@
 import items
 
+Load_File = 0
+
 #--- Has the Player been in Room ---
 Enemy1 = False
 Enemy2 = False
