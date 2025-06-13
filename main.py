@@ -391,7 +391,7 @@ def Combat(Enemy):
         else:
             Input_Selection({
                 "Attack": lambda: User.Attacking(Enemy),
-                "Use Item": lambda: DisplayInventoryScreen()})
+                "Use Item": lambda: (DisplayInventoryScreen(), print("\033[20A", end=""))})
             
             Enemy.Attacking(User)
 
@@ -468,13 +468,13 @@ def DisplayInventoryScreen():
     Which Item would you like to use?
     ''')
     
-    Input_Selection({
-        User.OtherSlot1['Item'].name: (lambda: User.OtherSlot1['Item'].Use_Potion(User), print("\033[10A", end="")) if User.OtherSlot1['Item'].name != 'None' else None,
-        #User.OtherSlot2['Item'].name: (lambda: User.UseItem(User.OtherSlot2)) if User.OtherSlot2['Item'].name != 'None' else None,
-        #User.OtherSlot3['Item'].name: (lambda: User.UseItem(User.OtherSlot3)) if User.OtherSlot3['Item'].name != 'None' else None,
-        #User.OtherSlot4['Item'].name: (lambda: User.UseItem(User.OtherSlot4)) if User.OtherSlot4['Item'].name != 'None' else None,
-        'Exit': lambda: ''
-    })
+    options = {}
+    for slot in [User.OtherSlot1, User.OtherSlot2, User.OtherSlot3, User.OtherSlot4]:
+        item = slot['Item']
+        if item.name != 'None':
+            options[item.name] = lambda item=item: item.Use_Potion(User)
+    options['Exit'] = lambda: ''
+    Input_Selection(options)
 
 def TitleScreen():
     os.system('cls')
@@ -828,7 +828,8 @@ def InputHandling(Room):
             pass
         else:
             ReplaceInput()
-
+# Old Map Function
+"""
 def Map(Room):
 
     def TitleGenerator(Title):
@@ -1163,7 +1164,7 @@ def Map(Room):
         │                      └────────────🔮               N  │
         │                                                       │
         +───────────────────────────────────────────────────────+'''
-    
+    """
 # Story
 def Story(Room):
     if Room == 'Enemy1':
@@ -1258,7 +1259,48 @@ def Story(Room):
         else:
             return f'''None'''
 
-
+def Map(Room):
+        
+    Enemy1 = '☠️' if Room != 'Enemy1' else '██'
+    Enemy2 = '☠️' if Room != 'Enemy2' else '██'
+    Enemy3 = '☠️' if Room != 'Enemy3' else '██'
+    Enemy4 = '☠️' if Room != 'Enemy4' else '██'
+    Village1 = '🏠' if Room != 'Village1' else '██'
+    Village2 = '🏠' if Room != 'Village2' else '██'
+    Village3 = '🏠' if Room != 'Village3' else '██'
+    Forest1 = '🌲' if Room != 'Forest1' else '██ '
+    Forest2 = '🌲' if Room != 'Forest2' else '██'
+    Forest3 = '🌲' if Room != 'Forest3' else '██'
+    Forest4 = '🌲' if Room != 'Forest4' else '██'
+    Wizard1 = '🔮' if Room != 'Wizard1' else '██'
+    Wizard2 = '🔮' if Room != 'Wizard2' else '██'
+    Mountain = '⛰️' if Room != 'Mountain' else '██'
+    GoblinKing = '👑' if Room != 'GoblinKing' else '██'
+    
+    def TitleGenerator(Title):
+        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
+    
+    
+    return f'''    {TitleGenerator('Enemy')}
+    │                                                       │
+    │           ┌──────{Enemy3}           {Forest4}─────┐                 │
+    │           │       │           │     │                 │
+    │     {Mountain}  ───┘       │           │     │                 │
+    │                   │           │     └────{Village3}           │
+    │               {Enemy2} ──┴────{Wizard1}     │                       │
+    │                │              │                       │
+    │        ┌───────┴────────┬─────┤                       │
+    │        │                │     └───────┐               │
+    │ {Forest1}────{Enemy1}      {Village1}       {Forest3}             ├────{Enemy4} ─────{GoblinKing}  │
+    │        │       │            {Village2}────────┘               │
+    │        └────┬──┴──┬──────────┘                        │
+    │             │     │                                   │
+    │             │     └──┐                                │
+    │             │        │                                │
+    │       {Forest2}  ──┘        │                             ⬆  │
+    │                      └────────────{Wizard2}               N  │
+    │                                                       │
+    +───────────────────────────────────────────────────────+'''
 
 Goblin = Enemy('Goblin', 10, 5, 'Fir', 1)
 Orc = Enemy('Orc', 20, 10, 'Wat', 2)
