@@ -4,6 +4,8 @@ import random
 import time
 import json
 import math
+from wcwidth import wcswidth
+
 
 #--- Classes ---
 class Player():
@@ -352,7 +354,8 @@ Unstable_Concoction = Spells('Unstable_Concoction', 1, 'Nat', 10, 5) # Doubles t
 #--- Functions ---
 
 # Combat
-def Combat(Enemy):
+def Combat(Enemy, Room):
+    global Exited
 
     if Enemy.type == 'Fir':
         Type = 'Fire'
@@ -363,6 +366,7 @@ def Combat(Enemy):
     print(f"""You have Encountered a {Enemy.name}""")
 
     while True:
+        Exited = False
         print(f"""
 +-----------------------------------------------+
 |{' '*21}Enemy{' '*21}|
@@ -380,8 +384,10 @@ def Combat(Enemy):
     """)
         if Enemy.health <= 0:
             print()
+            ClearLines(18)
             print(f"You have defeated the {Enemy.name}!")
             User.WeaponSlot.level += Enemy.level/2
+            globals()[Room] = True
             break
             
         elif User.Health['Health'] <= 0:
@@ -390,15 +396,19 @@ def Combat(Enemy):
             break
         else:
             Input_Selection({
-                "Attack": lambda: User.Attacking(Enemy),
-                "Use Item": lambda: (DisplayInventoryScreen(), print("\033[20A", end=""))})
+                "Attack": lambda: (User.Attacking(Enemy)),
+                "Use Item": lambda: (DisplayInventoryScreen())
+                })
             
-            Enemy.Attacking(User)
-
-            print("\033[20A", end="")
+            if Exited == False:
+                Enemy.Attacking(User)
+            else:
+                pass
+        ClearLines(20)
 
 # UI
 def PrintMainUI(Room):
+    Exited = False
     os.system('cls')
     
     map_lines = Map(Room).splitlines()
@@ -414,12 +424,22 @@ def PrintMainUI(Room):
     for i in range(max_lines):
         map_line = map_lines[i] if i < len(map_lines) else ""
         side_line = side_panel[i] if i < len(side_panel) else ""
-        print(f"{map_line:<60} {side_line}")
+
+        map_width = wcswidth(map_line)
+        padding = max(0, 60 - map_width)
+        print(map_line + ' ' * padding + side_line)
     
     print()
 
     print(Story(Room))
-    Input_Selection(MoveOptions(Room))
+    
+    print()
+    while True:
+        if Exited == False:
+            Input_Selection(MoveOptions(Room))
+            ClearLines(5)
+        else:
+            break
 
 def StatBar(Stat, Max_Stat):
         StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
@@ -442,28 +462,34 @@ def DisplayStats():
 │                                       │
 │   Health:  ♥️  \033[31m{StatBar(User.Health['Health'], User.Health['Max_Health'])} \033[0m {f'({User.Health['Health']}/{User.Health['Max_Health']})':<12}│
 │   Stamina: 🔋 \033[32m{StatBar(User.Stamina['Stamina'], User.Stamina['Max_Stamina'])} \033[0m {f'({User.Stamina['Stamina']}/{User.Stamina['Max_Stamina']})':<12}│
-│   Mana:    💠 \033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}│
+│   Mana:    {f'💠 \033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}' if MountainIssue == True else f'💠\033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}'}│
 │                                       │
 +───────────────────────────────────────+'''
 
 def DisplayInventory():
-    return f'''+────────────────────────--==| Inventory |==--────────────────────────+
-│   {'🪙  Gold':<12} -   {User.Gold:<48} |
-│   {'Weapon':<12} -   {User.WeaponSlot.name:<15} {'Chestplate':<12} -   {User.ChestplateSlot.name:<15} │
-│   {'Helmet':<12} -   {User.HelmetSlot.name:<15} {'Boots':<12} -   {User.BootSlot.name:<15} │
-+─────────────────────────────────────────────────────────────────────+
-│   {User.OtherSlot1['Item'].name:<18} -   {User.OtherSlot1['Qty']:<9} {User.OtherSlot2['Item'].name:<18} -   {User.OtherSlot2['Qty']:<9} │
-│   {User.OtherSlot3['Item'].name:<18} -   {User.OtherSlot3['Qty']:<9} {User.OtherSlot4['Item'].name:<18} -   {User.OtherSlot4['Qty']:<9} │
-+─────────────────────────────────────────────────────────────────────+ '''
+    return f'''+──────────────────────────────────--==| Inventory |==--──────────────────────────────────+
+│   {'🪙  Gold':<12} -   {User.Gold:<68} │
+│   {'Weapon':<12} -   {User.WeaponSlot.name:<25} {'Chestplate':<12} -   {User.ChestplateSlot.name:<25} │
+│   {'Helmet':<12} -   {User.HelmetSlot.name:<25} {'Boots':<12} -   {User.BootSlot.name:<25} │
++{'─'*89}+ 
+│   {User.OtherSlot1['Item'].name:<28} -   {User.OtherSlot1['Qty']:<9} {User.OtherSlot2['Item'].name:<28} -   {User.OtherSlot2['Qty']:<9} │
+│   {User.OtherSlot3['Item'].name:<28} -   {User.OtherSlot3['Qty']:<9} {User.OtherSlot4['Item'].name:<28} -   {User.OtherSlot4['Qty']:<9} │
++{'─'*89}+'''
 
 def DisplayMapKey():
     return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
 │   ██ - You              🔮 - Wizard Tower                           │
-│   🏠 - Village          ☠️  - Enemy            👑 - Goblin King      │
-│   🌲 - Forest           ⛰️  - Mountain                               │
+│   🏠 - Village          💀  - Enemy            👑 - Goblin King     │
+│   🌲 - Forest           🏔️  - Mountain                               │
 +─────────────────────────────────────────────────────────────────────+'''
 
 def DisplayInventoryScreen():
+    global Exited
+
+    def SetItemUsed():
+        global Exited
+        Exited = True
+
     print('''
     Which Item would you like to use?
     ''')
@@ -472,9 +498,14 @@ def DisplayInventoryScreen():
     for slot in [User.OtherSlot1, User.OtherSlot2, User.OtherSlot3, User.OtherSlot4]:
         item = slot['Item']
         if item.name != 'None':
-            options[item.name] = lambda item=item: item.Use_Potion(User)
-    options['Exit'] = lambda: ''
+            options[f"{item.name:<25} - ({slot['Qty']})"] = lambda item=item: item.Use_Potion(User)
+    options['Exit'] = lambda: SetItemUsed()
+
+    
     Input_Selection(options)
+        
+    x = 6 + len(options)
+    ClearLines(x)
 
 def TitleScreen():
     os.system('cls')
@@ -597,7 +628,7 @@ def EnchantmentScreen(Wizard):
 
 def Input_Selection(options: dict):
     def ReplaceInput():
-        print("\033[2A", end="")  # Move cursor up 2 lines
+        ClearLines(2)  # Move cursor up 2 lines
         print('Error With Input')
         return get_input()  # Re-prompt
     
@@ -700,52 +731,51 @@ def MoveOptions(Room):
     if Room == 'Enemy1':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "East (Dark Forest) (2)": lambda: PrintMainUI('Dark Forest'),
-            "South (Village1) (4)": lambda: PrintMainUI('Village1'),
-            "West (Forest 1) (2)": lambda: PrintMainUI('Forest1'),
-            "North (Enemy 3) (8)": lambda: PrintMainUI('Enemy3'),
+            "North East (Enemy2) (6)": lambda: PrintMainUI('Enemy2'),
+            "South (Forest2) (4)": lambda: PrintMainUI('Forest2'),
+            "East (Vilage1) (2)": lambda: PrintMainUI('Village1'),
+            "West (Forest1) (2)": lambda: PrintMainUI('Forest1'),
         }
     elif Room == 'Enemy2':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "West (Dark Forest) (5)": lambda: PrintMainUI('Dark Forest'),
-            "East (Wizard 1) (3)": lambda: PrintMainUI('Wizard1'),
-            "South (Forest 2) (6)": lambda: PrintMainUI('Forest2'),
+            "North (Enemy3) (3)": lambda: PrintMainUI('Enemy3'),
+            "South East (Forest3) (6)": lambda: PrintMainUI('Forest3'),
+            "South West (Enemy1) (2)": lambda: PrintMainUI('Enemy1'),
+            "East (Wizard1) (2)": lambda: PrintMainUI('Wizard1'),
         }
     elif Room == 'Enemy3':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "South East (Wizard Tower) (7)": lambda: PrintMainUI('Wizard1'),
-            "South West (Enemy) (7)": lambda: PrintMainUI('Enemy1'),
+            "South East (Wizard1) (4)": lambda: PrintMainUI('Wizard1'),
+            "South West (Enemy2) (3)": lambda: PrintMainUI('Enemy2'),
             "West (Mountain) (20)": lambda: PrintMainUI('Mountain'),
         }
     elif Room == 'Enemy4':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "West (Galamdor City) (6)": lambda: PrintMainUI('Village2'),
-            "East (Goblin King) (4)": lambda: PrintMainUI('GoblinKing'),
-            "South (Another City) (8)": lambda: PrintMainUI('Village3'),
+            "North West (Forest4) (8)": lambda: PrintMainUI('Village2'),
+            "East (GoblinKing) (4)": lambda: PrintMainUI('GoblinKing'),
+            "West (Village2) (8)": lambda: PrintMainUI('Village2'),
         }
     elif Room == 'Village1':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "North (Enemy) (8)": lambda: PrintMainUI('Enemy1'),
-            "South (Forest) (7)": lambda: PrintMainUI('Forest2'),
+            "South (Forest2) (4)": lambda: PrintMainUI('Forest2'),
             "East (Village) (5)": lambda: PrintMainUI('Village2'),
+            "West (Enemy) (2)": lambda: PrintMainUI('Enemy1'),
         }
     elif Room == 'Village2':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "North (Aldwin Village) (8)": lambda: PrintMainUI('Village1'),
-            "West (Forest 3) (7)": lambda: PrintMainUI('Forest3'),
-            "South (Forest 4) (10)": lambda: PrintMainUI('Forest4'),
-            "East (Enemy 4) (6)": lambda: PrintMainUI('Enemy4'),
+            "South East (Wizard2) (7)": lambda: PrintMainUI('Wizard2'),
+            "East (Enemy4) (5)": lambda: PrintMainUI('Enemy4'),
+            "West (Village1) (2)": lambda: PrintMainUI('Village1'),
         }
     elif Room == 'Village3':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "South (Forest 4) (12)": lambda: PrintMainUI('Forest4'),
-            "West (Forest 4) (12)": lambda: PrintMainUI('Forest4'),
+            "North West (Forest4) (4)": lambda: PrintMainUI('Forest4'),
         }
     elif Room == 'Forest1':
         return {
@@ -755,37 +785,35 @@ def MoveOptions(Room):
     elif Room == 'Forest2':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "North (Forest 1) (4)": lambda: PrintMainUI('Forest1'),
-            "East (Wizard 2) (7)": lambda: PrintMainUI('Wizard2'),
-            "South (Forest 3) (5)": lambda: PrintMainUI('Forest3'),
-            "West (Enemy 1) (5)": lambda: PrintMainUI('Enemy1'),
+            "North East (Village1) (4)": lambda: PrintMainUI('Village1'),
+            "North West (Enemy1) (4)": lambda: PrintMainUI('Enemy1'),
         }
     elif Room == 'Forest3':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "West (Village1) (9)": lambda: PrintMainUI('Village1'),
-            "East (Galamdor City) (7)": lambda: PrintMainUI('Village2'),
-            "South (Forest 4) (6)": lambda: PrintMainUI('Forest4'),
-            "North (Forest 2) (5)": lambda: PrintMainUI('Forest2'),
+            "North East (Forest4) (5)": lambda: PrintMainUI('Forest4'),
+            "North West (Enemy2) (4)": lambda: PrintMainUI('Enemy2'),
+            "West (Enemy1) (4)": lambda: PrintMainUI('Enemy1'),
         }
     elif Room == 'Forest4':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "North (Forest 3) (6)": lambda: PrintMainUI('Forest3'),
-            "East (Another City) (12)": lambda: PrintMainUI('Village3'),
-            "West (Galamdor City) (10)": lambda: PrintMainUI('Village2'),
+            "South East (Enemy4) (5)": lambda: PrintMainUI('Enemy4'),
+            "South West (Forest3) (6)": lambda: PrintMainUI('Forest3'),
+            "East (Village3) (4)": lambda: PrintMainUI('Village3'),
+            
         }
     elif Room == 'Wizard1':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "West (Enemy 2) (3)": lambda: PrintMainUI('Enemy2'),
-            "South (Wizard 2) (8)": lambda: PrintMainUI('Wizard2'),
+            "North (Enemy3) (3)": lambda: PrintMainUI('Enemy3'),
+            "West (Enemy2) (2)": lambda: PrintMainUI('Enemy2'),
         }
     elif Room == 'Wizard2':
         return {
             "Inventory": lambda: DisplayInventoryScreen(),
-            "West (Forest 2) (7)": lambda: PrintMainUI('Forest2'),
-            "North (Wizard 1) (8)": lambda: PrintMainUI('Wizard1'),
+            "North East (Village2) (4)": lambda: PrintMainUI('Village2'),
+            "North West (Village1) (4)": lambda: PrintMainUI('Village1'),
         }
     elif Room == 'Mountain':
         return {
@@ -804,7 +832,7 @@ def MoveOptions(Room):
 
 def InputHandling(Room):
     def ReplaceInput():
-            print("\033[2A", end="")
+            ClearLines(2)
             print('Error With Input')
             NextMove = ''
             InputHandling(Room)
@@ -1170,8 +1198,8 @@ def Story(Room):
     if Room == 'Enemy1':
         if Enemy1 == False:
             input('Press Enter to Continue...')
-            Combat(Goblin)
-            return f'You defeated the enemy!'
+            Combat(Goblin, 'Enemy1')
+            return ''#f'You defeated the enemy!'
         else:
             return f'''You See the remains of a battle fought here. The ground is scorched, and the air is heavy with the scent of burnt wood and blood.'''
     
@@ -1260,44 +1288,52 @@ def Story(Room):
             return f'''None'''
 
 def Map(Room):
-        
-    Enemy1 = '☠️' if Room != 'Enemy1' else '██'
-    Enemy2 = '☠️' if Room != 'Enemy2' else '██'
-    Enemy3 = '☠️' if Room != 'Enemy3' else '██'
-    Enemy4 = '☠️' if Room != 'Enemy4' else '██'
-    Village1 = '🏠' if Room != 'Village1' else '██'
-    Village2 = '🏠' if Room != 'Village2' else '██'
-    Village3 = '🏠' if Room != 'Village3' else '██'
-    Forest1 = '🌲' if Room != 'Forest1' else '██ '
-    Forest2 = '🌲' if Room != 'Forest2' else '██'
-    Forest3 = '🌲' if Room != 'Forest3' else '██'
-    Forest4 = '🌲' if Room != 'Forest4' else '██'
-    Wizard1 = '🔮' if Room != 'Wizard1' else '██'
-    Wizard2 = '🔮' if Room != 'Wizard2' else '██'
-    Mountain = '⛰️' if Room != 'Mountain' else '██'
-    GoblinKing = '👑' if Room != 'GoblinKing' else '██'
-    
+    global MountainIssue
+    if Room == 'Mountain':
+        MountainIssue = True
+    else:
+        MountainIssue = False
+    # Helper to pad all map symbols to 2 spaces for alignment
+    def pad(symbol, width=2):
+        real_width = wcswidth(symbol)
+        return symbol + ' ' * (width - real_width)
+
+    Enemy1 = pad('💀') if Room != 'Enemy1' else pad('██')
+    Enemy2 = pad('💀') if Room != 'Enemy2' else pad('██')
+    Enemy3 = pad('💀') if Room != 'Enemy3' else pad('██')
+    Enemy4 = pad('💀') if Room != 'Enemy4' else pad('██')
+    Village1 = pad('🏠') if Room != 'Village1' else pad('██')
+    Village2 = pad('🏠') if Room != 'Village2' else pad('██')
+    Village3 = pad('🏠') if Room != 'Village3' else pad('██')
+    Forest1 = pad('🌲') if Room != 'Forest1' else pad('██')
+    Forest2 = pad('🌲') if Room != 'Forest2' else pad('██')
+    Forest3 = pad('🌲') if Room != 'Forest3' else pad('██')
+    Forest4 = pad('🌲') if Room != 'Forest4' else pad('██')
+    Wizard1 = pad('🔮') if Room != 'Wizard1' else pad('██')
+    Wizard2 = pad('🔮') if Room != 'Wizard2' else pad('██')
+    Mountain = pad('🏔️ ') if Room != 'Mountain' else pad('██')
+    GoblinKing = pad('👑') if Room != 'GoblinKing' else pad('██')
+
     def TitleGenerator(Title):
         return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
-    
-    
-    return f'''    {TitleGenerator('Enemy')}
+
+    return f'''    {TitleGenerator(Room)}
     │                                                       │
-    │           ┌──────{Enemy3}           {Forest4}─────┐                 │
+    │           ┌──────{Enemy3}          {Forest4} ────┐                 │
     │           │       │           │     │                 │
-    │     {Mountain}  ───┘       │           │     │                 │
+    │     {Mountain} ───┘       │           │     │                 │
     │                   │           │     └────{Village3}           │
-    │               {Enemy2} ──┴────{Wizard1}     │                       │
+    │               {Enemy2} ─┴────{Wizard1}     │                       │
     │                │              │                       │
     │        ┌───────┴────────┬─────┤                       │
     │        │                │     └───────┐               │
-    │ {Forest1}────{Enemy1}      {Village1}       {Forest3}             ├────{Enemy4} ─────{GoblinKing}  │
-    │        │       │            {Village2}────────┘               │
+    │ {Forest1}────{Enemy1}      {Village1}       {Forest3}             ├────{Enemy4} ────{GoblinKing}  │
+    │        │       │            {Village2} ───────┘               │
     │        └────┬──┴──┬──────────┘                        │
     │             │     │                                   │
     │             │     └──┐                                │
     │             │        │                                │
-    │       {Forest2}  ──┘        │                             ⬆  │
+    │        {Forest2} ──┘        │                             ⬆  │
     │                      └────────────{Wizard2}               N  │
     │                                                       │
     +───────────────────────────────────────────────────────+'''
@@ -1305,4 +1341,9 @@ def Map(Room):
 Goblin = Enemy('Goblin', 10, 5, 'Fir', 1)
 Orc = Enemy('Orc', 20, 10, 'Wat', 2)
 
+def ClearLines(n):
+    for _ in range(n):
+        print("\033[1A\033[2K", end="")
+
 TitleScreen()
+
