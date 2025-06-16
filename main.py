@@ -11,6 +11,9 @@ from wcwidth import wcswidth
 #--- Classes ---
 class Player():
     def __init__(self, Save):
+
+        print(Save)
+
         self.Player_Name = Save['Player_Name']
 
         self.Health = {'Health': Save['Health']['Health'], 'Max_Health': Save['Health']['Max_Health']}
@@ -30,6 +33,30 @@ class Player():
         self.Location = Save['Location']
         self.Gold = Save['Gold']
 
+        self.Enemy1 = Save['Enemy1']
+        self.Enemy2 = Save['Enemy2']
+        self.Enemy3 = Save['Enemy3']
+        self.Enemy4 = Save['Enemy4']
+        self.Village1 = Save['Village1']
+        self.Village2 = Save['Village2']
+        self.Village3 = Save['Village3']
+        self.Forest1 = Save['Forest1']
+        self.Forest2 = Save['Forest2']
+        self.Forest3 = Save['Forest3']
+        self.Forest4 = Save['Forest4']
+        self.SeenW1 = Save['SeenW1']
+        self.SeenW2 = Save['SeenW2']
+        self.Wizard1 = Save['Wizard1']
+        self.Wizard2 = Save['Wizard2']
+        self.Mountain = Save['Mountain']
+        self.GoblinKing = Save['GoblinKing']
+        self.RareFlower = Save['RareFlower']
+        self.RareRune = Save['RareRune']
+
+        self.Enemies = {'G': Save['Enemies']['G'], 'O': Save['Enemies']['O'], 'D': Save['Enemies']['D'], 'Og': Save['Enemies']['Og']}
+
+        Load_Enemies(Save['Enemies']['G'], Save['Enemies']['O'], Save['Enemies']['D'], Save['Enemies']['Og'])
+
     def Save(self, Save):
         # Only save essential information for each item (name and level) for compatibility with Load_Items()
 
@@ -47,7 +74,34 @@ class Player():
             'OtherSlot3': {'Item': self.OtherSlot3['Item'].name, 'Qty': self.OtherSlot3['Qty']},
             'OtherSlot4': {'Item': self.OtherSlot4['Item'].name, 'Qty': self.OtherSlot4['Qty']},
             'Location': self.Location,
-            'Gold': self.Gold
+            'Gold': self.Gold,
+
+            'Enemy1': self.Enemy1,
+            'Enemy2': self.Enemy2,
+            'Enemy3': self.Enemy3,
+            'Enemy4': self.Enemy4,
+
+            'Village1': self.Village1,
+            'Village2': self.Village2,
+            'Village3': self.Village3,
+
+            'Forest1': self.Forest1,
+            'Forest2': self.Forest2,
+            'Forest3': self.Forest3,
+            'Forest4': self.Forest4,
+
+            'SeenW1': self.SeenW1,
+            'SeenW2': self.SeenW2,
+
+            'Wizard1': self.Wizard1,
+            'Wizard2': self.Wizard2,
+            'Mountain': self.Mountain,
+            'GoblinKing': self.GoblinKing,
+
+            'RareFlower': self.RareFlower,
+            'RareRune': self.RareRune,
+
+            'Enemies': {'G': Goblin.health, 'O': Orc.health, 'D': Druid.health, 'Og': Ogre.health}
         }
 
         with open(f'Save{Save}.json', 'w') as f:
@@ -118,10 +172,10 @@ class Spells(Item):
         self.damage = damage
 
 class Enemy():
-    def __init__(self, name, health, damage, type, level):
+    def __init__(self, name, health, max_health, damage, type, level):
         self.name = name
         self.health = health
-        self.max_health = health
+        self.max_health = max_health
         self.damage = damage
         self.type = type
         self.level = level
@@ -282,9 +336,9 @@ class Brewer(Villager):
     def __init__(self, name):
         super().__init__(name, 'Brewer')
         self.items = {
-            'Health Potion': {'Item': random.choice([Health_Potion_Small, Health_Potion_Medium, Health_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(1, 4)},
-            'Mana Potion': {'Item': random.choice([Mana_Potion_Small, Mana_Potion_Medium, Mana_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(1, 4)},
-            'Stamina Potion': {'Item': random.choice([Stamina_Potion_Small, Stamina_Potion_Medium, Stamina_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(1, 4)}
+            'Health Potion': {'Item': random.choice([Health_Potion_Small, Health_Potion_Medium, Health_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)},
+            'Mana Potion': {'Item': random.choice([Mana_Potion_Small, Mana_Potion_Medium, Mana_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)},
+            'Stamina Potion': {'Item': random.choice([Stamina_Potion_Small, Stamina_Potion_Medium, Stamina_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)}
         }
 
 class SwordSmith(Villager):
@@ -340,10 +394,10 @@ class Wizard(Villager):
         super().__init__(name, 'Wizard')
     
     def WizardStore(self, Room):
-        global Wizard1, Wizard2, RareRune, RareFlower, User
+        global User
         os.system('cls')
         if Room == 'Wizard1':
-            if Wizard1 == False:
+            if User.SeenW1 == False:
                 print('''
         Welcome to my Tower!
             
@@ -351,17 +405,20 @@ class Wizard(Villager):
                     
             Their is a rare flower in the south forest, bring it to me, and I will help you enchant!
                     ''')
-                Wizard1 = True
+                User.SeenW1 = True
                 input('     Enter to Continue...')
                 PrintMainUI('Wizard1')
-            elif Wizard1 == True and RareFlower == False:
+            elif User.SeenW1 == True and User.RareFlower == False:
                 print("Have you Brought me my Flower Yet? It's in the South Forest")
                 input('Enter to Continue...')
                 PrintMainUI('Wizard1')
 
-            elif RareFlower == True:
+            elif User.RareFlower == True:
                 print()
                 print('Thanks for bringing me my flower, what can I help you enchant today?')
+
+                def El():
+                    pass
                 
                 
                 enchanted_item = {'item': None}
@@ -370,13 +427,13 @@ class Wizard(Villager):
                 options = {
                     User.WeaponSlot.name: make_enchant_lambda(User.WeaponSlot)
                 }
-                if User.HelmetSlot.name != "None":
+                if User.HelmetSlot.name != "None_Helmet":
                     options[User.HelmetSlot.name] = make_enchant_lambda(User.HelmetSlot)
-                if User.ChestplateSlot.name != "None":
+                if User.ChestplateSlot.name != "None_Chestplate":
                     options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
-                if User.BootSlot.name != "None":
+                if User.BootSlot.name != "None_Boot":
                     options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = quit
+                options['Exit'] = lambda: gdPrintMainUI('Wizard1')
                 Input_Selection(options)
                 
                 # Print the enchanted item and its new multipliers
@@ -388,7 +445,7 @@ class Wizard(Villager):
                         print(f"  {key}: {value:.2f}")
 
         elif Room == 'Wizard2':
-            if Wizard1 == False:
+            if User.SeenW2 == False:
                 print('''
         Welcome to my Tower!
             
@@ -397,15 +454,15 @@ class Wizard(Villager):
             Up in the high mountains of Sorvo, their is an ancient rune, ensribed with ancient information.
             Bring it to me, and I will help you enchant!
                     ''')
-                Wizard2 = True
+                User.SeenW2 = True
                 input('     Enter to Continue...')
                 PrintMainUI('Wizard2')
-            elif Wizard2 == True and RareRune == False:
+            elif User.SeenW2 == True and User.RareRune == False:
                 print("Have you Brought me my RareRune Yet? It's in the high mountains of Sorvo")
                 input('Enter to Continue...')
                 PrintMainUI('Wizard2')
 
-            elif RareRune == True:
+            elif User.RareRune == True:
                 print()
                 print('Thanks for bringing me my Rune, what can I help you enchant today?')
                 
@@ -416,13 +473,13 @@ class Wizard(Villager):
                 options = {
                     User.WeaponSlot.name: make_enchant_lambda(User.WeaponSlot)
                 }
-                if User.HelmetSlot.name != "None":
+                if User.HelmetSlot.name != "None_Helmet":
                     options[User.HelmetSlot.name] = make_enchant_lambda(User.HelmetSlot)
-                if User.ChestplateSlot.name != "None":
+                if User.ChestplateSlot.name != "None_Chestplate":
                     options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
-                if User.BootSlot.name != "None":
+                if User.BootSlot.name != "None_Boot":
                     options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = quit
+                options['Exit'] = lambda: PrintMainUI('Wizard2')
                 Input_Selection(options)
                 
                 # Print the enchanted item and its new multipliers
@@ -520,128 +577,112 @@ class Gambler(Villager):
         input('Enter to Continue...')
 
 def Load_Items(Name, Level, Multipliers):
-
-    item_name = Name
-    item_level = Level
-
     # Weapons
-    if item_name == 'Stick':
-        return Weapons('Stick', item_level, 'Stick', 2, Multipliers)
+    if Name == 'Stick':
+        return Weapons('Stick', Level, 'Stick', 2, Multipliers)
 
-    elif item_name == 'Wooden_Sword':
-        return Weapons('Wooden_Sword', item_level, 'Sword', 4, Multipliers)
-    elif item_name == 'Bronze_Sword':
-        return Weapons('Bronze_Sword', item_level, 'Sword', 5, Multipliers)
-    elif item_name == 'Iron_Sword':
-        return Weapons('Iron_Sword', item_level, 'Sword', 6, Multipliers)
-    elif item_name == 'Platinum_Sword':
-        return Weapons('Platinum_Sword', item_level, 'Sword', 8, Multipliers)
+    elif Name == 'Wooden_Sword':
+        return Weapons('Wooden_Sword', Level, 'Sword', 4, Multipliers)
+    elif Name == 'Bronze_Sword':
+        return Weapons('Bronze_Sword', Level, 'Sword', 5, Multipliers)
+    elif Name == 'Iron_Sword':
+        return Weapons('Iron_Sword', Level, 'Sword', 6, Multipliers)
+    elif Name == 'Platinum_Sword':
+        return Weapons('Platinum_Sword', Level, 'Sword', 8, Multipliers)
 
-    elif item_name == 'Wooden_Axe':
-        return Weapons('Wooden_Axe', item_level, 'Axe', 4, Multipliers)
-    elif item_name == 'Bronze_Axe':
-        return Weapons('Bronze_Axe', item_level, 'Axe', 5, Multipliers)
-    elif item_name == 'Iron_Axe':
-        return Weapons('Iron_Axe', item_level, 'Axe', 6, Multipliers)
-    elif item_name == 'Platinum_Axe':
-        return Weapons('Platinum_Axe', item_level, 'Axe', 8, Multipliers)
+    elif Name == 'Wooden_Axe':
+        return Weapons('Wooden_Axe', Level, 'Axe', 4, Multipliers)
+    elif Name == 'Bronze_Axe':
+        return Weapons('Bronze_Axe', Level, 'Axe', 5, Multipliers)
+    elif Name == 'Iron_Axe':
+        return Weapons('Iron_Axe', Level, 'Axe', 6, Multipliers)
+    elif Name == 'Platinum_Axe':
+        return Weapons('Platinum_Axe', Level, 'Axe', 8, Multipliers)
 
-    elif item_name == 'Wooden_Mace':
-        return Weapons('Wooden_Mace', item_level, 'Mace', 4, Multipliers)
-    elif item_name == 'Bronze_Mace':
-        return Weapons('Bronze_Mace', item_level, 'Mace', 5, Multipliers)
-    elif item_name == 'Iron_Mace':
-        return Weapons('Iron_Mace', item_level, 'Mace', 6, Multipliers)
-    elif item_name == 'Platinum_Mace':
-        return Weapons('Platinum_Mace', item_level, 'Mace', 8, Multipliers)
+    elif Name == 'Wooden_Mace':
+        return Weapons('Wooden_Mace', Level, 'Mace', 4, Multipliers)
+    elif Name == 'Bronze_Mace':
+        return Weapons('Bronze_Mace', Level, 'Mace', 5, Multipliers)
+    elif Name == 'Iron_Mace':
+        return Weapons('Iron_Mace', Level, 'Mace', 6, Multipliers)
+    elif Name == 'Platinum_Mace':
+        return Weapons('Platinum_Mace', Level, 'Mace', 8, Multipliers)
 
     # Armour
-    elif item_name == 'None_Helmet':
+    elif Name == 'None_Helmet':
         return Armour('None_Helmet', 0, 'Helmet', 0, Multipliers)
-    elif item_name == 'Leather_Helmet':
-        return Armour('Leather_Helmet', item_level, 'Helmet', 1, Multipliers)
-    elif item_name == 'Bronze_Helmet':
-        return Armour('Bronze_Helmet', item_level, 'Helmet', 2, Multipliers)
-    elif item_name == 'Iron_Helmet':
-        return Armour('Iron_Helmet', item_level, 'Helmet', 3, Multipliers)
-    elif item_name == 'Platinum_Helmet':
-        return Armour('Platinum_Helmet', item_level, 'Helmet', 4, Multipliers)
+    elif Name == 'Leather_Helmet':
+        return Armour('Leather_Helmet', Level, 'Helmet', 1, Multipliers)
+    elif Name == 'Bronze_Helmet':
+        return Armour('Bronze_Helmet', Level, 'Helmet', 2, Multipliers)
+    elif Name == 'Iron_Helmet':
+        return Armour('Iron_Helmet', Level, 'Helmet', 3, Multipliers)
+    elif Name == 'Platinum_Helmet':
+        return Armour('Platinum_Helmet', Level, 'Helmet', 4, Multipliers)
 
-    elif item_name == 'None_Chestplate':
+    elif Name == 'None_Chestplate':
         return Armour('None_Chestplate', 0, 'ChestPlate', 0, Multipliers)
-    elif item_name == 'Leather_Chestplate':
-        return Armour('Leather_Chestplate', item_level, 'ChestPlate', 1, Multipliers)
-    elif item_name == 'Bronze_Chestplate':
-        return Armour('Bronze_Chestplate', item_level, 'ChestPlate', 2, Multipliers)
-    elif item_name == 'Iron_Chestplate':
-        return Armour('Iron_Chestplate', item_level, 'ChestPlate', 3, Multipliers)
-    elif item_name == 'Platinum_Chestplate':
-        return Armour('Platinum_Chestplate', item_level, 'ChestPlate', 4, Multipliers)
+    elif Name == 'Leather_Chestplate':
+        return Armour('Leather_Chestplate', Level, 'ChestPlate', 1, Multipliers)
+    elif Name == 'Bronze_Chestplate':
+        return Armour('Bronze_Chestplate', Level, 'ChestPlate', 2, Multipliers)
+    elif Name == 'Iron_Chestplate':
+        return Armour('Iron_Chestplate', Level, 'ChestPlate', 3, Multipliers)
+    elif Name == 'Platinum_Chestplate':
+        return Armour('Platinum_Chestplate', Level, 'ChestPlate', 4, Multipliers)
 
-    elif item_name == 'None_Boot':
+    elif Name == 'None_Boot':
         return Armour('None_Boot', 0, 'Boot', 0, Multipliers)
-    elif item_name == 'Leather_Boot':
-        return Armour('Leather_Boot', item_level, 'Boot', 1, Multipliers)
-    elif item_name == 'Bronze_Boot':
-        return Armour('Bronze_Boot', item_level, 'Boot', 2, Multipliers)
-    elif item_name == 'Iron_Boot':
-        return Armour('Iron_Boot', item_level, 'Boot', 3, Multipliers)
-    elif item_name == 'Platinum_Boot':
-        return Armour('Platinum_Boot', item_level, 'Boot', 4, Multipliers)
+    elif Name == 'Leather_Boot':
+        return Armour('Leather_Boot', Level, 'Boot', 1, Multipliers)
+    elif Name == 'Bronze_Boot':
+        return Armour('Bronze_Boot', Level, 'Boot', 2, Multipliers)
+    elif Name == 'Iron_Boot':
+        return Armour('Iron_Boot', Level, 'Boot', 3, Multipliers)
+    elif Name == 'Platinum_Boot':
+        return Armour('Platinum_Boot', Level, 'Boot', 4, Multipliers)
 
     # General Item
-    elif item_name == 'None':
+    elif Name == 'None':
         return Item('None', 0)
 
     # Potions
-    elif item_name == 'Health_Potion_Small':
-        return Potion('Health_Potion_Small', item_level, 'Health', 10)
-    elif item_name == 'Health_Potion_Medium':
-        return Potion('Health_Potion_Medium', item_level, 'Health', 25)
-    elif item_name == 'Health_Potion_Large':
-        return Potion('Health_Potion_Large', item_level, 'Health', 50)
+    elif Name == 'Health_Potion_Small':
+        return Potion('Health_Potion_Small', Level, 'Health', 10)
+    elif Name == 'Health_Potion_Medium':
+        return Potion('Health_Potion_Medium', Level, 'Health', 25)
+    elif Name == 'Health_Potion_Large':
+        return Potion('Health_Potion_Large', Level, 'Health', 50)
 
-    elif item_name == 'Stamina_Potion_Small':
-        return Potion('Stamina_Potion_Small', item_level, 'Stamina', 10)
-    elif item_name == 'Stamina_Potion_Medium':
-        return Potion('Stamina_Potion_Medium', item_level, 'Stamina', 25)
-    elif item_name == 'Stamina_Potion_Large':
-        return Potion('Stamina_Potion_Large', item_level, 'Stamina', 50)
+    elif Name == 'Stamina_Potion_Small':
+        return Potion('Stamina_Potion_Small', Level, 'Stamina', 10)
+    elif Name == 'Stamina_Potion_Medium':
+        return Potion('Stamina_Potion_Medium', Level, 'Stamina', 25)
+    elif Name == 'Stamina_Potion_Large':
+        return Potion('Stamina_Potion_Large', Level, 'Stamina', 50)
 
-    elif item_name == 'Mana_Potion_Small':
-        return Potion('Mana_Potion_Small', item_level, 'Mana', 10)
-    elif item_name == 'Mana_Potion_Medium':
-        return Potion('Mana_Potion_Medium', item_level, 'Mana', 25)
-    elif item_name == 'Mana_Potion_Large':
-        return Potion('Mana_Potion_Large', item_level, 'Mana', 50)
+    elif Name == 'Mana_Potion_Small':
+        return Potion('Mana_Potion_Small', Level, 'Mana', 10)
+    elif Name == 'Mana_Potion_Medium':
+        return Potion('Mana_Potion_Medium', Level, 'Mana', 25)
+    elif Name == 'Mana_Potion_Large':
+        return Potion('Mana_Potion_Large', Level, 'Mana', 50)
 
     else:
-        raise ValueError(f"Unknown item name: {item_name}")
+        raise ValueError(f"Unknown item name: {Name}")
+
+def Load_Enemies(G, O, D, Og):
+    global Goblin, Orc, Druid, Ogre
+    # Enemies
+    Goblin = Enemy('Goblin', G, 10, 5, 'Fir', 1)
+    Orc = Enemy('Orc', O, 20, 7, 'Wat', 8)
+    Druid = Enemy('Druid', D, 20, 12, 'Nat', 16)
+    Ogre = Enemy('Ogre', Og, 50, 10, 'Fir', 20)
 
 #--- Variables ---
 User = None
 
 Load_File = 0
-
-#--- Has the Player been in Room ---
-Enemy1 = False
-Enemy2 = False
-Enemy3 = False
-Enemy4 = False
-Village1 = False
-Village2 = False
-Village3 = False
-Forest1 = False
-Forest2 = False
-Forest3 = False
-Forest4 = False
-Wizard1 = False
-Wizard2 = False
-Mountain = False
-GoblinKing = False
-
-RareFlower = False
-RareRune = False
 
 #--- Items ---
 Stick = Weapons('Stick', 1, 'Stick', 2)
@@ -705,19 +746,6 @@ Mana_Potion_Small = Potion('Mana_Potion_Small', 1, 'Mana', 10)
 Mana_Potion_Medium = Potion('Mana_Potion_Medium', 3, 'Mana', 25)
 Mana_Potion_Large = Potion('Mana_Potion_Large', 5, 'Mana', 50)
 
-#--- Spells ---
-Fireball = Spells('Fireball', 1, 'Fir', 10, 5)
-Lightning_Blast = Spells('Lightning_Blast', 1, 'Wat', 10, 5)
-Water_Blast = Spells('Water_Blast', 1, 'Wat', 10, 5)
-Vine_Grap = Spells('Vine_Grab', 1, 'Nat', 10, 5)
-Unstable_Concoction = Spells('Unstable_Concoction', 1, 'Nat', 10, 5) # Doubles the Damage of your Next turn
-
-# Enemies
-Goblin = Enemy('Goblin', 10, 5, 'Fir', 1)
-Orc = Enemy('Orc', 20, 7, 'Wat', 8)
-Druid = Enemy('Druid', 20, 12, 'Nat', 16)
-Ogre = Enemy('Ogre', 50, 10, 'Fir', 20)
-
 #--- Functions ---
 
 # Combat
@@ -779,6 +807,8 @@ def PrintMainUI(Room):
     os.system('cls')
     
     User.Location = Room
+    # Set the current room flag to True for the user
+    
 
     map_lines = Map(Room).splitlines()
     stats_lines = DisplayStats().splitlines()
@@ -805,8 +835,10 @@ def PrintMainUI(Room):
     print()
     while True:
         if Exited == False:
+            setattr(User, Room, True)
             Input_Selection(MoveOptions(Room))
             ClearLines(len(MoveOptions(Room)) + 3)
+            
         else:
             break
 
@@ -878,6 +910,21 @@ def DisplayInventoryScreen():
     ClearLines(x)
 
 def TitleScreen():
+    def OverWrite():
+        print('Which save do you you want to overwrite?')
+        print()
+        options = {}
+        if Player_Data_1:
+            options['Save 1'] = lambda: (load({}, 1))
+        if Player_Data_2:
+            options['Save 2'] = lambda: (load({}, 2))
+        if Player_Data_3:
+            options['Save 3'] = lambda: (load({}, 3))
+        if Player_Data_4:
+            options['Save 4'] = lambda: (load({}, 4))
+        options['Exit'] = lambda: TitleScreen()
+        Input_Selection(options)
+                
     os.system('cls')
     try:
         with open(f'Save1.json', 'r') as f:
@@ -926,10 +973,11 @@ def TitleScreen():
 
     ''')
     Input_Selection({
-         'Save 1': lambda: (load(Player_Data_1, 1)),# setattr(variables, 'Load_File', 1)),
-         'Save 2': lambda: (load(Player_Data_2, 2)), #setattr(variables, 'Load_File', 2)),
-         'Save 3': lambda: (load(Player_Data_3, 3)), #setattr(variables, 'Load_File', 3)),
-         'Save 4': lambda: (load(Player_Data_4, 4)), #setattr(variables, 'Load_File', 4)),
+         'Save 1': lambda: (load(Player_Data_1, 1)),
+         'Save 2': lambda: (load(Player_Data_2, 2)),
+         'Save 3': lambda: (load(Player_Data_3, 3)),
+         'Save 4': lambda: (load(Player_Data_4, 4)),
+         'OverWrite Save': lambda: OverWrite(),
          'Exit': lambda: leave()
     })
 
@@ -1052,7 +1100,38 @@ def load(Player_Data, Save):
         'OtherSlot2': {'Item': Load_Items(Player_Data['OtherSlot2']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot2']['Qty']},
         'OtherSlot3': {'Item': Load_Items(Player_Data['OtherSlot3']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot3']['Qty']},
         'OtherSlot4': {'Item': Load_Items(Player_Data['OtherSlot4']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot4']['Qty']},
+
+        # === Game State Flags ===
+        'Enemy1': Player_Data['Enemy1'],
+        'Enemy2': Player_Data['Enemy2'],
+        'Enemy3': Player_Data['Enemy3'],
+        'Enemy4': Player_Data['Enemy4'],
+
+        'Village1': Player_Data['Village1'],
+        'Village2': Player_Data['Village2'],
+        'Village3': Player_Data['Village3'],
+
+        'Forest1': Player_Data['Forest1'],
+        'Forest2': Player_Data['Forest2'],
+        'Forest3': Player_Data['Forest3'],
+        'Forest4': Player_Data['Forest4'],
+
+        'SeenW1': Player_Data['SeenW1'],
+        'SeenW2': Player_Data['SeenW2'],
+
+        'Wizard1': Player_Data['Wizard1'],
+        'Wizard2': Player_Data['Wizard2'],
+        'Mountain': Player_Data['Mountain'],
+        'GoblinKing': Player_Data['GoblinKing'],
+
+        'RareFlower': Player_Data['RareFlower'],
+        'RareRune': Player_Data['RareRune'],
+
+        'Enemies': Player_Data['Enemies']
         }
+
+        
+
         User = Player(Data)
 
 def leave():
@@ -1096,7 +1175,35 @@ def CreateCharacter():
         'OtherSlot4': {'Item': None_Item, 'Qty': 0},
 
         'Location': 'Forest1',
-        'Gold': 100000
+        'Gold': 100000,
+
+        'Enemy1': False,
+        'Enemy2': False,
+        'Enemy3': False,
+        'Enemy4': False,
+
+        'Village1': False,
+        'Village2': False,
+        'Village3': False,
+
+        'Forest1': False,
+        'Forest2': False,
+        'Forest3': False,
+        'Forest4': False,
+
+
+        'SeenW1': False,
+        'SeenW2': False,
+        
+        'Wizard1': False,
+        'Wizard2': False,
+        'Mountain': False,
+        'GoblinKing': False,
+
+        'RareFlower': False,
+        'RareRune': False,
+
+        'Enemies': {'G': 10, 'O': 20, 'D': 20, 'Og': 50}
     }
 
     User = Player(Player_Data)
@@ -1124,122 +1231,116 @@ def Enchantment(item, type=None):
 
 # Movement
 def MoveOptions(Room):
-    global Wizard1, RareFlower
-    Leave = {"Exit": lambda: Exiting()}
-    
+    global User
+
+    def RemoveStamina(Stamina):
+        User.Stamina['Stamina'] -= Stamina
+
+    Leave = {
+        "Inventory": lambda: DisplayInventoryScreen(),
+        "Exit": lambda: Exiting()
+    }
+
     def RoomOptions():
         if Room == 'Enemy1':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "North East (Enemy2) (6)": lambda: PrintMainUI('Enemy2'),
-                "South (Forest2) (4)": lambda: PrintMainUI('Forest2'),
-                "East (Vilage1) (2)": lambda: PrintMainUI('Village1'),
-                "West (Forest1) (2)": lambda: PrintMainUI('Forest1'),
+                "North East (Enemy2) (6)": lambda: (RemoveStamina(6), PrintMainUI('Enemy2')),
+                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),
+                "East (Vilage1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),
+                "West (Forest1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Forest1')),
             }
         elif Room == 'Enemy2':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "North (Enemy3) (3)": lambda: PrintMainUI('Enemy3'),
-                "South East (Forest3) (6)": lambda: PrintMainUI('Forest3'),
-                "South West (Enemy1) (2)": lambda: PrintMainUI('Enemy1'),
-                "East (Wizard1) (2)": lambda: PrintMainUI('Wizard1'),
+                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),
+                "South East (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),
+                "South West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
+                "East (Wizard1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Wizard1')),
             }
         elif Room == 'Enemy3':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "South East (Wizard1) (4)": lambda: PrintMainUI('Wizard1'),
-                "South West (Enemy2) (3)": lambda: PrintMainUI('Enemy2'),
-                "West (Mountain) (20)": lambda: PrintMainUI('Mountain'),
+                "South East (Wizard1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Wizard1')),
+                "South West (Enemy2) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy2')),
+                "West (Mountain) (20)": lambda: (RemoveStamina(20), PrintMainUI('Mountain')),
             }
         elif Room == 'Enemy4':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "North West (Forest4) (8)": lambda: PrintMainUI('Village2'),
-                "East (GoblinKing) (4)": lambda: PrintMainUI('GoblinKing'),
-                "West (Village2) (8)": lambda: PrintMainUI('Village2'),
+                "North West (Forest4) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),
+                "East (GoblinKing) (4)": lambda: (RemoveStamina(4), PrintMainUI('GoblinKing')),
+                "West (Village2) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),
             }
         elif Room == 'Village1':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
                 "Enter Village": lambda: (ClearLines(8), EnterVillage('Village1')),
-                "South (Forest2) (4)": lambda: PrintMainUI('Forest2'),
-                "East (Village2) (5)": lambda: PrintMainUI('Village2'),
-                "West (Enemy1) (2)": lambda: PrintMainUI('Enemy1'),
+                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),
+                "East (Village2) (5)": lambda: (RemoveStamina(5), PrintMainUI('Village2')),
+                "West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
             }
         elif Room == 'Village2':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
                 "Enter Village": lambda: (ClearLines(8), EnterVillage('Village2')),
-                "South East (Wizard2) (7)": lambda: PrintMainUI('Wizard2'),
-                "East (Enemy4) (5)": lambda: PrintMainUI('Enemy4'),
-                "West (Village1) (2)": lambda: PrintMainUI('Village1'),
+                "South East (Wizard2) (7)": lambda: (RemoveStamina(7), PrintMainUI('Wizard2')),
+                "East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),
+                "West (Village1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),
             }
         elif Room == 'Village3':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
                 "Enter Village": lambda: (ClearLines(5), EnterVillage('Village1')),
-                "North West (Forest4) (4)": lambda: PrintMainUI('Forest4'),
+                "North West (Forest4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest4')),
             }
         elif Room == 'Forest1':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "East (Enemy) (2)": lambda: PrintMainUI('Enemy1'),
+                "East (Enemy) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
             }
         elif Room == 'Forest2':
-            if Wizard1 == True:
-                RareFlower = True
+            if User.SeenW1:
+                User.RareFlower = True
                 print('''
         You found a Rare Flower!
                 ''')
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "North East (Village1) (4)": lambda: PrintMainUI('Village1'),
-                "North West (Enemy1) (4)": lambda: PrintMainUI('Enemy1'),
+                "North East (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),
+                "North West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),
             }
         elif Room == 'Forest3':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "North East (Forest4) (5)": lambda: PrintMainUI('Forest4'),
-                "North West (Enemy2) (4)": lambda: PrintMainUI('Enemy2'),
-                "East (Enemy4) (4)": lambda: PrintMainUI('Enemy4'),
-                "West (Enemy1) (4)": lambda: PrintMainUI('Enemy1'),
+                "North East (Forest4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Forest4')),
+                "North West (Enemy2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy2')),
+                "East (Enemy4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),
+                "West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),
             }
         elif Room == 'Forest4':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "South East (Enemy4) (5)": lambda: PrintMainUI('Enemy4'),
-                "South West (Forest3) (6)": lambda: PrintMainUI('Forest3'),
-                "East (Village3) (4)": lambda: PrintMainUI('Village3'),
-                
+                "South East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),
+                "South West (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),
+                "East (Village3) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village3')),
             }
         elif Room == 'Wizard1':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
                 "Enter Wizard Tower": lambda: EnterWizardTower('Wizard1'),
-                "North (Enemy3) (3)": lambda: PrintMainUI('Enemy3'),
-                "West (Enemy2) (2)": lambda: PrintMainUI('Enemy2'),
+                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),
+                "West (Enemy2) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy2')),
             }
         elif Room == 'Wizard2':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
                 "Enter Wizard Tower": lambda: EnterWizardTower('Wizard2'),
-                "North East (Village2) (4)": lambda: PrintMainUI('Village2'),
-                "North West (Village1) (4)": lambda: PrintMainUI('Village1'),
+                "North East (Village2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village2')),
+                "North West (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),
             }
         elif Room == 'Mountain':
+            if User.SeenW2:
+                User.RareRune = True
+                print('''
+        You found a Rare Rune!
+                ''')
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "East (Mountain) (20)": lambda: PrintMainUI('Mountain'),
+                "East (Enemy3) (10)": lambda: (RemoveStamina(10), PrintMainUI('Enemy3')),
             }
         elif Room == 'GoblinKing':
             return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-                "West (Enemy 4) (4)": lambda: PrintMainUI('Enemy4'),
+                "West (Enemy 4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),
             }
         else:
-            return {
-                "Inventory": lambda: DisplayInventoryScreen(),
-            }
+            return {}
 
     options = {}
     options.update(Leave)
@@ -1248,7 +1349,7 @@ def MoveOptions(Room):
 
 def Story(Room):
     if Room == 'Enemy1':
-        if Enemy1 == False:
+        if User.Enemy1 == False:
             input('Press Enter to Enter Combat...')
             Combat(Goblin, 'Enemy1')
             return ''
@@ -1256,7 +1357,7 @@ def Story(Room):
             return f'''You See the remains of a battle fought here. The ground is scorched, and the air is heavy with the scent of burnt wood and blood.'''
     
     elif Room == 'Enemy2':
-        if Enemy2 == False:
+        if User.Enemy2 == False:
             input('Press Enter to Enter Combat...')
             Combat(Orc, 'Enemy2')
             return ''
@@ -1264,7 +1365,7 @@ def Story(Room):
             return f'''None'''
     
     elif Room == 'Enemy3':
-        if Enemy3 == False:
+        if User.Enemy3 == False:
             input('Press Enter to Enter Combat...')
             Combat(Druid, 'Enemy3')
             return ''
@@ -1272,7 +1373,7 @@ def Story(Room):
             return f'''None'''
     
     elif Room == 'Enemy4':
-        if Enemy4 == False:
+        if User.Enemy4 == False:
             input('Press Enter to Enter Combat...')
             Combat(Ogre, 'Enemy4')
             return ''
@@ -1280,67 +1381,67 @@ def Story(Room):
             return f'''None'''
     
     elif Room == 'Village1':
-        if Village1 == False:
+        if User.Village1 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Village2':
-        if Village2 == False:
+        if User.Village2 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Village3':
-        if Village3 == False:
+        if User.Village3 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Forest1':
-        if Forest1 == False:
+        if User.Forest1 == False:
             return f'''Your Eyes flutter open...'''
         else:
             return f'''You return to the Dark Forest, where you first awoke. The trees are still as dark and foreboding as ever, but you feel a sense of familiarity here.'''
     
     elif Room == 'Forest2':
-        if Forest2 == False:
+        if User.Forest2 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Forest3':
-        if Forest3 == False:
+        if User.Forest3 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Forest4':
-        if Forest4 == False:
+        if User.Forest4 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Wizard1':
-        if Wizard1 == False:
+        if User.Wizard1 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Wizard2':
-        if Wizard2 == False:
+        if User.Wizard2 == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'Mountain':
-        if Mountain == False:
+        if User.Mountain == False:
             return f'''None'''
         else:
             return f'''None'''
     
     elif Room == 'GoblinKing':
-        if GoblinKing == False:
+        if User.GoblinKing == False:
             return f'''None'''
         else:
             return f'''None'''
@@ -1489,6 +1590,25 @@ def Exiting():
     global Load_File
     User.Save(Load_File)
     TitleScreen()
+
+def Died(DeathCause):
+    os.system('cls')
+    print(f'''
+ ▄· ▄▌      ▄• ▄▌    ·▄▄▄▄  ▪  ▄▄▄ .·▄▄▄▄  
+▐█▪██▌▪     █▪██▌    ██▪ ██ ██ ▀▄.▀·██▪ ██ 
+▐█▌▐█▪ ▄█▀▄ █▌▐█▌    ▐█· ▐█▌▐█·▐▀▀▪▄▐█· ▐█▌
+ ▐█▀·.▐█▌.▐▌▐█▄█▌    ██. ██ ▐█▌▐█▄▄▌██. ██ 
+  ▀ •  ▀█▄▀▪ ▀▀▀     ▀▀▀▀▀• ▀▀▀ ▀▀▀ ▀▀▀▀▀• 
+
+You Died to {DeathCause}
+''')
+    input('Enter to Delete Save...')
+
+    with open(f'Save{Load_File}.json', 'w') as file:
+        json.dump({}, file) # Dumps an empty dictionary to the file
+
+    TitleScreen()
+
 
 TitleScreen()
 
