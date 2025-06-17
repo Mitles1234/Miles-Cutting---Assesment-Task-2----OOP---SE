@@ -11,9 +11,6 @@ from wcwidth import wcswidth
 #--- Classes ---
 class Player():
     def __init__(self, Save):
-
-        print(Save)
-
         self.Player_Name = Save['Player_Name']
 
         self.Health = {'Health': Save['Health']['Health'], 'Max_Health': Save['Health']['Max_Health']}
@@ -163,14 +160,7 @@ class Potion(Item):
                 if slot['Qty'] == 0:
                     slot['Item'] = None_Item
                 break
-
-class Spells(Item):
-    def __init__(self, name, level, type, mana_cost, damage):
-        super().__init__(name, level)
-        self.type = type
-        self.mana_cost = mana_cost
-        self.damage = damage
-
+            
 class Enemy():
     def __init__(self, name, health, max_health, damage, type, level):
         self.name = name

@@ -3,7 +3,6 @@
 
 ***
 
-
 # Sprint 1:
 ### **Requirements Outline**
 #### **Functional Requirements**
@@ -29,7 +28,6 @@
         - When they Encounter an Enemy
         - When they Encounter a Friend
         - When they need to find shelter
-        - When they need to eat/drink
     - The user needs to receive a range of actions for how to handle a situation, with more then one change in any given situation to have a 'second chance' such as
         - Being able to turn around while adventuring
         - Combat involving multiple back and forth turns for the player to learn the type of attacks that work on enemies
@@ -123,9 +121,11 @@ Combat:
 
     In combat, the player can equip and use only one physical damage item at a time, such as a sword, dagger, or axe. This item is their primary melee weapon, but its effectiveness varies depending on the enemy type—certain enemies may be resistant or vulnerable to specific weapon types. In addition to their physical weapon, the player can access a range of offensive spells, each consuming mana when cast. These spells may include elemental attacks like fireball, ice shard, or lightning strike, and can be more effective against specific enemy classes, for example, fire-based spells dealing extra damage to nature-type enemies. Combat remains turn-based, giving the player time to consider their options and adapt to enemy behavior over multiple rounds. This allows for strategic decision, making, where the player might switch between physical attacks and magical abilities depending on the opponent’s strengths and weaknesses. The combat system encourages experimentation and progression as the player learns which tactics are most effective in different encounters.
 
-Mana / Magical:
+Inventory: (Mana / Magical)
 
     The magic system plays a major role in gameplay, with mana being consumed whenever a magical item is used. This includes attacking with enchanted weapons, taking damage while wearing enchanted armor, casting spells like fireball, or activating magical items such as stamina necklaces. If the player runs out of mana, all enchantments become inactive until mana is replenished. Mana can be restored either by visiting a priest in a town or using a mana potion in the field. As the player earns experience from combat, trades, and magical item use, they gain access to stronger magical items and abilities. One key feature of this system is the use of enchanted gear, which can grant passive bonuses—such as increased speed, which reduces stamina usage when moving or gives the player stronger actions during combat.
+
+<img src="StoryBoard_MainUI.png" alt="Alt Text" width="500">
 
 
 ### Review:
@@ -490,7 +490,46 @@ Inventory = { # Creates a Dictionary based on the information set previously (De
 ### Review Questions
 
 #### Evaluate how effectively your project meets the functional and non-functional requirements defined in your planning.
- - After sprint 2, my project more closely alligns with my functional and non function requirements in terms of what can be done with the program, however, many of these functions still need to be linked together to work in Unison. (I have a variety of functions that can all preform the physical functions that need to happen, but I still need to make them call eachother through the content of the game) For these reasons, my project has mildly achieved the success criteria.
+ - The project successfully meets the majority of its functional and non-functional requirements as outlined in the initial planning documents. Core features such as displaying player statistics (health, stamina, mana, inventory, gold, location) and supporting terminal-based interaction using simplified input commands are fully implemented and operational. Originally planned to use directional inputs like "N", "S", "E", and "W" for movement, the system has since been refined to use a numbered input system instead. This change improves usability by allowing users to make decisions more quickly and intuitively, streamlining the experience and minimizing typing errors.
+
+ - The system also meets key non-functional goals. It performs efficiently due to its text-based design, quickly handling scene changes and updates with minimal delay. User feedback is clear and consistent throughout, and reliable input handling ensures a smooth user experience. The program responds eficiently, and directly to invalid inputs without crashing, fulfilling error handling. Reliability is further supported through the use of classes and structured systems for statistics and interactions.
+
+ - The final two areas that still require work are the inventory screen, which I want to refine to display more relevent data, and the Boss Battle scene, which still needs to be developed.
 
 #### Analyse the performance of your program against the key use-cases you identified.
- - 
+ - The program performs well across the key use-cases defined in the design phase. Movement between areas is handled using a numbered input system rather than the initially planned directional (N/S/E/W) system. This update has improved ease of use and reduced input errors, allowing for quicker navigation and a more streamlined experience.
+
+ - Combat encounters function as expected, with turn-based logic that allows players to equip a physical weapon and engage in multi-turn battles. Damage is calculated based on the player’s equipped weapon and the enemy’s attributes, and players are able to adapt their strategy across rounds. The system responds accurately to player choices, such as attacking or using items, and clearly displays the results of each action.
+
+ - Players can view their statistics and inventory at any time, completing my data retrieval reuirement. Inventory interaction, trading, and exploration function correctly, and stamina is managed consistently during travel. Input validation has been thoroughly tested, and no major errors or crashes have occurred thanks to the robust input handling function.
+
+ - Although the final boss fight and story progression are still in development, the core use-cases for interaction, navigation, combat, and stat management are effectively implemented.
+
+#### Assess the quality of your code in terms of readability, structure, and maintainability.
+ - Overall, the code is high quality in terms of readability and maintainability. My code has conistent and cohesive comments to thoroughly explain logic, which improves readability for others.
+
+ - The use of classes for modular components (e.g., Player, Enemy, Villager) improves reusability. Each of the functions efficiently uses parameters to effecively and effciently transmit code throughout the system's range of functions.
+
+ - Currently, the entire program resides in a single file due to previous issues with circular imports. However, there is a plan to split the program into separate files again (e.g., for inventory, UI, enemies, etc.), which would greatly enhance maintainability and organization.
+
+#### Explain the improvements that should be made in the next stage of development.
+ - The next stage of development should focus on both feature completion and structural refinement:
+
+    - Feature Enhancements:
+
+        - Finalize the inventory system to improve its visual layout and include additional data (e.g. Show more items, and more statistics)
+
+        - Implement the boss fight to complete the game’s core narrative and difficulty arc.
+
+        - Integrate the story and scripted events to enhance immersion and give purpose to gameplay progression.
+
+    - Code Improvements:
+
+        - Reorganize the code into multiple Python modules once circular import issues are resolved. This will make the program easier to scale and debug.
+
+ - These improvements will not only polish the game experience but also position the project as a well-structured, maintainable application.
+
+# Sprint 3
+
+### Review Questions
+
