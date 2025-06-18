@@ -1,168 +1,191 @@
 #--- Imports ---
-import os
-import random
-import time
-import json
-import math
-from wcwidth import wcswidth
+import os # Used for editing the terminal view
+import random # Allows for randomness between different runs
+import time # Allows for more interactive UI by incorperating time
+import json # Used for saving
+import math # Used to calculate events
+from wcwidth import wcswidth # Used to handle the Emoji and Ascii problems
+from functools import partial 
 
 
 
 #--- Classes ---
 class Player():
+    '''This class is used to create the Player information system, and is designed to be adaptive, allowing for different save files to be loaded, and unloaded'''
     def __init__(self, Save):
-        self.Player_Name = Save['Player_Name']
+        '''Loads the Player data from the Save file (Which is a Dictionary)'''
+        self.Player_Name = Save['Player_Name'] # Loads Player Name from Save file
 
-        self.Health = {'Health': Save['Health']['Health'], 'Max_Health': Save['Health']['Max_Health']}
-        self.Stamina = {'Stamina': Save['Stamina']['Stamina'], 'Max_Stamina': Save['Stamina']['Max_Stamina']}
-        self.Mana = {'Mana': Save['Mana']['Mana'], 'Max_Mana': Save['Mana']['Max_Mana']}
+        self.Health = {'Health': Save['Health']['Health'], 'Max_Health': Save['Health']['Max_Health']} # Loads Health and Max Health into a dictionary
+        self.Stamina = {'Stamina': Save['Stamina']['Stamina'], 'Max_Stamina': Save['Stamina']['Max_Stamina']} # Loads Stamina and Max Stamina into a dictionary
+        self.Mana = {'Mana': Save['Mana']['Mana'], 'Max_Mana': Save['Mana']['Max_Mana']} # Loads Mana and Max Mana into a dictionary
 
-        self.WeaponSlot = Save['WeaponSlot']
-        self.HelmetSlot = Save['HelmetSlot']
-        self.ChestplateSlot = Save['ChestplateSlot']
-        self.BootSlot = Save['BootSlot']
+        self.WeaponSlot = Save['WeaponSlot'] # Loads Weapon from the Save File
+        self.HelmetSlot = Save['HelmetSlot'] # Loads the Helmet from the Save File
+        self.ChestplateSlot = Save['ChestplateSlot'] # Loads the Chestplate from the Save file
+        self.BootSlot = Save['BootSlot'] # Loads the Boot from the Chestplate
 
-        self.OtherSlot1 = {'Item': Save['OtherSlot1']['Item'], 'Qty': Save['OtherSlot1']['Qty']}
-        self.OtherSlot2 = {'Item': Save['OtherSlot2']['Item'], 'Qty': Save['OtherSlot2']['Qty']}
-        self.OtherSlot3 = {'Item': Save['OtherSlot3']['Item'], 'Qty': Save['OtherSlot3']['Qty']}
-        self.OtherSlot4 = {'Item': Save['OtherSlot4']['Item'], 'Qty': Save['OtherSlot4']['Qty']}
+        self.OtherSlot1 = {'Item': Save['OtherSlot1']['Item'], 'Qty': Save['OtherSlot1']['Qty']} # Loads the Item and Qty from save file for Save File 1
+        self.OtherSlot2 = {'Item': Save['OtherSlot2']['Item'], 'Qty': Save['OtherSlot2']['Qty']} # Loads the Item and Qty from save file for Save File 2
+        self.OtherSlot3 = {'Item': Save['OtherSlot3']['Item'], 'Qty': Save['OtherSlot3']['Qty']} # Loads the Item and Qty from save file for Save File 3
+        self.OtherSlot4 = {'Item': Save['OtherSlot4']['Item'], 'Qty': Save['OtherSlot4']['Qty']} # Loads the Item and Qty from save file for Save File 4
         
-        self.Location = Save['Location']
-        self.Gold = Save['Gold']
+        self.Location = Save['Location'] # Loads the Player Location
+        self.Gold = Save['Gold'] # Loads the Player Gold
 
-        self.Enemy1 = Save['Enemy1']
-        self.Enemy2 = Save['Enemy2']
-        self.Enemy3 = Save['Enemy3']
-        self.Enemy4 = Save['Enemy4']
-        self.Village1 = Save['Village1']
-        self.Village2 = Save['Village2']
-        self.Village3 = Save['Village3']
-        self.Forest1 = Save['Forest1']
-        self.Forest2 = Save['Forest2']
-        self.Forest3 = Save['Forest3']
-        self.Forest4 = Save['Forest4']
-        self.SeenW1 = Save['SeenW1']
-        self.SeenW2 = Save['SeenW2']
-        self.Wizard1 = Save['Wizard1']
-        self.Wizard2 = Save['Wizard2']
-        self.Mountain = Save['Mountain']
-        self.GoblinKing = Save['GoblinKing']
-        self.RareFlower = Save['RareFlower']
-        self.RareRune = Save['RareRune']
+        self.Enemy1 = Save['Enemy1'] # Loads wether the player has been in room for a more adaptive story 
+        self.Enemy2 = Save['Enemy2'] # Loads wether the player has been in room for a more adaptive story 
+        self.Enemy3 = Save['Enemy3'] # Loads wether the player has been in room for a more adaptive story 
+        self.Enemy4 = Save['Enemy4'] # Loads wether the player has been in room for a more adaptive story 
+        self.Village1 = Save['Village1'] # Loads wether the player has been in room for a more adaptive story 
+        self.Village2 = Save['Village2'] # Loads wether the player has been in room for a more adaptive story 
+        self.Village3 = Save['Village3'] # Loads wether the player has been in room for a more adaptive story 
+        self.Forest1 = Save['Forest1'] # Loads wether the player has been in room for a more adaptive story 
+        self.Forest2 = Save['Forest2'] # Loads wether the player has been in room for a more adaptive story 
+        self.Forest3 = Save['Forest3'] # Loads wether the player has been in room for a more adaptive story 
+        self.Forest4 = Save['Forest4'] # Loads wether the player has been in room for a more adaptive story 
+        self.SeenW1 = Save['SeenW1'] # Loads wether the player has been in room for a more adaptive story 
+        self.SeenW2 = Save['SeenW2'] # Loads wether the player has been in room for a more adaptive story 
+        self.Wizard1 = Save['Wizard1'] # Loads wether the player has been in room for a more adaptive story 
+        self.Wizard2 = Save['Wizard2'] # Loads wether the player has been in room for a more adaptive story 
+        self.Mountain = Save['Mountain'] # Loads wether the player has been in room for a more adaptive story 
+        self.GoblinKing = Save['GoblinKing'] # Loads wether the player has been in room for a more adaptive story 
+        self.RareFlower = Save['RareFlower'] # Loads wether the player has obtained the Flower
+        self.RareRune = Save['RareRune'] # Loads wether the player has obtained the Rune
 
-        self.Enemies = {'G': Save['Enemies']['G'], 'O': Save['Enemies']['O'], 'D': Save['Enemies']['D'], 'Og': Save['Enemies']['Og']}
+        self.Enemies = {'G': Save['Enemies']['G'], 'O': Save['Enemies']['O'], 'D': Save['Enemies']['D'], 'Og': Save['Enemies']['Og']} # Loads the Health of Each Enemy
 
-        Load_Enemies(Save['Enemies']['G'], Save['Enemies']['O'], Save['Enemies']['D'], Save['Enemies']['Og'])
+        Load_Enemies(Save['Enemies']['G'], Save['Enemies']['O'], Save['Enemies']['D'], Save['Enemies']['Og']) # Loads the Enemies into the System, with the health files
 
     def Save(self, Save):
-        # Only save essential information for each item (name and level) for compatibility with Load_Items()
+        '''Transfers the Information from the Save File into the JSON File'''
 
-        Player_Stats = {
-            'Player_Name': self.Player_Name,
-            'Health': self.Health,
-            'Stamina': self.Stamina,
-            'Mana': self.Mana,
-            'WeaponSlot': {'Name': self.WeaponSlot.name, 'Level': self.WeaponSlot.level, 'Multiplyers': self.WeaponSlot.multiplyers},
-            'HelmetSlot': {'Name': self.HelmetSlot.name, 'Level': self.HelmetSlot.level, 'Multiplyers': self.HelmetSlot.multiplyers},
-            'ChestplateSlot': {'Name': self.ChestplateSlot.name, 'Level': self.ChestplateSlot.level, 'Multiplyers': self.ChestplateSlot.multiplyers},
-            'BootSlot': {'Name': self.BootSlot.name, 'Level': self.BootSlot.level, 'Multiplyers': self.BootSlot.multiplyers},
-            'OtherSlot1': {'Item': self.OtherSlot1['Item'].name, 'Qty': self.OtherSlot1['Qty']},
-            'OtherSlot2': {'Item': self.OtherSlot2['Item'].name, 'Qty': self.OtherSlot2['Qty']},
-            'OtherSlot3': {'Item': self.OtherSlot3['Item'].name, 'Qty': self.OtherSlot3['Qty']},
-            'OtherSlot4': {'Item': self.OtherSlot4['Item'].name, 'Qty': self.OtherSlot4['Qty']},
-            'Location': self.Location,
-            'Gold': self.Gold,
+        Player_Stats = { # Creates a Dictionary of the Data
+            'Player_Name': self.Player_Name, # Loads Player Name from the Player Attributes
+            'Health': self.Health, # Loads the Player Health Dictionary from Player Attributes, making it contain both player Health and Max Health
+            'Stamina': self.Stamina, # Loads the Player Stamina Dictionary from Player Attributes, making it contain both player Stamina and Max Stamina
+            'Mana': self.Mana, # Loads the Player Mana Dictionary from Player Attributes, making it contain both player Mana and Max Mana
+            'WeaponSlot': {'Name': self.WeaponSlot.name, 'Level': self.WeaponSlot.level, 'Multiplyers': self.WeaponSlot.multiplyers}, # Stores only Necessary Values - i.e Name, Item Level, and the Encahntments on the Weapon
+            'HelmetSlot': {'Name': self.HelmetSlot.name, 'Level': self.HelmetSlot.level, 'Multiplyers': self.HelmetSlot.multiplyers}, # Stores only Necessary Values - i.e Name, Item Level, and the Encahntments on the Helmet
+            'ChestplateSlot': {'Name': self.ChestplateSlot.name, 'Level': self.ChestplateSlot.level, 'Multiplyers': self.ChestplateSlot.multiplyers},  # Stores only Necessary Values - i.e Name, Item Level, and the Encahntments on the Chestplate
+            'BootSlot': {'Name': self.BootSlot.name, 'Level': self.BootSlot.level, 'Multiplyers': self.BootSlot.multiplyers}, # Stores only Necessary Values - i.e Name, Item Level, and the Encahntments on the Boots
+            'OtherSlot1': {'Item': self.OtherSlot1['Item'].name, 'Qty': self.OtherSlot1['Qty']}, # Stores only Necessary Values - i.e Name and Quantity of the Items
+            'OtherSlot2': {'Item': self.OtherSlot2['Item'].name, 'Qty': self.OtherSlot2['Qty']}, # Stores only Necessary Values - i.e Name and Quantity of the Items
+            'OtherSlot3': {'Item': self.OtherSlot3['Item'].name, 'Qty': self.OtherSlot3['Qty']}, # Stores only Necessary Values - i.e Name and Quantity of the Items
+            'OtherSlot4': {'Item': self.OtherSlot4['Item'].name, 'Qty': self.OtherSlot4['Qty']}, # Stores only Necessary Values - i.e Name and Quantity of the Items
+            'Location': self.Location, # Stores The Player Location
+            'Gold': self.Gold, # Stores the Players amount of Gold
 
-            'Enemy1': self.Enemy1,
-            'Enemy2': self.Enemy2,
-            'Enemy3': self.Enemy3,
-            'Enemy4': self.Enemy4,
+            'Enemy1': self.Enemy1, # Stores Whether the Player has been in the Room
+            'Enemy2': self.Enemy2, # Stores Whether the Player has been in the Room
+            'Enemy3': self.Enemy3, # Stores Whether the Player has been in the Room
+            'Enemy4': self.Enemy4, # Stores Whether the Player has been in the Room
 
-            'Village1': self.Village1,
-            'Village2': self.Village2,
-            'Village3': self.Village3,
+            'Village1': self.Village1, # Stores Whether the Player has been in the Room
+            'Village2': self.Village2, # Stores Whether the Player has been in the Room
+            'Village3': self.Village3, # Stores Whether the Player has been in the Room
 
-            'Forest1': self.Forest1,
-            'Forest2': self.Forest2,
-            'Forest3': self.Forest3,
-            'Forest4': self.Forest4,
+            'Forest1': self.Forest1, # Stores Whether the Player has been in the Room
+            'Forest2': self.Forest2, # Stores Whether the Player has been in the Room
+            'Forest3': self.Forest3, # Stores Whether the Player has been in the Room
+            'Forest4': self.Forest4, # Stores Whether the Player has been in the Room
 
-            'SeenW1': self.SeenW1,
-            'SeenW2': self.SeenW2,
+            'SeenW1': self.SeenW1, # Stores Whether the Player has been in the Room
+            'SeenW2': self.SeenW2, # Stores Whether the Player has been in the Room
 
-            'Wizard1': self.Wizard1,
-            'Wizard2': self.Wizard2,
-            'Mountain': self.Mountain,
-            'GoblinKing': self.GoblinKing,
+            'Wizard1': self.Wizard1, # Stores Whether the Player has been in the Room
+            'Wizard2': self.Wizard2, # Stores Whether the Player has been in the Room
+            'Mountain': self.Mountain, # Stores Whether the Player has been in the Room
+            'GoblinKing': self.GoblinKing, # Stores Whether the Player has been in the Room
 
-            'RareFlower': self.RareFlower,
-            'RareRune': self.RareRune,
+            'RareFlower': self.RareFlower, # Stores Whether the Player has obtained the Rare Flower
+            'RareRune': self.RareRune,# Stores Whether the Player has obtained the Rare Rune
 
-            'Enemies': {'G': Goblin.health, 'O': Orc.health, 'D': Druid.health, 'Og': Ogre.health}
+            'Enemies': {'G': Goblin.health, 'O': Orc.health, 'D': Druid.health, 'Og': Ogre.health} # Stores the Enemy Health
         }
 
-        with open(f'Save{Save}.json', 'w') as f:
-            json.dump(Player_Stats, f)
+        with open(f'Save{Save}.json', 'w') as f: # Opens the JSON file attached to the Load File
+            json.dump(Player_Stats, f) # Puts the Player Data into the JSON file
 
     def Attacking(self, Target):
-        Target.Player_Attacked()
+        '''Allows the Player to Attack an Enemy, by Specifying which Enemy to Attack'''
+        Target.Player_Attacked() # Runs the Player_Attacked Function of the specified Target
 
     def Attacked(self, Damage, Type):
-        self.Health['Health'] -= round(Damage / ((self.HelmetSlot.multiplyers[Type] + self.ChestplateSlot.multiplyers[Type] + self.BootSlot.multiplyers[Type]) / 3))
+        '''Calculates Damage of Enemy, based of of the Multipliers on the Players Armour'''
+        try:
+            self.Health['Health'] -= round(Damage / ((self.HelmetSlot.protection + self.ChestplateSlot.protection + self.BootSlot.protection) / 3) * ((self.HelmetSlot.multiplyers[Type] + self.ChestplateSlot.multiplyers[Type] + self.BootSlot.multiplyers[Type]) / 3)) # Calculates the Protection based on factors such as Protection and Enchantment Levels
+
+        except:
+            self.Health['Health'] -= Damage
 
 class Item():
+    '''This class creates the Foundation for Creating Items in the Game'''
     def __init__(self, name, level):
-        self.name = name
-        self.level = level
+        'This function initalises the Items Variables'
+        self.name = name # Defines the Items Name
+        self.level = level # Defines the Ites Level
 
 class Weapons(Item):
-    def __init__(self, name, level, type, damage, multiplyers=None):
-        super().__init__(name, level)
-        self.type = type
-        self.damage = damage
+    '''This Class outlines the basics for creating Weapons'''
+    def __init__(self, name, level, type, damage, multiplyers=None): 
+        '''This Function Inherits the Prarameters from Item, and adds Weapon Specific Parameters'''
+        super().__init__(name, level) # Inherits the Parameters from Item
+        self.type = type # Defines the Weapon Type - i.e Sword, Axe, Mace
+        self.damage = damage # Defines the Weapons Damage
         
-        if multiplyers is None:
-            self.multiplyers = {'Wat': 1, 'Fir': 1, 'Nat': 1}
+        if multiplyers is None: # If Multipliers is Undefined - Not given when creating the Weapon
+            self.multiplyers = {'Wat': 1, 'Fir': 1, 'Nat': 1} # Sets Multiplers all to 1
         else:
-            self.multiplyers = multiplyers
+            self.multiplyers = multiplyers # If Multiplers are given, uses the given ones
 
     def setmultiplyers(self, Multiplyers):
-        self.multiplyers = Multiplyers
+        '''This Function allows the setting of the Multiplers - Used to Enchant the Item'''
+        self.multiplyers = Multiplyers # Sets the Multiplers
 
 class Armour(Item):
+    '''This Class outlines the basics for creating Armour'''
     def __init__(self, name, level, type, protection, multiplyers=None):
-        super().__init__(name, level)
-        self.protection = protection
-        self.type = type
+        '''This Function Inherits the Prarameters from Item, and adds Armour Specific Parameters'''
+        super().__init__(name, level) # Inherits the Parameters from Item
+        self.type = type # Defines the Type of Armour - i.e Helmet, Chestplate, Boots
+        self.protection = protection # Defines the Protection level of the Armour
 
-        if multiplyers is None:
-            self.multiplyers = {'Wat': 1, 'Fir': 1, 'Nat': 1}
+
+        if multiplyers is None: # If Multipliers is Undefined - Not given when creating the Armour piece
+            self.multiplyers = {'Wat': 1, 'Fir': 1, 'Nat': 1} # Sets Multiplers all to 1
         else:
-            self.multiplyers = multiplyers
+            self.multiplyers = multiplyers # If Multiplers are given, uses the given ones
 
     def setmultiplyers(self, Multiplyers):
         self.multiplyers = Multiplyers
             
 class Potion(Item):
+    '''This Class creates potions, and allows them to be made at different strengths, to impact the Player different stats'''
     def __init__(self, name, level, effect, strength):
-        super().__init__(name, level)
-        self.effect = effect
-        self.strength = strength
+        '''This Function Inherits the Prarameters from Item, and adds Potion Specific Parameters'''
+        super().__init__(name, level) # Inherits the Parameters from Item
+        self.effect = effect # Defines the effect the Potion impacts - i.e Health, Stamina, Mana
+        self.strength = strength # Defines the Strength of the Potion
 
     def Use_Potion(self, Target):
-        getattr(Target, self.effect)[self.effect] += self.strength
-        if getattr(Target, self.effect)[self.effect] > getattr(Target, self.effect)[f'Max_{self.effect}']:
-            getattr(Target, self.effect)[self.effect] = getattr(Target, self.effect)[f'Max_{self.effect}']
+        '''This function allows the Potion to be Used'''
+        getattr(Target, self.effect)[self.effect] += self.strength # Applies the Effect to the Target
+        if getattr(Target, self.effect)[self.effect] > getattr(Target, self.effect)[f'Max_{self.effect}']: # If the Potion atted too much statistic compared to the Max...
+            getattr(Target, self.effect)[self.effect] = getattr(Target, self.effect)[f'Max_{self.effect}'] # Brings the Health Back down to the Max Health
+
         # Remove potion from inventory after use
-        for slot in [Target.OtherSlot1, Target.OtherSlot2, Target.OtherSlot3, Target.OtherSlot4]:
-            if slot['Item'] is self and slot['Qty'] > 0:
-                slot['Qty'] -= 1
-                if slot['Qty'] == 0:
-                    slot['Item'] = None_Item
-                break
-            
+        for slot in [Target.OtherSlot1, Target.OtherSlot2, Target.OtherSlot3, Target.OtherSlot4]: # Finds Which slot Potion is In
+            if slot['Item'] is self and slot['Qty'] > 0: # Item is in Slot, and the Quantity is More than 0
+                slot['Qty'] -= 1 # Removes of from the Quantity
+                if slot['Qty'] == 0: # If their is None left in the Slot
+                    slot['Item'] = None_Item # Reverts Slot back to None_Item
+                break # Stops looking for where the Item is
+
 class Enemy():
+    '''This Class Creates a Enemy System, that allows for the creation of Enemies, and Allows them to interact / attack other Players and Enemies'''
     def __init__(self, name, health, max_health, damage, type, level):
+        '''This function allows the User to '''
         self.name = name
         self.health = health
         self.max_health = max_health
@@ -205,7 +228,8 @@ class Villager:
         self.items = {}
 
     def Inventory_Trading(self):
-        os.system('cls')
+        '''This Function allows the user to purchase the items that each villager sells'''
+        os.system('cls') # Clears Screen
 
         print(f'''
     +------------------==| Villager Menu |==------------------+
@@ -215,7 +239,7 @@ class Villager:
     |   Profession:     {self.profession:<38}|
     |                                                         |
     +---------------------------------------------------------+
-    |   Player Gold:    {User.Gold:<6} {'🪙':<31}|
+    |   Player Gold:    {str(User.Gold) + ' 🪙':<38}|
     +---------------------------------------------------------+
     ''')
         count = 1
@@ -404,12 +428,8 @@ class Wizard(Villager):
                 PrintMainUI('Wizard1')
 
             elif User.RareFlower == True:
-                print()
+                print() # Creates a Spacer in the Terminal
                 print('Thanks for bringing me my flower, what can I help you enchant today?')
-
-                def El():
-                    pass
-                
                 
                 enchanted_item = {'item': None}
                 def make_enchant_lambda(slot):
@@ -423,7 +443,7 @@ class Wizard(Villager):
                     options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
                 if User.BootSlot.name != "None_Boot":
                     options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = lambda: gdPrintMainUI('Wizard1')
+                options['Exit'] = lambda: PrintMainUI('Wizard1')
                 Input_Selection(options)
                 
                 # Print the enchanted item and its new multipliers
@@ -433,6 +453,8 @@ class Wizard(Villager):
                     print("New multipliers:")
                     for key, value in item.multiplyers.items():
                         print(f"  {key}: {value:.2f}")
+
+                        
 
         elif Room == 'Wizard2':
             if User.SeenW2 == False:
@@ -453,7 +475,7 @@ class Wizard(Villager):
                 PrintMainUI('Wizard2')
 
             elif User.RareRune == True:
-                print()
+                print() # Creates a Spacer in the Terminal
                 print('Thanks for bringing me my Rune, what can I help you enchant today?')
                 
                 
@@ -495,370 +517,384 @@ class LumberJack(Villager):
         super().__init__(name, 'LumberJack')
 
     def ChopWood(self):
-        os.system('cls')
+        os.system('cls') # Clears the Screen
 
+        # Tells the User the Amount of gold they have, and the Villager Statistics
         print(f'''
     +------------------==| Villager Menu |==------------------+
     |                                                         |
     |   Name:           {self.name:<38}|
     |                                                         |
-    |   Profession:     {self.profession:<38}|
+    |   Profession:     Lumberjack                            |
     |                                                         |
     +---------------------------------------------------------+
-    |   Player Gold:    {User.Gold:<6} {'🪙':<31}|
+    |   Player Gold:    {str(User.Gold) + ' 🪙':<38}|
     +---------------------------------------------------------+
 
     You can Earn extra money for equipment!
 ''')
         print('Chop Wood!')
-        for i in range(0, 5):
-            print()
-            print('CHOP')
-            print()
-            time.sleep(random.randint(10, 20) / 10)
-        print('Good Job, Heres a piece of Gold!')
-        User.Gold += 1
-        time.sleep(2)
+        for i in range(0, 5): # Run 5 Times
+            print() # Creates a Spacer in the Terminal
+            print('CHOP') # Prints 'Chop' to Symbolise Something Happend
+            print() # Creates a Spacer in the Terminal
+            time.sleep(random.randint(10, 20) / 10) # Waites Between 1 and 2 seconds
+        print('Good Job, Heres a piece of Gold!') # Tells the User they have earnt a piuce of Gold
+        User.Gold += 1 # Gives the User a Piece of Gold
+        
+        input('Enter to Continue...') # Waits for the User to Continue
 
 class Gambler(Villager):
     def __init__(self, name):
         super().__init__(name, 'Gambler')
 
     def Casino(self):
-        CasinoNumber = random.randint(1,5)
+        '''This Fuction runs the Casino, allowing the User to make more money'''
+        CasinoNumber = random.randint(1,5) # Picks Random Number between 1 and 5
 
-        print("Welcome to the Casino")
-        print()
-        print("If you win you'll get 5 times what you put in, if you lose, we just keep what you bet")
-        print()
+        print("Welcome to the Casino") # Welcomes User
+        print() # Creates a Spacer in the Terminal
+        print("If you win you'll get 5 times what you put in, if you lose, we just keep what you bet") # Explains the Game
+        print() # Creates a Spacer in the Terminal
 
-        while True:
-            try:
-                Betting = int(input(f"How Much Gold would you Like to Bet? (0 to Not Bet) Current Balance: {User.Gold} "))
-                if Betting > User.Gold or Betting < 0:
-                    print("You don't have that Much Gold")
-                    continue
-                break
-            except ValueError:
-                print("Invalid input. Please enter a number.")
+        while True: # Until Broken
+            try: # Try to Recieve Input
+                Betting = int(input(f"How Much Gold would you Like to Bet? (0 to Not Bet) Current Balance: {User.Gold} ")) # Asks for How much the User wants to bet
+                if Betting > User.Gold or Betting < 0: # If Betting Amount it outside of Acceptable Rand
+                    print("You don't have that Much Gold") # Prints Error Message
+                else: # If User Input is Correct
+                    break # Breaks Loop
+            except: # If Error with Input
+                print("Invalid input. Please enter a number.") # Prints error Message
 
-        while True:
-            try:
-                Guess = int(input("Put your Bet on a Number 1-5 "))
-                if 1 <= Guess <= 5:
-                    break
-                else:
-                    print('Not an Option')
-            except ValueError:
-                print("Invalid input. Please enter a number between 1 and 5.")
+        while True: # Until Broken
+            try: # Try to Recieve Input
+                Guess = int(input("Put your Bet on a Number 1-5 ")) # Asks User to Guess a Number
+                if 1 <= Guess <= 5: # if Guess is In Acceptable Range
+                    break # Break Loop
+                else: # If not in Acceptable Range
+                    print('Not an Option') # Alert the Player it is not an option
+            except: # If error with Input
+                print("Invalid input. Please enter a number between 1 and 5.") # Prints error Message
 
-        if Guess == CasinoNumber:
-            User.Gold += 4*Betting
+        if Guess == CasinoNumber: # If Player Guesses Right
+            User.Gold += 4*Betting # Multiply Betting Amount by 4 (Its Multiplied by 4 because It hasnt actually removed any Gold Yet) and is added to User.Gold
 
-        else:
-            print("It'll seem you've lost, maybe next time you'll think twice about going up against the house")
-            User.Gold -= Betting
+        else: # If Player Guesses Wrong
+            print("It'll seem you've lost, maybe next time you'll think twice about going up against the house") # Tells the User they Guessed Wrong
+            User.Gold -= Betting # Removes the Betting Amount from the Users Gold
 
-        print()
-        print(f"The Number was: {CasinoNumber}")
-        print()
-        print(f"Current Balence: {User.Gold}")
+        print() # Creates a Spacer in the Terminal
+        print(f"The Number was: {CasinoNumber}") # Tells the Player what it was
+        print() # Creates a Spacer in the Terminal
+        print(f"Current Balence: {User.Gold}") # Tells the Player their Current Gold Amount
 
-        input('Enter to Continue...')
+        input('Enter to Continue...') # Waits to Continue
 
-def Load_Items(Name, Level, Multipliers):
-    # Weapons
-    if Name == 'Stick':
-        return Weapons('Stick', Level, 'Stick', 2, Multipliers)
+def Load_Items(Name, Level, Multipliers): # Converts simplified JSON data back into full Item objects for use in the program
+    '''Since JSON's cant store Items, This function converts the data JSON's can store, and convert it back into the Item Form for the program'''
+    
+    #--- Weapons ---
+    if Name == 'Stick': # If the stored item is Stick
+        return Weapons('Stick', Level, 'Stick', 2, Multipliers) # Return a Stick, with the saved Level and Multipliers
+    
+    elif Name == 'Wooden_Sword': # If the stored item is Wooden_Sword
+        return Weapons('Wooden_Sword', Level, 'Sword', 4, Multipliers) # Return a Wooden Sword, with saved Level and Multipliers
+    elif Name == 'Bronze_Sword': # If the stored item is Bronze_Sword
+        return Weapons('Bronze_Sword', Level, 'Sword', 5, Multipliers) # Return a Bronze Sword, with saved Level and Multipliers
+    elif Name == 'Iron_Sword': # If the stored item is Iron_Sword
+        return Weapons('Iron_Sword', Level, 'Sword', 6, Multipliers) # Return an Iron Sword, with saved Level and Multipliers
+    elif Name == 'Platinum_Sword': # If the stored item is Platinum_Sword
+        return Weapons('Platinum_Sword', Level, 'Sword', 8, Multipliers) # Return a Platinum Sword, with saved Level and Multipliers
 
-    elif Name == 'Wooden_Sword':
-        return Weapons('Wooden_Sword', Level, 'Sword', 4, Multipliers)
-    elif Name == 'Bronze_Sword':
-        return Weapons('Bronze_Sword', Level, 'Sword', 5, Multipliers)
-    elif Name == 'Iron_Sword':
-        return Weapons('Iron_Sword', Level, 'Sword', 6, Multipliers)
-    elif Name == 'Platinum_Sword':
-        return Weapons('Platinum_Sword', Level, 'Sword', 8, Multipliers)
+    elif Name == 'Wooden_Axe': # If the stored item is Wooden_Axe
+        return Weapons('Wooden_Axe', Level, 'Axe', 4, Multipliers) # Return a Wooden Axe, with saved Level and Multipliers
+    elif Name == 'Bronze_Axe': # If the stored item is Bronze_Axe
+        return Weapons('Bronze_Axe', Level, 'Axe', 5, Multipliers) # Return a Bronze Axe, with saved Level and Multipliers
+    elif Name == 'Iron_Axe': # If the stored item is Iron_Axe
+        return Weapons('Iron_Axe', Level, 'Axe', 6, Multipliers) # Return an Iron Axe, with saved Level and Multipliers
+    elif Name == 'Platinum_Axe': # If the stored item is Platinum_Axe
+        return Weapons('Platinum_Axe', Level, 'Axe', 8, Multipliers) # Return a Platinum Axe, with saved Level and Multipliers
 
-    elif Name == 'Wooden_Axe':
-        return Weapons('Wooden_Axe', Level, 'Axe', 4, Multipliers)
-    elif Name == 'Bronze_Axe':
-        return Weapons('Bronze_Axe', Level, 'Axe', 5, Multipliers)
-    elif Name == 'Iron_Axe':
-        return Weapons('Iron_Axe', Level, 'Axe', 6, Multipliers)
-    elif Name == 'Platinum_Axe':
-        return Weapons('Platinum_Axe', Level, 'Axe', 8, Multipliers)
+    elif Name == 'Wooden_Mace': # If the stored item is Wooden_Mace
+        return Weapons('Wooden_Mace', Level, 'Mace', 4, Multipliers) # Return a Wooden Mace, with saved Level and Multipliers
+    elif Name == 'Bronze_Mace': # If the stored item is Bronze_Mace
+        return Weapons('Bronze_Mace', Level, 'Mace', 5, Multipliers) # Return a Bronze Mace, with saved Level and Multipliers
+    elif Name == 'Iron_Mace': # If the stored item is Iron_Mace
+        return Weapons('Iron_Mace', Level, 'Mace', 6, Multipliers) # Return an Iron Mace, with saved Level and Multipliers
+    elif Name == 'Platinum_Mace': # If the stored item is Platinum_Mace
+        return Weapons('Platinum_Mace', Level, 'Mace', 8, Multipliers) # Return a Platinum Mace, with saved Level and Multipliers
 
-    elif Name == 'Wooden_Mace':
-        return Weapons('Wooden_Mace', Level, 'Mace', 4, Multipliers)
-    elif Name == 'Bronze_Mace':
-        return Weapons('Bronze_Mace', Level, 'Mace', 5, Multipliers)
-    elif Name == 'Iron_Mace':
-        return Weapons('Iron_Mace', Level, 'Mace', 6, Multipliers)
-    elif Name == 'Platinum_Mace':
-        return Weapons('Platinum_Mace', Level, 'Mace', 8, Multipliers)
+    #--- Armour ---
+    elif Name == 'None_Helmet': # If no helmet is equipped
+        return Armour('None_Helmet', 0, 'Helmet', 0, Multipliers) # Return a default empty Helmet
+    elif Name == 'Leather_Helmet': # If the stored item is Leather_Helmet
+        return Armour('Leather_Helmet', Level, 'Helmet', 1, Multipliers) # Return a Leather Helmet, with saved Level and Multipliers
+    elif Name == 'Bronze_Helmet': # If the stored item is Bronze_Helmet
+        return Armour('Bronze_Helmet', Level, 'Helmet', 2, Multipliers) # Return a Bronze Helmet, with saved Level and Multipliers
+    elif Name == 'Iron_Helmet': # If the stored item is Iron_Helmet
+        return Armour('Iron_Helmet', Level, 'Helmet', 3, Multipliers) # Return an Iron Helmet, with saved Level and Multipliers
+    elif Name == 'Platinum_Helmet': # If the stored item is Platinum_Helmet
+        return Armour('Platinum_Helmet', Level, 'Helmet', 4, Multipliers) # Return a Platinum Helmet, with saved Level and Multipliers
 
-    # Armour
-    elif Name == 'None_Helmet':
-        return Armour('None_Helmet', 0, 'Helmet', 0, Multipliers)
-    elif Name == 'Leather_Helmet':
-        return Armour('Leather_Helmet', Level, 'Helmet', 1, Multipliers)
-    elif Name == 'Bronze_Helmet':
-        return Armour('Bronze_Helmet', Level, 'Helmet', 2, Multipliers)
-    elif Name == 'Iron_Helmet':
-        return Armour('Iron_Helmet', Level, 'Helmet', 3, Multipliers)
-    elif Name == 'Platinum_Helmet':
-        return Armour('Platinum_Helmet', Level, 'Helmet', 4, Multipliers)
+    elif Name == 'None_Chestplate': # If no chestplate is equipped
+        return Armour('None_Chestplate', 0, 'ChestPlate', 0, Multipliers) # Return a default empty ChestPlate
+    elif Name == 'Leather_Chestplate': # If the stored item is Leather_Chestplate
+        return Armour('Leather_Chestplate', Level, 'ChestPlate', 1, Multipliers) # Return a Leather Chestplate, with saved Level and Multipliers
+    elif Name == 'Bronze_Chestplate': # If the stored item is Bronze_Chestplate
+        return Armour('Bronze_Chestplate', Level, 'ChestPlate', 2, Multipliers) # Return a Bronze Chestplate, with saved Level and Multipliers
+    elif Name == 'Iron_Chestplate': # If the stored item is Iron_Chestplate
+        return Armour('Iron_Chestplate', Level, 'ChestPlate', 3, Multipliers) # Return an Iron Chestplate, with saved Level and Multipliers
+    elif Name == 'Platinum_Chestplate': # If the stored item is Platinum_Chestplate
+        return Armour('Platinum_Chestplate', Level, 'ChestPlate', 4, Multipliers) # Return a Platinum Chestplate, with saved Level and Multipliers
 
-    elif Name == 'None_Chestplate':
-        return Armour('None_Chestplate', 0, 'ChestPlate', 0, Multipliers)
-    elif Name == 'Leather_Chestplate':
-        return Armour('Leather_Chestplate', Level, 'ChestPlate', 1, Multipliers)
-    elif Name == 'Bronze_Chestplate':
-        return Armour('Bronze_Chestplate', Level, 'ChestPlate', 2, Multipliers)
-    elif Name == 'Iron_Chestplate':
-        return Armour('Iron_Chestplate', Level, 'ChestPlate', 3, Multipliers)
-    elif Name == 'Platinum_Chestplate':
-        return Armour('Platinum_Chestplate', Level, 'ChestPlate', 4, Multipliers)
+    elif Name == 'None_Boot': # If no boots are equipped
+        return Armour('None_Boot', 0, 'Boot', 0, Multipliers) # Return default empty Boots
+    elif Name == 'Leather_Boot': # If the stored item is Leather_Boot
+        return Armour('Leather_Boot', Level, 'Boot', 1, Multipliers) # Return Leather Boots, with saved Level and Multipliers
+    elif Name == 'Bronze_Boot': # If the stored item is Bronze_Boot
+        return Armour('Bronze_Boot', Level, 'Boot', 2, Multipliers) # Return Bronze Boots, with saved Level and Multipliers
+    elif Name == 'Iron_Boot': # If the stored item is Iron_Boot
+        return Armour('Iron_Boot', Level, 'Boot', 3, Multipliers) # Return Iron Boots, with saved Level and Multipliers
+    elif Name == 'Platinum_Boot': # If the stored item is Platinum_Boot
+        return Armour('Platinum_Boot', Level, 'Boot', 4, Multipliers) # Return Platinum Boots, with saved Level and Multipliers
 
-    elif Name == 'None_Boot':
-        return Armour('None_Boot', 0, 'Boot', 0, Multipliers)
-    elif Name == 'Leather_Boot':
-        return Armour('Leather_Boot', Level, 'Boot', 1, Multipliers)
-    elif Name == 'Bronze_Boot':
-        return Armour('Bronze_Boot', Level, 'Boot', 2, Multipliers)
-    elif Name == 'Iron_Boot':
-        return Armour('Iron_Boot', Level, 'Boot', 3, Multipliers)
-    elif Name == 'Platinum_Boot':
-        return Armour('Platinum_Boot', Level, 'Boot', 4, Multipliers)
+    #--- Items/Potions ---
+    elif Name == 'None': # If slot is empty or nothing equipped
+        return Item('None', 0) # Return a basic empty item
 
-    # General Item
-    elif Name == 'None':
-        return Item('None', 0)
+    elif Name == 'Health_Potion_Small': # If the stored item is Health_Potion_Small
+        return Potion('Health_Potion_Small', Level, 'Health', 10) # Return a small health potion healing 10
+    elif Name == 'Health_Potion_Medium': # If the stored item is Health_Potion_Medium
+        return Potion('Health_Potion_Medium', Level, 'Health', 25) # Return a medium health potion healing 25
+    elif Name == 'Health_Potion_Large': # If the stored item is Health_Potion_Large
+        return Potion('Health_Potion_Large', Level, 'Health', 50) # Return a large health potion healing 50
 
-    # Potions
-    elif Name == 'Health_Potion_Small':
-        return Potion('Health_Potion_Small', Level, 'Health', 10)
-    elif Name == 'Health_Potion_Medium':
-        return Potion('Health_Potion_Medium', Level, 'Health', 25)
-    elif Name == 'Health_Potion_Large':
-        return Potion('Health_Potion_Large', Level, 'Health', 50)
+    elif Name == 'Stamina_Potion_Small': # If the stored item is Stamina_Potion_Small
+        return Potion('Stamina_Potion_Small', Level, 'Stamina', 10) # Return a small stamina potion restoring 10
+    elif Name == 'Stamina_Potion_Medium': # If the stored item is Stamina_Potion_Medium
+        return Potion('Stamina_Potion_Medium', Level, 'Stamina', 25) # Return a medium stamina potion restoring 25
+    elif Name == 'Stamina_Potion_Large': # If the stored item is Stamina_Potion_Large
+        return Potion('Stamina_Potion_Large', Level, 'Stamina', 50) # Return a large stamina potion restoring 50
 
-    elif Name == 'Stamina_Potion_Small':
-        return Potion('Stamina_Potion_Small', Level, 'Stamina', 10)
-    elif Name == 'Stamina_Potion_Medium':
-        return Potion('Stamina_Potion_Medium', Level, 'Stamina', 25)
-    elif Name == 'Stamina_Potion_Large':
-        return Potion('Stamina_Potion_Large', Level, 'Stamina', 50)
+    elif Name == 'Mana_Potion_Small': # If the stored item is Mana_Potion_Small
+        return Potion('Mana_Potion_Small', Level, 'Mana', 10) # Return a small mana potion restoring 10
+    elif Name == 'Mana_Potion_Medium': # If the stored item is Mana_Potion_Medium
+        return Potion('Mana_Potion_Medium', Level, 'Mana', 25) # Return a medium mana potion restoring 25
+    elif Name == 'Mana_Potion_Large': # If the stored item is Mana_Potion_Large
+        return Potion('Mana_Potion_Large', Level, 'Mana', 50) # Return a large mana potion restoring 50
 
-    elif Name == 'Mana_Potion_Small':
-        return Potion('Mana_Potion_Small', Level, 'Mana', 10)
-    elif Name == 'Mana_Potion_Medium':
-        return Potion('Mana_Potion_Medium', Level, 'Mana', 25)
-    elif Name == 'Mana_Potion_Large':
-        return Potion('Mana_Potion_Large', Level, 'Mana', 50)
-
-    else:
-        raise ValueError(f"Unknown item name: {Name}")
+    else: # If item name is not recognized
+        return None_Item # Return a fallback None_Item object
 
 def Load_Enemies(G, O, D, Og):
-    global Goblin, Orc, Druid, Ogre
-    # Enemies
-    Goblin = Enemy('Goblin', G, 10, 5, 'Fir', 1)
-    Orc = Enemy('Orc', O, 20, 7, 'Wat', 8)
-    Druid = Enemy('Druid', D, 20, 12, 'Nat', 16)
-    Ogre = Enemy('Ogre', Og, 50, 10, 'Fir', 20)
+    '''Since JSON files cant store classes, this function loads variable Enemy data into the Enemy'''
+    global Goblin, Orc, Druid, Ogre # Globalises the Enemies
+    Goblin = Enemy('Goblin', G, 10, 5, 'Fir', 1) # Creates Goblin with the Saved Health Attribute
+    Orc = Enemy('Orc', O, 20, 7, 'Wat', 8) # Creates Orc with the Saved Health Attribute
+    Druid = Enemy('Druid', D, 20, 12, 'Nat', 16) # Creates Druid with the Saved Health Attribute
+    Ogre = Enemy('Ogre', Og, 50, 10, 'Fir', 20) # Creates Ogre with the Saved Health Attribute
 
 #--- Variables ---
-User = None
+User = None # Creates the User Tag
 
-Load_File = 0
+Load_File = 0 # Predefines the Load File to be 0 - No Load_File
 
 #--- Items ---
-Stick = Weapons('Stick', 1, 'Stick', 2)
+Stick = Weapons('Stick', 1, 'Stick', 2) # Creates a Weapon named Stick that does 2 damage
 
 # Swords
-Wooden_Sword = Weapons('Wooden_Sword', 3, 'Sword', 4)
-Bronze_Sword = Weapons('Bronze_Sword', 6, 'Sword', 5)
-Iron_Sword = Weapons('Iron_Sword', 12, 'Sword', 6)
-Platinum_Sword = Weapons('Platinum_Sword', 16, 'Sword', 8)
+Wooden_Sword = Weapons('Wooden_Sword', 3, 'Sword', 4) # Creates a Sword named Wooden_Sword that does 4 damage
+Bronze_Sword = Weapons('Bronze_Sword', 6, 'Sword', 5) # Creates a Sword named Bronze_Sword that does 5 damage
+Iron_Sword = Weapons('Iron_Sword', 12, 'Sword', 6) # Creates a Sword named Iron_Sword that does 6 damage
+Platinum_Sword = Weapons('Platinum_Sword', 16, 'Sword', 8) # Creates a Sword named Platinum_Sword that does 8 damage
 
 # Axes
-Wooden_Axe = Weapons('Wooden_Axe', 3, 'Axe', 4)
-Bronze_Axe = Weapons('Bronze_Axe', 6, 'Axe', 5)
-Iron_Axe = Weapons('Iron_Axe', 12, 'Axe', 6)
-Platinum_Axe = Weapons('Platinum_Axe', 16, 'Axe', 8)
+Wooden_Axe = Weapons('Wooden_Axe', 3, 'Axe', 4) # Creates an Axe named Wooden_Axe that does 4 damage
+Bronze_Axe = Weapons('Bronze_Axe', 6, 'Axe', 5) # Creates an Axe named Bronze_Axe that does 5 damage
+Iron_Axe = Weapons('Iron_Axe', 12, 'Axe', 6) # Creates an Axe named Iron_Axe that does 6 damage
+Platinum_Axe = Weapons('Platinum_Axe', 16, 'Axe', 8) # Creates an Axe named Platinum_Axe that does 8 damage
 
 # Maces
-Wooden_Mace = Weapons('Wooden_Mace', 3, 'Mace', 4)
-Bronze_Mace = Weapons('Bronze_Mace', 6, 'Mace', 5)
-Iron_Mace = Weapons('Iron_Mace', 12, 'Mace', 6)
-Platinum_Mace = Weapons('Platinum_Mace', 16, 'Mace', 8)
+Wooden_Mace = Weapons('Wooden_Mace', 3, 'Mace', 4) # Creates a Mace named Wooden_Mace that does 4 damage
+Bronze_Mace = Weapons('Bronze_Mace', 6, 'Mace', 5) # Creates a Mace named Bronze_Mace that does 5 damage
+Iron_Mace = Weapons('Iron_Mace', 12, 'Mace', 6) # Creates a Mace named Iron_Mace that does 6 damage
+Platinum_Mace = Weapons('Platinum_Mace', 16, 'Mace', 8) # Creates a Mace named Platinum_Mace that does 8 damage
 
 #--- Armour ---
 # Helmet
-None_Helmet = Armour('None_Helmet', 0, 'Helmet', 0)
-
-Leather_Helmet = Armour('Leather_Helmet', 1, 'Helmet', 1)
-Bronze_Helmet = Armour('Bronze_Helmet', 3, 'Helmet', 2)
-Iron_Helmet = Armour('Iron_Helmet', 6, 'Helmet', 3)
-Platinum_Helmet = Armour('Platinum_Helmet', 10, 'Helmet', 4)
+None_Helmet = Armour('None_Helmet', 0, 'Helmet', 0) # Creates a Helmet named None_Helmet that provides 0 protection
+Leather_Helmet = Armour('Leather_Helmet', 1, 'Helmet', 1) # Creates a Helmet named Leather_Helmet that provides 1 protection
+Bronze_Helmet = Armour('Bronze_Helmet', 3, 'Helmet', 2) # Creates a Helmet named Bronze_Helmet that provides 2 protection
+Iron_Helmet = Armour('Iron_Helmet', 6, 'Helmet', 3) # Creates a Helmet named Iron_Helmet that provides 3 protection
+Platinum_Helmet = Armour('Platinum_Helmet', 10, 'Helmet', 4) # Creates a Helmet named Platinum_Helmet that provides 4 protection
 
 # ChestPlate
-None_Chestplate = Armour('None_Chestplate', 0, 'ChestPlate', 0)
-
-Leather_Chestplate = Armour('Leather_Chestplate', 1, 'ChestPlate', 1)
-Bronze_Chestplate = Armour('Bronze_Chestplate', 3, 'ChestPlate', 2)
-Iron_Chestplate = Armour('Iron_Chestplate', 6, 'ChestPlate', 3)
-Platinum_Chestplate = Armour('Platinum_Chestplate', 10, 'ChestPlate', 4)
+None_Chestplate = Armour('None_Chestplate', 0, 'ChestPlate', 0) # Creates a ChestPlate named None_Chestplate that provides 0 protection
+Leather_Chestplate = Armour('Leather_Chestplate', 1, 'ChestPlate', 1) # Creates a ChestPlate named Leather_Chestplate that provides 1 protection
+Bronze_Chestplate = Armour('Bronze_Chestplate', 3, 'ChestPlate', 2) # Creates a ChestPlate named Bronze_Chestplate that provides 2 protection
+Iron_Chestplate = Armour('Iron_Chestplate', 6, 'ChestPlate', 3) # Creates a ChestPlate named Iron_Chestplate that provides 3 protection
+Platinum_Chestplate = Armour('Platinum_Chestplate', 10, 'ChestPlate', 4) # Creates a ChestPlate named Platinum_Chestplate that provides 4 protection
 
 # Boot
-None_Boot = Armour('None_Boot', 0, 'Boot', 0)
-
-Leather_Boot = Armour('Leather_Boot', 1, 'Boot', 1)
-Bronze_Boot = Armour('Bronze_Boot', 3, 'Boot', 2)
-Iron_Boot = Armour('Iron_Boot', 6, 'Boot', 3)
-Platinum_Boot = Armour('Platinum_Boot', 10, 'Boot', 4)
+None_Boot = Armour('None_Boot', 0, 'Boot', 0) # Creates a Boot named None_Boot that provides 0 protection
+Leather_Boot = Armour('Leather_Boot', 1, 'Boot', 1) # Creates a Boot named Leather_Boot that provides 1 protection
+Bronze_Boot = Armour('Bronze_Boot', 3, 'Boot', 2) # Creates a Boot named Bronze_Boot that provides 2 protection
+Iron_Boot = Armour('Iron_Boot', 6, 'Boot', 3) # Creates a Boot named Iron_Boot that provides 3 protection
+Platinum_Boot = Armour('Platinum_Boot', 10, 'Boot', 4) # Creates a Boot named Platinum_Boot that provides 4 protection
 
 # Items
-None_Item = Item('None', 0)
+None_Item = Item('None', 0) # Creates an Item named None
 
 # Potions
-Health_Potion_Small = Potion('Health_Potion_Small', 1, 'Health', 10)
-Health_Potion_Medium = Potion('Health_Potion_Medium', 3, 'Health', 25)
-Health_Potion_Large = Potion('Health_Potion_Large', 5, 'Health', 50)
+Health_Potion_Small = Potion('Health_Potion_Small', 1, 'Health', 10) # Creates a Potion named Health_Potion_Small that replenishes 10 Health
+Health_Potion_Medium = Potion('Health_Potion_Medium', 3, 'Health', 25) # Creates a Potion named Health_Potion_Medium that replenishes 25 Health
+Health_Potion_Large = Potion('Health_Potion_Large', 5, 'Health', 50) # Creates a Potion named Health_Potion_Large that replenishes 50 Health
 
-Stamina_Potion_Small = Potion('Stamina_Potion_Small', 1, 'Stamina', 10)
-Stamina_Potion_Medium = Potion('Stamina_Potion_Medium', 3, 'Stamina', 25)
-Stamina_Potion_Large = Potion('Stamina_Potion_Large', 5, 'Stamina', 50)
+Stamina_Potion_Small = Potion('Stamina_Potion_Small', 1, 'Stamina', 10) # Creates a Potion named Stamina_Potion_Small that replenishes 10 Stamina
+Stamina_Potion_Medium = Potion('Stamina_Potion_Medium', 3, 'Stamina', 25) # Creates a Potion named Stamina_Potion_Medium that replenishes 25 Stamina
+Stamina_Potion_Large = Potion('Stamina_Potion_Large', 5, 'Stamina', 50) # Creates a Potion named Stamina_Potion_Large that replenishes 50 Stamina
 
-Mana_Potion_Small = Potion('Mana_Potion_Small', 1, 'Mana', 10)
-Mana_Potion_Medium = Potion('Mana_Potion_Medium', 3, 'Mana', 25)
-Mana_Potion_Large = Potion('Mana_Potion_Large', 5, 'Mana', 50)
+Mana_Potion_Small = Potion('Mana_Potion_Small', 1, 'Mana', 10) # Creates a Potion named Mana_Potion_Small that replenishes 10 Mana
+Mana_Potion_Medium = Potion('Mana_Potion_Medium', 3, 'Mana', 25) # Creates a Potion named Mana_Potion_Medium that replenishes 25 Mana
+Mana_Potion_Large = Potion('Mana_Potion_Large', 5, 'Mana', 50) # Creates a Potion named Mana_Potion_Large that replenishes 50 Mana
 
 #--- Functions ---
-
 # Combat
 def Combat(Enemy, Room):
-    global Exited
+    '''This Function handles the Combat between the Player and an Enemy'''
+    global Exited, User  # Uses the Global Exited Variable
 
-    if Enemy.type == 'Fir':
-        Type = 'Fire'
-    elif Enemy.type == 'Wat':   
-        Type = 'Water'
-    elif Enemy.type == 'Nat':
-        Type = 'Nature'
-    print(f"""You have Encountered a {Enemy.name}""")
+    def Attack():
+        User.Attacking(Enemy)
 
-    while True:
-        Exited = False
+    if Enemy.type == 'Fir':  # If the Enemy is Fire Type
+        Type = 'Fire'  # Set Type to Fire
+    elif Enemy.type == 'Wat':  # If the Enemy is Water Type
+        Type = 'Water'  # Set Type to Water
+    elif Enemy.type == 'Nat':  # If the Enemy is Nature Type
+        Type = 'Nature'  # Set Type to Nature
+
+    print(f"You have Encountered a {Enemy.name}")  # Informs the Player of the Enemy they have encountered
+
+    while True:  # Runs the Combat Loop until someone wins or loses
+        Exited = False  # Reset Exited at the start of each loop
         print(f"""
     +-----------------------------------------------+
     |{' '*21}Enemy{' '*21}|
     +-----------------------------------------------+
-        {Enemy.name}: 
+    {Enemy.name}: 
         Health:  ♥️  \033[31m{StatBar(Enemy.health, Enemy.max_health)} ({Enemy.health}/{Enemy.max_health})
         Damage:  ⚔️  \033[34m{Enemy.damage}\033[0m
         Type:    ☯️  \033[33m{Type}\033[0m
 
-        {User.Player_Name}:
+    {User.Player_Name}:
         Health:  ♥️  \033[31m{StatBar(User.Health['Health'], User.Health['Max_Health'])} ({User.Health['Health']}/{User.Health['Max_Health']})
         Damage:  ⚔️  \033[34m{User.WeaponSlot.damage}\033[0m
         Elemental Damage:        ☯️  \033[33m{User.WeaponSlot.multiplyers[Enemy.type]}\033[0m
         Elemental Protection:    ☯️  \033[33m{round((User.HelmetSlot.multiplyers[Enemy.type] + User.ChestplateSlot.multiplyers[Enemy.type] + User.BootSlot.multiplyers[Enemy.type]) / 3)}\033[0m
-        """)
-        if Enemy.health <= 0:
-            print()
-            ClearLines(18)
-            print(f"You have defeated the {Enemy.name}!")
-            User.WeaponSlot.level += Enemy.level/2
-            globals()[Room] = True
+        """) # Displays Full Combat UI with Stats for Both the Player and Enemy
+
+        if Enemy.health <= 0:  # If the Enemy has run out of Health
+            ClearLines(17)  # Clears the Combat UI
+            print(f"You have defeated the {Enemy.name}!")  # Informs the Player they won
+            User.WeaponSlot.level += Enemy.level / 2  # Increases the Weapon Level by Half the Enemy Level
+            input("Press Enter to continue...")
+            ClearLines(1)
+            break  # Breaks the Loop
+
+        elif User.Health['Health'] <= 0:  # If the Player has run out of Health
+            Died(Enemy.name)
             break
-            
-        elif User.Health['Health'] <= 0:
-            print()
-            print(f"You have been defeated by the {Enemy.name}!")
-            quit()
+
+        Input_Selection({
+            "Attack": lambda: Attack(),  # Attacks the Enemy
+            "Use Item": lambda: DisplayInventoryScreen()  # Opens Inventory to Use Items
+        })
+
+            # After using an item, Exited may be set to True, so check before enemy attacks
+        if Exited:
+            pass
         else:
-            Input_Selection({
-                "Attack": lambda: (User.Attacking(Enemy)),
-                "Use Item": lambda: (DisplayInventoryScreen())
-                })
-            
-            if Exited == False:
-                Enemy.Attacking(User)
-            else:
-                pass
-        ClearLines(20)
+            Enemy.Attacking(User)  # The Enemy Attacks the Player
+
+        ClearLines(20)  # Clears the Combat UI before Refreshing
 
 # UI
 def PrintMainUI(Room):
-    Exited = False
-    os.system('cls')
+    '''This Function combines a variety of other functions - and Displays them in the correct way'''
+    Exited = False # Sets Exited to False
+    os.system('cls') # Clears the Screen
     
-    User.Location = Room
-    # Set the current room flag to True for the user
+    if User.Health['Health'] <= 0: # If the User has ran out of Health
+        Died('No Health') # Run the Player has Died due to No health
+    elif User.Stamina['Stamina'] <= 0: # If the User has ran out of Stamina
+        Died('No Stamina') # Run the Player has Died due to No Stamina
     
+    User.Location = Room # Sets the Users Location to be the Current Room    
 
-    map_lines = Map(Room).splitlines()
-    stats_lines = DisplayStats().splitlines()
-    inventory_lines = DisplayInventory().splitlines()
-    MapKey_lines = DisplayMapKey().splitlines()
+    map_lines = Map(Room).splitlines() # Splits the Lines from Map
+    stats_lines = DisplayStats().splitlines() # Splits the Lines for Stats
+    inventory_lines = DisplayInventory().splitlines() # Splits the Lines for Player Inventory
+    MapKey_lines = DisplayMapKey().splitlines() # Splits the Line from Map Key
 
-    side_panel = stats_lines + inventory_lines + MapKey_lines
-    max_lines = max(len(map_lines), len(side_panel))
+    side_panel = stats_lines + inventory_lines + MapKey_lines # Combines the Lines of each of the elements to be printed on the Side Panel
+    max_lines = max(len(map_lines), len(side_panel)) # Calculates which is the Tallest (Map or Side Panel)
 
-    print()
+    print() # Creates a Spacer in the Terminal
 
-    for i in range(max_lines):
-        map_line = map_lines[i] if i < len(map_lines) else ""
-        side_line = side_panel[i] if i < len(side_panel) else ""
+    for i in range(max_lines): # For each line in (Which ever Element had more Lines)
+        map_line = map_lines[i] if i < len(map_lines) else "" # Figures out if their is content in the Lines - Else: Sets it to be a Blank line - But a Line that Exists
+        side_line = side_panel[i] if i < len(side_panel) else "" # Figures out if their is content in the Lines - Else: Sets it to be a Blank line - But a Line that Exists
 
-        map_width = wcswidth(map_line)
-        padding = max(0, 60 - map_width)
-        print(map_line + ' ' * padding + side_line)
+        map_width = wcswidth(map_line) # Calculates the Width of the Map line (Accounting for Emojis)
+        padding = max(0, 60 - map_width) # Calculates if the Map is Square - If Not - Adds padding
+        print(map_line + ' ' * padding + side_line) # Prints the Map Line, then the Padding, then the Side panel line
     
-    print()
+    print() # Creates a Spacer in the Terminal
 
-    print(Story(Room))
+    print(Story(Room)) # Prints the Story for the Room
     
-    print()
-    while True:
-        if Exited == False:
-            setattr(User, Room, True)
-            Input_Selection(MoveOptions(Room))
-            ClearLines(len(MoveOptions(Room)) + 3)
+    print() # Creates a Spacer in the Terminal
+    while True: # Run until broken
+        if Exited == False: # If player has Exited
+            setattr(User, Room, True) # Set the Room variable for the Player to be True
+            Input_Selection(MoveOptions(Room)) # Runs the Input selection for the Room - Based on the Options from MoveOptions
+            ClearLines(len(MoveOptions(Room))+3)
             
-        else:
-            break
+        else: # If their is a Problem - Breaks the Loop to stop a crash
+            break # Breaks the Loop
 
 def StatBar(Stat, Max_Stat):
-        StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
-        DeadBar = ''
+    '''This function create statbars for statisics'''
+    StatBar = (math.floor(Stat/(Max_Stat/10)))*'█' # Calculates how much health their is based on the Stat and Max Stat
+    DeadBar = '' # Initalises 'Dead Bar'
 
-        if StatBar == '' and Stat > 0:
-            StatBar = '█'
+    if StatBar == '' and Stat > 0: # Because it rounds down, if the player is alive, but has below 10% health...
+        StatBar = '█' # Gives them 1 block of health
 
-        elif len(StatBar) > 10:
-            Statbar = '█'*10
-            return Statbar
-            
+    elif len(StatBar) > 10: # If Health is more than 10
+        Statbar = '█'*10 # Sets Stat bar to Full
+        return Statbar
+        
 
-        for i in range(0, 10-len(StatBar)):
-            DeadBar += f'-'
-            
-        return StatBar + f'\033[37m{DeadBar}'
+    for i in range(0, 10-len(StatBar)): # Fills up the excess of statbar to Deadbar
+        DeadBar += f'-' # Adds a '-' to DeadBar
+        
+    return StatBar + f'\033[37m{DeadBar}' # returns the completed Bar - Combines the two, and makes the 'Dead Bar' White
 
 def DisplayStats():
+    '''This function displates the Stats Block of the UI'''
     return f'''+───────────--==| Stats |==--───────────+
 │                                       │
 │   Health:  ♥️  \033[31m{StatBar(User.Health['Health'], User.Health['Max_Health'])} \033[0m {f'({User.Health['Health']}/{User.Health['Max_Health']})':<12}│
 │   Stamina: 🔋 \033[32m{StatBar(User.Stamina['Stamina'], User.Stamina['Max_Stamina'])} \033[0m {f'({User.Stamina['Stamina']}/{User.Stamina['Max_Stamina']})':<12}│
 │   Mana:    {f'💠 \033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}' if MountainIssue == True else f'💠\033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}'}│
 │                                       │
-+───────────────────────────────────────+'''
++───────────────────────────────────────+''' # The Mana function is different because that is what lines up with the Mountain and causes problems (More context in Map Comment)
 
 def DisplayInventory():
+    '''This function returns the Users Inventory in a Asethetic way'''
     return f'''+──────────────────────────────────--==| Inventory |==--──────────────────────────────────+
 │   {'🪙  Gold':<12} -   {User.Gold:<68} │
 │   {'Weapon':<12} -   {User.WeaponSlot.name:<25} {'Chestplate':<12} -   {User.ChestplateSlot.name:<25} │
@@ -869,6 +905,7 @@ def DisplayInventory():
 +{'─'*89}+'''
 
 def DisplayMapKey():
+    '''This function returns the Map key - Allowing the User to figure out which symbols mean what'''
     return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
 │   ██ - You              🔮 - Wizard Tower                           │
 │   🏠 - Village          💀 - Enemy             👑 - Goblin King     │
@@ -896,51 +933,57 @@ def DisplayInventoryScreen():
     
     Input_Selection(options)
         
-    x = 6 + len(options)
-    ClearLines(x)
+    ClearLines(6 + len(options))
 
 def TitleScreen():
+    '''This Function Handles Displaying and calculating what happens in the TitleScreen'''
     def OverWrite():
-        print('Which save do you you want to overwrite?')
-        print()
-        options = {}
-        if Player_Data_1:
-            options['Save 1'] = lambda: (load({}, 1))
-        if Player_Data_2:
-            options['Save 2'] = lambda: (load({}, 2))
-        if Player_Data_3:
-            options['Save 3'] = lambda: (load({}, 3))
-        if Player_Data_4:
-            options['Save 4'] = lambda: (load({}, 4))
-        options['Exit'] = lambda: TitleScreen()
-        Input_Selection(options)
+        '''This functions handles what to do if the User wants to Overwrite a Save file'''
+        print('Which save do you you want to overwrite?') # Instructs the User
+        print() # Creates a Spacer in the Terminal
+        options = {} # Initalises the Options
+        if Player_Data_1: # If Player_Data_1 is 'Truthfully' - i.e Has Data in it (So Makes Sure it isnt Already Blank)
+            options['Save 1'] = lambda: (load({}, 1)) # Appends Save 1 to Option and starts creating a character with no attributes to save file 1
+
+        elif Player_Data_2: # If Player_Data_2 is 'Truthfully' - i.e Has Data in it (So Makes Sure it isnt Already Blank)
+            options['Save 2'] = lambda: (load({}, 2)) # Appends Save 2 to Option and starts creating a character with no attributes to save file 2
+
+        elif Player_Data_3: # If Player_Data_3 is 'Truthfully' - i.e Has Data in it (So Makes Sure it isnt Already Blank)
+            options['Save 3'] = lambda: (load({}, 3)) # Appends Save 3 to Option and starts creating a character with no attributes to save file 3
+            
+        elif Player_Data_4: # If Player_Data_4 is 'Truthfully' - i.e Has Data in it (So Makes Sure it isnt Already Blank)
+            options['Save 4'] = lambda: (load({}, 4)) # Appends Save 4 to Option and starts creating a character with no attributes to save file 4
+
+        options['Exit'] = lambda: TitleScreen() # Appends Exit to Option - Restarting back to Titlescreen
+
+        Input_Selection(options) # Loads Options into Input Selection
                 
-    os.system('cls')
-    try:
+    os.system('cls') # Clears Screen
+    try: # Try to open Save 1 and Append it to Player_Data_1
         with open(f'Save1.json', 'r') as f:
             Player_Data_1 = json.load(f)
-    except:
-        Player_Data_1 = {}
+    except: # If JSON is blank, sets Player_Data_1 to a Blank Dictionary
+        Player_Data_1 = {} # Sets to blank Dictionary
     
-    try:
+    try: # Try to open Save 2 and Append it to Player_Data_2
         with open(f'Save2.json', 'r') as f:
             Player_Data_2 = json.load(f)
-    except:
-        Player_Data_2 = {}
+    except: # If JSON is blank, sets Player_Data_2 to a Blank Dictionary
+        Player_Data_2 = {} # Sets to blank Dictionary
 
-    try:
+    try: # Try to open Save 3 and Append it to Player_Data_3
         with open(f'Save3.json', 'r') as f:
             Player_Data_3 = json.load(f)
-    except:
-        Player_Data_3 = {}
+    except: # If JSON is blank, sets Player_Data_3 to a Blank Dictionary
+        Player_Data_3 = {} # Sets to blank Dictionary
    
-    try:
+    try: # Try to open Save 4 and Append it to Player_Data_4
         with open(f'Save4.json', 'r') as f:
                 Player_Data_4 = json.load(f)
-    except:
-        Player_Data_4 = {}
+    except: # If JSON is blank, sets Player_Data_4 to a Blank Dictionary
+        Player_Data_4 = {} # Sets to blank Dictionary
 
-
+    # Prints the Title of the Game, and each of the Save Name and Location - If their is no save information - Sets it to None
     print(f'''
     +------------------------------------------------------------------------------------------------------------------------------------+     
     |                                                                                                                                    |
@@ -962,382 +1005,319 @@ def TitleScreen():
 
 
     ''')
-    Input_Selection({
-         'Save 1': lambda: (load(Player_Data_1, 1)),
-         'Save 2': lambda: (load(Player_Data_2, 2)),
-         'Save 3': lambda: (load(Player_Data_3, 3)),
-         'Save 4': lambda: (load(Player_Data_4, 4)),
-         'OverWrite Save': lambda: OverWrite(),
-         'Exit': lambda: leave()
+    Input_Selection({ # Sends the Dictionary to Input_Selection
+         'Save 1': lambda: (load(Player_Data_1, 1)), # Sets Save 1 to Load data from Player_Data_1 to load
+         'Save 2': lambda: (load(Player_Data_2, 2)), # Sets Save 2 to Load data from Player_Data_2 to load
+         'Save 3': lambda: (load(Player_Data_3, 3)), # Sets Save 3 to Load data from Player_Data_3 to load
+         'Save 4': lambda: (load(Player_Data_4, 4)), # Sets Save 4 to Load data from Player_Data_4 to load
+         'OverWrite Save': lambda: OverWrite(), # If player Wants to OverWrite a Save - OverWrites it
+         'Exit': lambda: quit() # If the player wants to leave, quits the program
     })
 
-    PrintMainUI(User.Location)
+    PrintMainUI(User.Location) # Starts to Game Based of the Users Location
 
-def VillagerMenu(Village):
-    os.system('cls')
-    
-    print(f'''
-    +------------------==| Villager Menu |==------------------+
-    |                                                         |
-    |   Name:           {Village.name:<38}|
-    |                                                         |
-    |   Profession:     {Village.profession:<38}|
-    |                                                         |
-    +---------------------------------------------------------+
-    
-    0. Exit
-    1. Trade with {Village.name}
-    ''')
-
-    def VillagerSelection():
-        Selection = input('Choice: ')
-
-        if Selection == '1':
-            print(Village.Inventory_Trading())
-
-        else:
-            print("Invalid selection, please try again.")
-            VillagerSelection()
-
-    VillagerSelection()
-
-def EnchantmentScreen(Wizard):
-    print(f'''
-    +------------------==| Villager Menu |==------------------+
-    |                                                         |
-    |   Name:           {Wizard.name:<38}|
-    |                                                         |
-    +---------------------------------------------------------+
-    
-    0. Exit
-    1. Enchant Item with {Wizard.name}
-    ''') 
-
-    def VillagerSelection():
-        def EnchantmentDisplay():
-            return f'''
-            +---+{'-'*39}+- Wat -+- Fir -+- Nat -+
-            | 1 | Weapon Slot:     {User.WeaponSlot.name:<20} | {User.WeaponSlot.multiplyers['Wat']:<3.3f} | {User.WeaponSlot.multiplyers['Fir']:<3.3f} | {User.WeaponSlot.multiplyers['Nat']:<3.3f} |
-            | 2 | Helmet Slot:     {User.HelmetSlot.name:<20} | {User.HelmetSlot.multiplyers['Wat']:<3.3f} | {User.HelmetSlot.multiplyers['Fir']:<3.3f} | {User.HelmetSlot.multiplyers['Nat']:<3.3f} |
-            | 3 | Chestplate Slot: {User.ChestplateSlot.name:<20} | {User.ChestplateSlot.multiplyers['Wat']:<3.3f} | {User.ChestplateSlot.multiplyers['Fir']:<3.3f} | {User.ChestplateSlot.multiplyers['Nat']:<3.3f} |
-            | 4 | Boot Slot:       {User.BootSlot.name:<20} | {User.BootSlot.multiplyers['Wat']:<3.3f} | {User.BootSlot.multiplyers['Fir']:<3.3f} | {User.BootSlot.multiplyers['Nat']:<3.3f} |
-            +---+{'-'*39}+-------+-------+-------+'''
-        
-        Selection = input('Choice: ')
-
-        if Selection == '1':
-            print('''Select Item to Enchant: ''')
-
-        else:
-            print("Invalid selection, please try again.")
-            VillagerSelection()
-
-    VillagerSelection()
-
-def Input_Selection(options: dict):
+def Input_Selection(options: dict): # ":dict" - Ensures it is a Dictionary
+    '''This function handles the Input selection process for a variety of functions in my program'''
     def ReplaceInput():
-        ClearLines(2)  # Move cursor up 2 lines
-        print('Error With Input')
-        return get_input()  # Re-prompt
+        '''This function replaces the Input and prints Error Message'''
+        ClearLines(2)  # Clears 2 Lines Above
+        print('Error With Input') # Error Message
+        return get_input()  # Re-prompt's the User for an Input
     
     def get_input():
-        try:
-            SaveSelection = input('Choice: ')
-
-            SaveSelection = int(SaveSelection)
-            if 1 <= SaveSelection <= len(option_list):
+        '''This function handles recieving Inputs from the User'''
+        try: # Try to Recieve and Input from the User
+            SaveSelection = input('Choice: ') # Recieve input from User
+            SaveSelection = int(SaveSelection) # Check if Input is a Integer
+            if 1 <= SaveSelection <= len(option_list): # if Input is an option in avaliable options
                 option_list[SaveSelection - 1][1]()  # Call the corresponding function
-            else:
-                ReplaceInput()
-        except (ValueError, IndexError):
-            ReplaceInput()
+            else: # If it is not an Option
+                ReplaceInput() # Give an Error Message
+        except Exception: # If error with Input (but not SystemExit)
+            ReplaceInput() # Give an Error Message
 
     # Print options
-    option_list = list(options.items())
-    print("Select an option:")
-    for i, (name, _) in enumerate(option_list, start=1):
-        print(f"{i}. {name}")
-    print()
-    get_input()
+    option_list = list(options.items()) # Option List is List of Dictionary
+    print("Select an option:") # Directs User
+    for i, (name, _) in enumerate(option_list, start=1): # For Each Option in option list, display the Item and its associated value
+        print(f"{i}. {name}")  # Prints the Number and the Name of the function it is associated to
+    print() # Creates a Spacer in the Terminal
+    get_input() # Runs Recieve Input
 
 # Player Functions
 def load(Player_Data, Save):
-    global User, Load_File
+    '''Loads Player Data from the JSON to the format for creating a Player'''
+    global User, Load_File # Globalises the User and Load file Attributes
 
-    Load_File = Save
+    Load_File = Save # Sets the Load File
 
-    # Manually reconstruct the data for Player()
-    
+    if len(Player_Data) == 0: # If their is no save data
+        CreateCharacter() # Create a Character
+
+    else: # Convert the information from the JSON file to a dictionary to create the player
+        Data = { # Creates a dictionary to store all player data
+        'Player_Name': Player_Data['Player_Name'], # Stores the player's name
+
+        'Health': Player_Data['Health'], # Stores current and max health
+        'Stamina': Player_Data['Stamina'], # Stores current and max stamina
+        'Mana': Player_Data['Mana'], # Stores current and max mana
+
+        'Location': Player_Data['Location'], # Stores the last known location
+        'Gold': Player_Data['Gold'], # Stores the player's gold amount
+
+        'WeaponSlot': Load_Items(Player_Data['WeaponSlot']['Name'], Player_Data['WeaponSlot']['Level'], Player_Data['WeaponSlot']['Multiplyers']), # Loads the weapon item with its properties - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'HelmetSlot': Load_Items(Player_Data['HelmetSlot']['Name'], Player_Data['HelmetSlot']['Level'], Player_Data['HelmetSlot']['Multiplyers']), # Loads the helmet item with its properties - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'ChestplateSlot': Load_Items(Player_Data['ChestplateSlot']['Name'], Player_Data['ChestplateSlot']['Level'], Player_Data['ChestplateSlot']['Multiplyers']), # Loads the chestplate item with its properties - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'BootSlot': Load_Items(Player_Data['BootSlot']['Name'], Player_Data['BootSlot']['Level'], Player_Data['BootSlot']['Multiplyers']), # Loads the boots item with its properties - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        
+        'OtherSlot1': {'Item': Load_Items(Player_Data['OtherSlot1']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot1']['Qty']}, # Loads item in OtherSlot1 with quantity - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'OtherSlot2': {'Item': Load_Items(Player_Data['OtherSlot2']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot2']['Qty']}, # Loads item in OtherSlot2 with quantity - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'OtherSlot3': {'Item': Load_Items(Player_Data['OtherSlot3']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot3']['Qty']}, # Loads item in OtherSlot3 with quantity - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        'OtherSlot4': {'Item': Load_Items(Player_Data['OtherSlot4']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot4']['Qty']}, # Loads item in OtherSlot4 with quantity - Using Load Items - Which takes the variable data and combines it with absolute data and combines to two
+        
+        'Enemy1': Player_Data['Enemy1'], # Tracks if Enemy1 has been visted
+        'Enemy2': Player_Data['Enemy2'], # Tracks if Enemy2 has been visted
+        'Enemy3': Player_Data['Enemy3'], # Tracks if Enemy3 has been visted
+        'Enemy4': Player_Data['Enemy4'], # Tracks if Enemy4 has been visted
+
+        'Village1': Player_Data['Village1'], # Tracks if Village1 has been visited
+        'Village2': Player_Data['Village2'], # Tracks if Village2 has been visited
+        'Village3': Player_Data['Village3'], # Tracks if Village3 has been visited
+
+        'Forest1': Player_Data['Forest1'], # Tracks if Forest1 has been visited
+        'Forest2': Player_Data['Forest2'], # Tracks if Forest2 has been visited
+        'Forest3': Player_Data['Forest3'], # Tracks if Forest3 has been visited
+        'Forest4': Player_Data['Forest4'], # Tracks if Forest4 has been visited
+
+        'SeenW1': Player_Data['SeenW1'], # Tracks if the player has met Wizard1
+        'SeenW2': Player_Data['SeenW2'], # Tracks if the player has met Wizard2
+
+        'Wizard1': Player_Data['Wizard1'], # Tracks if Wizard1 area has been visted
+        'Wizard2': Player_Data['Wizard2'], # Tracks if Wizard2 area has been visted
+
+        'Mountain': Player_Data['Mountain'], # Tracks if the Mountain has been visited
+
+        'GoblinKing': Player_Data['GoblinKing'], # Tracks if Goblin King has been visited
+
+        'RareFlower': Player_Data['RareFlower'], # Tracks if Rare Flower has been collected
+        'RareRune': Player_Data['RareRune'], # Tracks if Rare Rune has been collected
 
 
-    if len(Player_Data) == 0:
-        CreateCharacter()
-    else:
-        Data = {
-        'Player_Name': Player_Data['Player_Name'],
-        'Health': Player_Data['Health'],
-        'Stamina': Player_Data['Stamina'],
-        'Mana': Player_Data['Mana'],
-        'Location': Player_Data['Location'],
-        'Gold': Player_Data['Gold'],
-
-        'WeaponSlot': Load_Items(Player_Data['WeaponSlot']['Name'], Player_Data['WeaponSlot']['Level'], Player_Data['WeaponSlot']['Multiplyers']),
-        'HelmetSlot': Load_Items(Player_Data['HelmetSlot']['Name'], Player_Data['HelmetSlot']['Level'], Player_Data['HelmetSlot']['Multiplyers']),
-        'ChestplateSlot': Load_Items(Player_Data['ChestplateSlot']['Name'], Player_Data['ChestplateSlot']['Level'], Player_Data['ChestplateSlot']['Multiplyers']),
-        'BootSlot': Load_Items(Player_Data['BootSlot']['Name'], Player_Data['BootSlot']['Level'], Player_Data['BootSlot']['Multiplyers']),
-
-        'OtherSlot1': {'Item': Load_Items(Player_Data['OtherSlot1']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot1']['Qty']},
-        'OtherSlot2': {'Item': Load_Items(Player_Data['OtherSlot2']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot2']['Qty']},
-        'OtherSlot3': {'Item': Load_Items(Player_Data['OtherSlot3']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot3']['Qty']},
-        'OtherSlot4': {'Item': Load_Items(Player_Data['OtherSlot4']['Item'], 1, 1), 'Qty': Player_Data['OtherSlot4']['Qty']},
-
-        # === Game State Flags ===
-        'Enemy1': Player_Data['Enemy1'],
-        'Enemy2': Player_Data['Enemy2'],
-        'Enemy3': Player_Data['Enemy3'],
-        'Enemy4': Player_Data['Enemy4'],
-
-        'Village1': Player_Data['Village1'],
-        'Village2': Player_Data['Village2'],
-        'Village3': Player_Data['Village3'],
-
-        'Forest1': Player_Data['Forest1'],
-        'Forest2': Player_Data['Forest2'],
-        'Forest3': Player_Data['Forest3'],
-        'Forest4': Player_Data['Forest4'],
-
-        'SeenW1': Player_Data['SeenW1'],
-        'SeenW2': Player_Data['SeenW2'],
-
-        'Wizard1': Player_Data['Wizard1'],
-        'Wizard2': Player_Data['Wizard2'],
-        'Mountain': Player_Data['Mountain'],
-        'GoblinKing': Player_Data['GoblinKing'],
-
-        'RareFlower': Player_Data['RareFlower'],
-        'RareRune': Player_Data['RareRune'],
-
-        'Enemies': Player_Data['Enemies']
+        'Enemies': Player_Data['Enemies'] # Stores the state of all enemies
         }
 
-        
 
-        User = Player(Data)
-
-def leave():
-    global User
-    if Load_File != 0:
-        User.Save(Load_File)
-        quit()
-
-    else:
-        quit()
+        User = Player(Data) # Creates a new Player object with the loaded data
 
 def CreateCharacter():
-    global User
-    print('Welcome New Adventurer!')
-    while True:
-        Name_Input = input("What's your Name Adventurer? ")
+    '''This Function Creates a Character if their is no existing player data'''
+    global User # Globaises the User Attribute
+    print('Welcome New Adventurer!') # Welecomes the User
+    while True: # Run until broken
+        Name_Input = input("What's your Name Adventurer? ") # Ask's the Player their Name
 
-        if len(Name_Input) == 0:
-            print("You must enter a name!")
-        elif len(Name_Input) > 20:
-            print("Your name is too long! Please keep it under 20 characters.")
-        else:
-            print(f'Welcome {Name_Input}, This is where your Journey Begins!')
-            break
+        if len(Name_Input) == 0: # If User Doesnt Enter a Name
+            print("You must enter a name!") # Prints and Error Message
+        elif len(Name_Input) > 20: # If the User enters a name that is too long
+            print("Your name is too long! Please keep it under 20 characters.") # Prints and Error Message
+        else: # If their is no problems with the Users Name
+            print(f'Welcome {Name_Input}, This is where your Journey Begins!') # Welcomes user
+            break # Breaks the Loop
 
-    Player_Data = {
-        'Player_Name': Name_Input,
+    Player_Data = { # Initalises Player Data to Defaults
+        'Player_Name': Name_Input, # Player Name is set to Players Chosen Name
 
-        'Health': {'Health': 100, 'Max_Health': 100},
-        'Stamina': {'Stamina': 100, 'Max_Stamina': 100},
-        'Mana': {'Mana': 100, 'Max_Mana': 100},
+        'Health': {'Health': 100, 'Max_Health': 100}, # Sets player Health to 100, and Max Health to 100
+        'Stamina': {'Stamina': 100, 'Max_Stamina': 100}, # Sets player Stamina to 100, and Max Stamina to 100
+        'Mana': {'Mana': 100, 'Max_Mana': 100}, # Sets player Mana to 100, and Max Mana to 100
 
-        'WeaponSlot': Stick,
-        'HelmetSlot': None_Helmet,
-        'ChestplateSlot': None_Chestplate,
-        'BootSlot': None_Boot,
+        'WeaponSlot': Stick, # Sets Users Weapon to Stick
+        'HelmetSlot': None_Helmet, # Sets Users Helmet to None_Helmet
+        'ChestplateSlot': None_Chestplate, # Sets Users Chestplate to None_Chestplate
+        'BootSlot': None_Boot, # Sets Users Boots to None_Boot
         
-        'OtherSlot1': {'Item': Health_Potion_Medium, 'Qty': 1},
-        'OtherSlot2': {'Item': None_Item, 'Qty': 0},
-        'OtherSlot3': {'Item': None_Item, 'Qty': 0},
-        'OtherSlot4': {'Item': None_Item, 'Qty': 0},
+        'OtherSlot1': {'Item': None_Item, 'Qty': 0}, # Sets Item slot to be None_Item, and Qty to be 0
+        'OtherSlot2': {'Item': None_Item, 'Qty': 0}, # Sets Item slot to be None_Item, and Qty to be 0
+        'OtherSlot3': {'Item': None_Item, 'Qty': 0}, # Sets Item slot to be None_Item, and Qty to be 0
+        'OtherSlot4': {'Item': None_Item, 'Qty': 0}, # Sets Item slot to be None_Item, and Qty to be 0
 
-        'Location': 'Forest1',
-        'Gold': 100000,
+        'Location': 'Forest1', # Sets Users location to be 'Forest1' - the Default Room
+        'Gold': 25, # Sets Users gold to be 25 - 25 is Enough to make money through the Casino - the Lumberjack is more designed to prevent soft locking
 
-        'Enemy1': False,
-        'Enemy2': False,
-        'Enemy3': False,
-        'Enemy4': False,
+        'Enemy1': False, # Sets Room to be False
+        'Enemy2': False, # Sets Room to be False
+        'Enemy3': False, # Sets Room to be False
+        'Enemy4': False, # Sets Room to be False
 
-        'Village1': False,
-        'Village2': False,
-        'Village3': False,
+        'Village1': False, # Sets Room to be False
+        'Village2': False, # Sets Room to be False
+        'Village3': False, # Sets Room to be False
 
-        'Forest1': False,
-        'Forest2': False,
-        'Forest3': False,
-        'Forest4': False,
+        'Forest1': False, # Sets Room to be False
+        'Forest2': False, # Sets Room to be False
+        'Forest3': False, # Sets Room to be False
+        'Forest4': False, # Sets Room to be False
 
 
-        'SeenW1': False,
-        'SeenW2': False,
+        'SeenW1': False, # Sets Seen Wizard 1 to be False
+        'SeenW2': False, # Sets Seen Wizard 2 to be False
         
-        'Wizard1': False,
-        'Wizard2': False,
-        'Mountain': False,
-        'GoblinKing': False,
+        'Wizard1': False,  # Sets Room to be False
+        'Wizard2': False, # Sets Room to be False
+        'Mountain': False, # Sets Room to be False
+        'GoblinKing': False, # Sets Room to be False
 
-        'RareFlower': False,
-        'RareRune': False,
+        'RareFlower': False, # Sets Room to be False
+        'RareRune': False, # Sets Room to be False
 
-        'Enemies': {'G': 10, 'O': 20, 'D': 20, 'Og': 50}
+        'Enemies': {'G': 10, 'O': 20, 'D': 20, 'Og': 50} # Sets Room to be False
     }
 
-    User = Player(Player_Data)
+    User = Player(Player_Data) # Creates a Player based off of those attributes
+
+
 
 # Magic
 def Enchantment(item, type=None):
-    os.system('cls')
-    
-    
-    Level = item.level
+    '''This function Enchants items to be more effective against enemy types'''    
+    Level = item.level # Sets level to the Item of the Level being Encahanted
 
-    Multiplyer = (random.randint(0, round(Level)+10)/10)
+    Multiplyer = (random.randint(0, round(Level)+10)/10) # This calculate the strength of the Enchant - with a higher level allowing for a higher chance of a better enchantment
 
-    if type == None:
-        return {'Wat': (1+((Multiplyer)/4)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1+((Multiplyer)/4))}
+    if type == None: # If Player wants a Neuteral Buff
+        item.setmultipliers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a overall Neutral Buff
     else:
-        if type == 'Fir':
-            return {'Wat': (1-((Multiplyer)/4)), 'Fir': (1+(Multiplyer)), 'Nat': (1+((Multiplyer)/4))}
+        if type == 'Fir': # If Player wants a Fire Buff 
+            item.setmultipliers({'Wat': (1-((Multiplyer)/4)), 'Fir': (1+(Multiplyer)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a stronge buff to Fire, but at the cost of Water Strength
         
-        elif type == 'Wat':
-            return {'Wat': (1+(Multiplyer)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1-((Multiplyer)/4))}
+        elif type == 'Wat': # If Player wants a Water Buff
+            item.setmultipliers({'Wat': (1+(Multiplyer)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1-((Multiplyer)/4))}) # If the Player wants a strong buff to Water, but at the cost of Nature Strength
         
-        elif type == 'Nat':
-            return {'Wat': (1+((Multiplyer)/4)), 'Fir': (1-((Multiplyer)/4)), 'Nat': (1+(Multiplyer))}
-
+        elif type == 'Nat': # If Player wants a Nature Buff
+            item.setmultipliers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1-((Multiplyer)/4)), 'Nat': (1+(Multiplyer))}) # If the Player wants a strong buff to Nature, but at the cost of Fire Strenth
 # Movement
 def MoveOptions(Room):
-    global User
+    '''Curates the Avaliable Moves for the Player based on their current Location'''
+    global User  # Access the global User object
 
-    def RemoveStamina(Stamina):
-        User.Stamina['Stamina'] -= Stamina
+    def RemoveStamina(Stamina): 
+        '''This function removes stamina from the Player'''
+        User.Stamina['Stamina'] -= Stamina  # Removes X stamina from the player
 
-    Leave = {
-        "Inventory": lambda: DisplayInventoryScreen(),
-        "Exit": lambda: Exiting()
+    Default = {
+        "Inventory": lambda: DisplayInventoryScreen(),  # Opens the inventory screen
+        "Exit": lambda: Exiting()  # Exits the current screen/menu
     }
 
     def RoomOptions():
+        '''Curates the Room Specific Moves'''
         if Room == 'Enemy1':
             return {
-                "North East (Enemy2) (6)": lambda: (RemoveStamina(6), PrintMainUI('Enemy2')),
-                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),
-                "East (Vilage1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),
-                "West (Forest1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Forest1')),
+                "North East (Enemy2) (6)": lambda: (RemoveStamina(6), PrintMainUI('Enemy2')),  # -6 stamina, loads Enemy2
+                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),  # -4 stamina, loads Forest2
+                "East (Vilage1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),  # -2 stamina, loads Village1
+                "West (Forest1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Forest1')),  # -2 stamina, loads Forest1
             }
         elif Room == 'Enemy2':
             return {
-                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),
-                "South East (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),
-                "South West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
-                "East (Wizard1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Wizard1')),
+                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),  # -3 stamina, loads Enemy3
+                "South East (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),  # -6 stamina, loads Forest3
+                "South West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),  # -2 stamina, loads Enemy1
+                "East (Wizard1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Wizard1')),  # -2 stamina, loads Wizard1
             }
         elif Room == 'Enemy3':
             return {
-                "South East (Wizard1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Wizard1')),
-                "South West (Enemy2) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy2')),
-                "West (Mountain) (20)": lambda: (RemoveStamina(20), PrintMainUI('Mountain')),
+                "South East (Wizard1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Wizard1')),  # -4 stamina, loads Wizard1
+                "South West (Enemy2) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy2')),  # -3 stamina, loads Enemy2
+                "West (Mountain) (20)": lambda: (RemoveStamina(20), PrintMainUI('Mountain')),  # -20 stamina, loads Mountain
             }
         elif Room == 'Enemy4':
             return {
-                "North West (Forest4) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),
-                "East (GoblinKing) (4)": lambda: (RemoveStamina(4), PrintMainUI('GoblinKing')),
-                "West (Village2) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),
+                "North West (Forest4) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),  # -8 stamina, loads Village2
+                "East (GoblinKing) (4)": lambda: (RemoveStamina(4), PrintMainUI('GoblinKing')),  # -4 stamina, loads GoblinKing
+                "West (Village2) (8)": lambda: (RemoveStamina(8), PrintMainUI('Village2')),  # -8 stamina, loads Village2
             }
         elif Room == 'Village1':
             return {
-                "Enter Village": lambda: (ClearLines(8), EnterVillage('Village1')),
-                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),
-                "East (Village2) (5)": lambda: (RemoveStamina(5), PrintMainUI('Village2')),
-                "West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
+                "Enter Village": lambda: (ClearLines(8), EnterVillage('Village1')),  # Clears 8 lines, enters Village1
+                "South (Forest2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest2')),  # -4 stamina, loads Forest2
+                "East (Village2) (5)": lambda: (RemoveStamina(5), PrintMainUI('Village2')),  # -5 stamina, loads Village2
+                "West (Enemy1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),  # -2 stamina, loads Enemy1
             }
         elif Room == 'Village2':
             return {
-                "Enter Village": lambda: (ClearLines(8), EnterVillage('Village2')),
-                "South East (Wizard2) (7)": lambda: (RemoveStamina(7), PrintMainUI('Wizard2')),
-                "East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),
-                "West (Village1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),
+                "Enter Village": lambda: (ClearLines(8), EnterVillage('Village2')),  # Clears 8 lines, enters Village2
+                "South East (Wizard2) (7)": lambda: (RemoveStamina(7), PrintMainUI('Wizard2')),  # -7 stamina, loads Wizard2
+                "East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),  # -5 stamina, loads Enemy4
+                "West (Village1) (2)": lambda: (RemoveStamina(2), PrintMainUI('Village1')),  # -2 stamina, loads Village1
             }
         elif Room == 'Village3':
             return {
-                "Enter Village": lambda: (ClearLines(5), EnterVillage('Village1')),
-                "North West (Forest4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest4')),
+                "Enter Village": lambda: (ClearLines(5), EnterVillage('Village1')),  # Clears 5 lines, enters Village1
+                "North West (Forest4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest4')),  # -4 stamina, loads Forest4
             }
         elif Room == 'Forest1':
             return {
-                "East (Enemy) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),
+                "East (Enemy) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy1')),  # -2 stamina, loads Enemy1
             }
         elif Room == 'Forest2':
             if User.SeenW1:
-                User.RareFlower = True
+                User.RareFlower = True  # Player receives a rare flower
                 print('''
         You found a Rare Flower!
                 ''')
             return {
-                "North East (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),
-                "North West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),
+                "North East (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),  # -4 stamina, loads Village1
+                "North West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),  # -4 stamina, loads Enemy1
             }
         elif Room == 'Forest3':
             return {
-                "North East (Forest4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Forest4')),
-                "North West (Enemy2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy2')),
-                "East (Enemy4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),
-                "West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),
+                "North East (Forest4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Forest4')),  # -5 stamina, loads Forest4
+                "North West (Enemy2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy2')),  # -4 stamina, loads Enemy2
+                "East (Enemy4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),  # -4 stamina, loads Enemy4
+                "West (Enemy1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy1')),  # -4 stamina, loads Enemy1
             }
         elif Room == 'Forest4':
             return {
-                "South East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),
-                "South West (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),
-                "East (Village3) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village3')),
+                "South East (Enemy4) (5)": lambda: (RemoveStamina(5), PrintMainUI('Enemy4')),  # -5 stamina, loads Enemy4
+                "South West (Forest3) (6)": lambda: (RemoveStamina(6), PrintMainUI('Forest3')),  # -6 stamina, loads Forest3
+                "East (Village3) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village3')),  # -4 stamina, loads Village3
             }
         elif Room == 'Wizard1':
             return {
-                "Enter Wizard Tower": lambda: EnterWizardTower('Wizard1'),
-                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),
-                "West (Enemy2) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy2')),
+                "Enter Wizard Tower": lambda: EnterWizardTower('Wizard1'),  # Enters Wizard1's tower
+                "North (Enemy3) (3)": lambda: (RemoveStamina(3), PrintMainUI('Enemy3')),  # -3 stamina, loads Enemy3
+                "West (Enemy2) (2)": lambda: (RemoveStamina(2), PrintMainUI('Enemy2')),  # -2 stamina, loads Enemy2
             }
         elif Room == 'Wizard2':
             return {
-                "Enter Wizard Tower": lambda: EnterWizardTower('Wizard2'),
-                "North East (Village2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village2')),
-                "North West (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),
+                "Enter Wizard Tower": lambda: EnterWizardTower('Wizard2'),  # Enters Wizard2's tower
+                "North East (Village2) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village2')),  # -4 stamina, loads Village2
+                "North West (Village1) (4)": lambda: (RemoveStamina(4), PrintMainUI('Village1')),  # -4 stamina, loads Village1
             }
         elif Room == 'Mountain':
             if User.SeenW2:
-                User.RareRune = True
+                User.RareRune = True  # Player receives a rare rune
                 print('''
         You found a Rare Rune!
                 ''')
             return {
-                "East (Enemy3) (10)": lambda: (RemoveStamina(10), PrintMainUI('Enemy3')),
+                "East (Enemy3) (10)": lambda: (RemoveStamina(10), PrintMainUI('Enemy3')),  # -10 stamina, loads Enemy3
             }
         elif Room == 'GoblinKing':
             return {
-                "West (Enemy 4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),
+                "West (Enemy 4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Enemy4')),  # -4 stamina, loads Enemy4
             }
         else:
-            return {}
+            return {}  # If no known room, return empty movement options
 
-    options = {}
-    options.update(Leave)
-    options.update(RoomOptions())
-    return options
+    options = {}  # Initialize the options dictionary
+    options.update(Default)  # Add inventory and exit options
+    options.update(RoomOptions())  # Add movement options for the current room
+    return options  # Return all available options
 
 def Story(Room):
+    '''This function returns story elements depending on the Room, and whether the player has been in the room, it also starts Combat sequences'''
     if Room == 'Enemy1':
         if User.Enemy1 == False:
             input('Press Enter to Enter Combat...')
@@ -1438,34 +1418,37 @@ def Story(Room):
 
 def Map(Room):
     global MountainIssue
-    if Room == 'Mountain':
-        MountainIssue = True
-    else:
-        MountainIssue = False
-    # Helper to pad all map symbols to 2 spaces for alignment
+    if Room == 'Mountain': # If the Room is Mountain
+        MountainIssue = True # Mountain Issue is True (This is because the Mountain Emoji's are some of the only emoji's that are 2 character symbols long - But created the issue where it would skew the UI elements, not in the part adjectent to the map, but at the next part Ascii Component)
+    else: # If room isn't mountain
+        MountainIssue = False # Sets MountainIssue to False
+
     def pad(symbol, width=2):
+        '''This function uses wcswidth to adjust the Emojis to better calculate the width'''
         real_width = wcswidth(symbol)
         return symbol + ' ' * (width - real_width)
 
-    Enemy1 = pad('💀') if Room != 'Enemy1' else pad('██')
-    Enemy2 = pad('💀') if Room != 'Enemy2' else pad('██')
-    Enemy3 = pad('💀') if Room != 'Enemy3' else pad('██')
-    Enemy4 = pad('💀') if Room != 'Enemy4' else pad('██')
-    Village1 = pad('🏠') if Room != 'Village1' else pad('██')
-    Village2 = pad('🏠') if Room != 'Village2' else pad('██')
-    Village3 = pad('🏠') if Room != 'Village3' else pad('██')
-    Forest1 = pad('🌲') if Room != 'Forest1' else pad('██')
-    Forest2 = pad('🌲') if Room != 'Forest2' else pad('██')
-    Forest3 = pad('🌲') if Room != 'Forest3' else pad('██')
-    Forest4 = pad('🌲') if Room != 'Forest4' else pad('██')
-    Wizard1 = pad('🔮') if Room != 'Wizard1' else pad('██')
-    Wizard2 = pad('🔮') if Room != 'Wizard2' else pad('██')
-    Mountain = pad('🏔️ ') if Room != 'Mountain' else pad('██')
-    GoblinKing = pad('👑') if Room != 'GoblinKing' else pad('██')
+    Enemy1 = pad('💀') if Room != 'Enemy1' else pad('██') # If room is Enemy1, changes the Room Icon to the Player Icon
+    Enemy2 = pad('💀') if Room != 'Enemy2' else pad('██') # If room is Enemy2, changes the Room Icon to the Player Icon
+    Enemy3 = pad('💀') if Room != 'Enemy3' else pad('██') # If room is Enemy3, changes the Room Icon to the Player Icon
+    Enemy4 = pad('💀') if Room != 'Enemy4' else pad('██') # If room is Enemy4, changes the Room Icon to the Player Icon
+    Village1 = pad('🏠') if Room != 'Village1' else pad('██') # If room is Village1, changes the Room Icon to the Player Icon
+    Village2 = pad('🏠') if Room != 'Village2' else pad('██') # If room is Village2, changes the Room Icon to the Player Icon
+    Village3 = pad('🏠') if Room != 'Village3' else pad('██') # If room is Village3, changes the Room Icon to the Player Icon
+    Forest1 = pad('🌲') if Room != 'Forest1' else pad('██') # If room is Forest1, changes the Room Icon to the Player Icon
+    Forest2 = pad('🌲') if Room != 'Forest2' else pad('██') # If room is Forest2, changes the Room Icon to the Player Icon
+    Forest3 = pad('🌲') if Room != 'Forest3' else pad('██') # If room is Forest3, changes the Room Icon to the Player Icon
+    Forest4 = pad('🌲') if Room != 'Forest4' else pad('██') # If room is Forest4, changes the Room Icon to the Player Icon
+    Wizard1 = pad('🔮') if Room != 'Wizard1' else pad('██') # If room is Wizard1, changes the Room Icon to the Player Icon
+    Wizard2 = pad('🔮') if Room != 'Wizard2' else pad('██') # If room is Wizard2, changes the Room Icon to the Player Icon
+    Mountain = pad('🏔️ ') if Room != 'Mountain' else pad('██') # If room is Mountain, changes the Room Icon to the Player Icon
+    GoblinKing = pad('👑') if Room != 'GoblinKing' else pad('██') # If room is GoblinKing, changes the Room Icon to the Player Icon
 
     def TitleGenerator(Title):
-        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+'
+        '''This function creates a centered title for each of the Rooms, being able to adapt to the length of the title''' 
+        return f'+{'─'*((27-(math.floor(len(Title)/2)))-6)}--==| {Title} |==--{'─'*((28-(math.ceil(len(Title)/2)))-6)}+' # Math to calculate the Center and have everything fit
 
+    # This returns the Map, with each of the Locations attcaked with their variables - This system - While more complex - is significantly more efficient in creating the map
     return f'''    {TitleGenerator(Room)}
     │                                                       │
     │           ┌──────{Enemy3}          {Forest4} ────┐                 │
@@ -1488,101 +1471,112 @@ def Map(Room):
     +───────────────────────────────────────────────────────+'''
 
 def EnterVillage(Village):
-    Mort = ArmourSmith('Mort')
-    Alex = AxeSmith('Alex')
-    Melvin = Brewer('Melvin')
-    Zuba = LumberJack('Zuba')
+    '''This function handles the process of creating villagers, and displaying them in the Village'''
 
-    Bill = Gambler('Bill')
+    Mort = ArmourSmith('Mort') # Creates an ArmourSmith named Mort
+    Alex = AxeSmith('Alex') # Creates an AxeSmith named Alex
+    Melvin = Brewer('Melvin') # Creates a Brewer named Melvin
+    Zuba = LumberJack('Zuba') # Creates a LumberJack named Zuba
 
-    Julian = ArmourSmith('Julian')
-    Gloria = SwordSmith('Gloria')
-    Marty = AxeSmith('Marty')
-    Kowalski = Brewer('Kowalski')
-    Moto = LumberJack('Moto')
+    Bill = Gambler('Bill') # Creates a Gambler named Bill
 
-    Dole = Gambler('Dole')
+    Julian = ArmourSmith('Julian') # Creates an ArmourSmith named Julian
+    Gloria = SwordSmith('Gloria') # Creates a SwordSmith named Gloria
+    Marty = AxeSmith('Marty') # Creates an AxeSmith named Marty
+    Kowalski = Brewer('Kowalski') # Creates a Brewer named Kowalski
+    Moto = LumberJack('Moto') # Creates a LumberJack named Moto
 
-    Maurice = ArmourSmith('Maurice')
-    Rico = SwordSmith('Rico')
-    Skipper = Brewer('Skipper')
-    Milton = LumberJack('Milton')
+    Dole = Gambler('Dole') # Creates a Gambler named Dole
 
-    Doh = Gambler('Doh')
+    Maurice = ArmourSmith('Maurice') # Creates an ArmourSmith named Maurice
+    Rico = SwordSmith('Rico') # Creates a SwordSmith named Rico
+    Skipper = Brewer('Skipper') # Creates a Brewer named Skipper
+    Milton = LumberJack('Milton') # Creates a LumberJack named Milton
 
+    Doh = Gambler('Doh') # Creates a Gambler named Doh
 
-    while True:
-        os.system('cls')
-        print('Select a Merchant to Interact With!')
-        print()
+    while True: # Continuously loop until the player chooses to exit
+        os.system('cls') # Clears the terminal screen
+        print('Select a Merchant to Interact With!') # Prompts the user to select a merchant
+        print() # Prints a blank line for spacing
 
-        Exiting = False
+        Exiting = False # Initializes the exiting flag as False
+
         def Break():
-            nonlocal Exiting
-            os.system('cls')
-            print()
-            print('Select a Merchant to Interact With!')
-            print()
-            Exiting = True
+            '''This function handles when the User wants to exit the Village'''
+            nonlocal Exiting # Allows modification of the Exiting variable from the outer scope
+            os.system('cls') # Clears the terminal screen
+            print() # Prints a blank line for spacing
+            print('Select a Merchant to Interact With!') # Re-prompts the user after exiting
+            print() # Prints a blank line for spacing
+            Exiting = True # Sets the exiting flag to True
 
-        if Village == 'Village1':
-            Input_Selection({
-                'Mort - Armoursmith': lambda: Mort.Inventory_Trading(),
-                'Alex - Axesmith': lambda: Alex.Inventory_Trading(),
-                'Melvin - Brewer': lambda: Melvin.Inventory_Trading(),
-                'Zuba - LumberJack': lambda: Zuba.ChopWood(),
-                'Bill - Casino Owner': lambda: Bill.Casino(),
-                'Exit': lambda: Break()
+        if Village == 'Village1': # If the player is in Village1
+            Input_Selection({ # Displays the merchant options for Village1
+                'Mort - Armoursmith': lambda: Mort.Inventory_Trading(), # Opens Mort's armour shop
+                'Alex - Axesmith': lambda: Alex.Inventory_Trading(), # Opens Alex's axe shop
+                'Melvin - Brewer': lambda: Melvin.Inventory_Trading(), # Opens Melvin's potion shop
+                'Zuba - LumberJack': lambda: Zuba.ChopWood(), # Starts Zuba's woodcutting activity
+                'Bill - Casino Owner': lambda: Bill.Casino(), # Enters Bill's casino
+                'Exit': lambda: Break() # Allows the user to exit the village
             })
 
-            if Exiting == True:
-                break
-            
-        elif Village == 'Village2':
-            Input_Selection({
-                'Julian - Armoursmith': lambda: Julian.Inventory_Trading(),
-                'Gloria - Swordsmith': lambda: Gloria.Inventory_Trading(),
-                'Marty - Axesmith': lambda: Marty.Inventory_Trading(),
-                'Kowalski - Brewer': lambda: Kowalski.Inventory_Trading(),
-                'Moto - LumberJack': lambda: Moto.ChopWood(),
-                'Dole - Casino Owner': lambda: Dole.Casino(),
-                'Exit': lambda: Break()
+            if Exiting == True: # If the user chose to exit
+                break # Exits the loop and village interface
+
+        elif Village == 'Village2': # If the player is in Village2
+            Input_Selection({ # Displays the merchant options for Village2
+                'Julian - Armoursmith': lambda: Julian.Inventory_Trading(), # Opens Julian's armour shop
+                'Gloria - Swordsmith': lambda: Gloria.Inventory_Trading(), # Opens Gloria's sword shop
+                'Marty - Axesmith': lambda: Marty.Inventory_Trading(), # Opens Marty's axe shop
+                'Kowalski - Brewer': lambda: Kowalski.Inventory_Trading(), # Opens Kowalski's potion shop
+                'Moto - LumberJack': lambda: Moto.ChopWood(), # Starts Moto's woodcutting activity
+                'Dole - Casino Owner': lambda: Dole.Casino(), # Enters Dole's casino
+                'Exit': lambda: Break() # Allows the user to exit the village
             })
 
-            if Exiting == True:
-                break
+            if Exiting == True: # If the user chose to exit
+                break # Exits the loop and village interface
 
-        elif Village == 'Village3':
-            Input_Selection({
-                'Maurice - Armoursmith': lambda: Maurice.Inventory_Trading(),
-                'Rico - Swordsmith': lambda: Rico.Inventory_Trading(),
-                'Skipper - Brewer': lambda: Skipper.Inventory_Trading(),
-                'Milton - LumberJack': lambda: Milton.ChopWood(),
-                'Doh - Casino Owner': lambda: Doh.Casino(),
-                'Exit': lambda: Break()
+        elif Village == 'Village3': # If the player is in Village3
+            Input_Selection({ # Displays the merchant options for Village3
+                'Maurice - Armoursmith': lambda: Maurice.Inventory_Trading(), # Opens Maurice's armour shop
+                'Rico - Swordsmith': lambda: Rico.Inventory_Trading(), # Opens Rico's sword shop
+                'Skipper - Brewer': lambda: Skipper.Inventory_Trading(), # Opens Skipper's potion shop
+                'Milton - LumberJack': lambda: Milton.ChopWood(), # Starts Milton's woodcutting activity
+                'Doh - Casino Owner': lambda: Doh.Casino(), # Enters Doh's casino
+                'Exit': lambda: Break() # Allows the user to exit the village
             })
 
-            if Exiting == True:
-                break
+            if Exiting == True: # If the user chose to exit
+                break # Exits the loop and village interface
 
-    PrintMainUI(Village)
+    PrintMainUI(Village) # Returns the user back to the main UI of the current village
 
 def EnterWizardTower(wizard_room):
-    Jake = Wizard('Jake')
+    '''This Function handles the Wizard Tower Interactions, and Ensuring a Wizard is Intialised'''
+    Jake = Wizard('Jake') # Since the Name of the Wizard is Irrelivent for the Wizard function, the rooms can share the same Wizard Object
 
-    Jake.WizardStore(wizard_room)
+    Jake.WizardStore(wizard_room) # Runs the Wizard Store function, also providing which room it is happening in, allowing the Function to differenciate between the two rooms
 
 def ClearLines(n):
-    for _ in range(n):
-        print("\033[1A\033[2K", end="")
+    '''This function allows me to clear lines by the specified amount'''
+    for _ in range(n): # For each of the lines specified in the Parameters
+        print("\033[1A\033[2K", end="") # Clear the most recent line
 
 def Exiting():
-    global Load_File
-    User.Save(Load_File)
-    TitleScreen()
+    '''Handles the Exiting of the Game back to the Titlescreen'''
+    global Load_File, User # Globaises the Varibales
+    User.Save(Load_File) # Saves the Users Progress
+    User = None # Resets the User
+    Load_File = 0 # Resets the Load File
+    TitleScreen() # Restarts back to the Titlescreen
 
 def Died(DeathCause):
-    os.system('cls')
+    '''This Function handles the Death of the Player'''
+    global Load_File # Globalises the Variables in the Function
+    os.system('cls') # Clears the Screen
+    # Prints You Died Ascii Art and the Death message
     print(f'''
  ▄· ▄▌      ▄• ▄▌    ·▄▄▄▄  ▪  ▄▄▄ .·▄▄▄▄  
 ▐█▪██▌▪     █▪██▌    ██▪ ██ ██ ▀▄.▀·██▪ ██ 
@@ -1592,14 +1586,14 @@ def Died(DeathCause):
 
 You Died to {DeathCause}
 ''')
-    input('Enter to Delete Save...')
+    input('Enter to Delete Save...') # Waits so the user can see
 
-    with open(f'Save{Load_File}.json', 'w') as file:
-        json.dump({}, file) # Dumps an empty dictionary to the file
+    with open(f'Save{Load_File}.json', 'w') as file: # Opens the Current save file
+        json.dump({}, file) # Dumps an empty dictionary to the file - Causing it to get deleted
+    
+    Load_File = 0
 
-    TitleScreen()
+    TitleScreen() # Loads the Titlescreen Program - Restating the Program
 
 
-TitleScreen()
-
-
+TitleScreen() # Runs the Program from Titlescreen

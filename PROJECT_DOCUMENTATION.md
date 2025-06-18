@@ -125,7 +125,24 @@ Inventory: (Mana / Magical)
 
     The magic system plays a major role in gameplay, with mana being consumed whenever a magical item is used. This includes attacking with enchanted weapons, taking damage while wearing enchanted armor, casting spells like fireball, or activating magical items such as stamina necklaces. If the player runs out of mana, all enchantments become inactive until mana is replenished. Mana can be restored either by visiting a priest in a town or using a mana potion in the field. As the player earns experience from combat, trades, and magical item use, they gain access to stronger magical items and abilities. One key feature of this system is the use of enchanted gear, which can grant passive bonuses—such as increased speed, which reduces stamina usage when moving or gives the player stronger actions during combat.
 
-<img src="StoryBoard_MainUI.png" alt="Alt Text" width="500">
+#### Use Case Diagram:
+<img src="Images/Usecase_Diagram.png" alt="Alt Text" width="500">
+
+
+### **Data Flow Diagram**
+
+#### **Level 0:**
+<img src="Images/DFD_Level0.png" alt="Alt Text" width="500">
+
+#### **Level 1:**
+<img src="Images/DFD_Level1.png" alt="Alt Text" width="500">
+
+
+### **Story Boards**
+<img src="Images/StoryBoard_MainUI.png" alt="StoryBoard_MainUI" width="500">    <img src="Images/StoryBoard_TitleScreenUI.png" alt="StoryBoard_TitleScreenUI" width="500">
+<img src="Images/StoryBoard_CombatUI.png" alt="StoryBoard_CombatUI" width="500">    <img src="Images/StoryBoard_VillagerUI.png" alt="StoryBoard_VillagerUI" width="500">
+
+<img src="Images/StoryBoard_Complete.png" alt="Alt Text" width="1000"> 
 
 
 ### Review:
@@ -487,6 +504,117 @@ Inventory = { # Creates a Dictionary based on the information set previously (De
 
 # Sprint 2
 
+### Structure Chart
+<img src="Images/Structure_Chart.png" alt="Alt Text" width="500">
+
+
+### Algorithms
+
+#### Mainline (PrintMainUI)
+``` 
+BEGIN PrintMainUI (Room)
+	Exited = False
+    Clear Terminal
+
+
+	IF User Health is less than or Equal to 0 THEN
+		Player (Died)
+    ELIF Enemy Health is less than or Equal to 0 THEN
+        Died (‘No Stamina’)
+    ENDIF
+
+    FOR i IN 1 TO max_lines STEP 1
+            map_line = map_lines[i] if i < len(map_lines) else ""
+            side_line = side_panel[i] if i < len(side_panel) else ""
+
+            map_width = wcswidth (map_line)
+            padding = max(0, 60 - map_width)
+            print(map_line + ' ' * padding + side_line)
+
+    User.Location = Room
+
+    Display
+
+    Display Story (Room)
+
+    Display
+
+    WHILE true
+        IF Exited is False THEN
+            SET User.Room to True
+            Input_Selection(MoveOptions(Room))
+                        ClearLines ( len (MoveOptions (Room) ) + 3)
+        ELSE
+            BREAK
+        ENDIF
+
+    ENDWHILE
+
+END PrintMainUI (Room)
+```
+
+#### Subroutine (Combat)
+```
+BEGIN Combat (Enemy, Room)
+	IF Enemy.type = ‘Fir’ THEN
+		Type = ‘Fire’
+	ELIF Enemy.type = ‘Wat’ THEN
+		Type = ‘Water’
+	ELIF Enemy.type = ‘Nat’ THEN
+		Type = ‘Nature’
+	ENDIF
+	
+	Display You have Encountered an Enemy
+
+	WHILE true
+		Exited = False
+		Display Enemy and Player Statistics
+		IF Enemy.Health <= 0 THEN
+			ClearLines (17)
+			Display You have Defeated Enemy
+			User.WeaponSlot.level += Enemy.Level/2
+			User.Room = True
+			END Combat (Enemy, Room)
+
+		ELIF User.Health[‘Health’] <= 0 THEN
+			Died (Enemy.name)
+			END Combat (Enemy, Room)
+
+        Input_Selection (Attack, Use Item)
+
+        IF Exited = False THEN
+            Enemy.Attacking (User)
+
+        Clearlines (20)
+
+    ENDWHILE
+
+END Combat (Enemy, Room)
+
+```
+
+#### Subroutine (Statbar)
+```
+BEGIN Statbar (Stat, Max_Stat)
+	StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
+	Deadbar = ‘’
+	
+	IF StatBar = ‘’ AND Stat > 0 THEN
+		StatBar = '█'
+	ELIF len (StatBar) > 10 THEN
+		StatBar = '█'*10
+
+	FOR i IN 1 TO 10 - len (StatBar) STEP 1
+		Deadbar += ‘-’
+
+	Return StatBar + *White* Deadbar
+
+END Statbar (Stat, Max_Stat)
+```
+
+#### Flowcharts
+<img src="Images/Flowchart1.png" alt="Alt Text" width="300">  <img src="Images/Flowchart2.png" alt="Alt Text" width="300">  <img src="Images/Flowchart3.png" alt="Alt Text" width="300">
+
 ### Review Questions
 
 #### Evaluate how effectively your project meets the functional and non-functional requirements defined in your planning.
@@ -531,5 +659,125 @@ Inventory = { # Creates a Dictionary based on the information set previously (De
 
 # Sprint 3
 
+### UML Class Diagram
+<img src="Images/UML_Class_Diagram.png" alt="Alt Text" width="500">
+
 ### Review Questions
 
+
+
+# Sprint 4
+
+## Final Evaluation Questions
+### Explain how you could improve your system in future updates. Analyse the impact these updates could have on the user experience.
+
+My current system was designed with robustness in mind—a stable and expandable foundation for future content. While the base game functions well and delivers the core experience, there are several key improvements I would like to implement in future updates to enhance both gameplay depth and user experience.
+
+1. **Expanding Game Content and World Exploration**
+
+One of the most significant improvements would be to add more content to the game. At present, the player’s experience is somewhat limited in terms of exploration, available quests, and meaningful interactions. I would like to add more rooms, unique characters, hidden areas, diverse enemies, and side quests that reward exploration and strategic thinking.
+
+**Impact on User Experience:**
+
+Adding more content would directly improve engagement and replayability. Players would feel more immersed in the game world and more motivated to continue playing. It would also give them a greater sense of progression and accomplishment, reducing repetition and increasing the overall enjoyment of the game.
+
+2. **Enhancing Data Presentation and Gameplay Clarity**
+
+Another key area for improvement is how data is calculated and displayed. Currently, while stats like health, stamina, and damage exist, their calculation and visual representation could be made clearer and more intuitive. For example, showing real-time stat changes after actions, clearer descriptions of effects (e.g. elemental damage multipliers), and more informative UI feedback could help players better understand the consequences of their decisions.
+
+**Impact on User Experience:**
+
+Improved clarity would make the game's core mechanics more accessible, especially for new players. This would reduce confusion, allow for more strategic planning, and ultimately create a smoother, more satisfying experience. It helps players feel in control and capable, which is crucial in an RPG-style system.
+
+3. **Deepening the Magic and Mana System**
+
+Finally, I want to further develop the game’s magic and mana systems. While these elements exist, their current implementation is limited. I aim to introduce more types of magical abilities, enchanted gear that interacts with mana, and even mana-based puzzles or combat effects. Mana would become a key resource players manage carefully, and magic could be customized or leveled up over time.
+
+**Impact on User Experience:**
+
+A more complex and rewarding magic system would provide players with alternative playstyles and enhance combat variety. It encourages creativity and planning, as players can specialize in magical strategies rather than relying solely on weapons or brute force. This added depth also allows for richer character builds and improves overall game balance by providing viable alternatives to physical attacks.
+
+By focusing on expanding content, improving system transparency, and enhancing underused gameplay mechanics like magic, future updates would significantly improve player satisfaction, engagement, and replay value. These changes build upon the current strong foundation and ensure the system continues to grow in complexity and enjoyment.
+
+4. **Better Code Management:**
+
+During the beginning of this task, the original goal was to break up my code, into a variety of files, to allow for more efficient development and performance of the system. Unfortunately, during the creation of the program, too many errors where being produced due to this goal. While I am confident it can be achieved, with my current skill level and abilities, breaking my program down into multiple files would require more time than I had for the task.
+
+**Impact on User Experience:**
+
+Breaking the program down into multiple files would have a larger focus on the developers side of the program, allowing them to find and solve errors faster and more efficiently. However, this still would impact the users experience. It would mean their problems would be solved faster, and more effectively.
+
+### Evaluate the system in terms of how well it meets the requirements and specifications.
+
+**Functional Requirements**
+
+Evaluation of the System Against Requirements and Specifications
+My system effectively meets the functional and non-functional requirements outlined in its initial design, offering a responsive, accessible, and feature-complete gameplay experience. Each requirement is addressed through thoughtful design decisions, and the system performs reliably across its key mechanics.
+
+**Functional Requirements:**
+
+The system meets all data retrieval expectations. Players can view essential statistics such as health, stamina, mana, inventory, and gold, at any point via the main UI. This is achieved through consistent updates and clear terminal output, ensuring users have constant updates on statistics and events.
+
+The user interface uses ASCII art and emojis to deliver an engaging experience. Elements like hearts (❤️), and custom coloured terminal outputs allow for quick visual recognition, while intuitive command inputs (e.g.1–X) ensure fluid interaction. Scene transitions are clean and formatted, aligning with expectations for clarity and immersion.
+
+To meet my data display criteria, the system successfully communicates in-game events through descriptive narration and clear outcomes. Players are notified during encounters, and combat sequences include multiple turns and second-chance mechanics, enhancing decision-making without overwhelming the user.
+
+**Non-Functional Requirements:**
+
+Performance is consistently strong. As a turn-based text system, transitions between actions are near-instant, with room and combat scenes loading in under half a second. Furthermore, the inclusion of timed text output ("swipe-style") maintains user attention without overloading the player, balancing speed with readability.
+
+The system demonstrates high reliability through using a variety of functions and processes, key systems such as stats, combat, and inventory are isolated into separate functions and classes. This avoids unintended side effects and allows each system to function predictably and independently.
+
+Usability and accessibility are clearly prioritized. The interface uses high-contrast text, minimalistic design, and a simplified input model to accommodate users with varied needs. Command options are consistently labeled, and help prompts ensure that players can navigate without confusion.
+
+**Functional Specifications:**
+
+The system meets all outlined user requirements, including access to stats, real-time feedback on in-game actions, and the ability to interact meaningfully through movement, combat, trading, and magic. While the magic system is currently basic, it satisfies initial specifications and lays groundwork for future expansion.
+
+Inputs and outputs are handled gracefully. Valid inputs trigger appropriate actions (movement, combat, etc.), while invalid ones prompt corrective feedback. This ensures users stay informed and engaged, even when errors occur.
+
+All core systems—combat, movement, inventory, trading, and magic—are implemented and functional. These mechanics are interconnected and support overall progression through exploration, decision-making, and character growth. The system responds appropriately to each input, contributing to a seamless player experience.
+
+User interaction is efficient and effective through consistent use of clear text prompts. Even more complex actions during the program are broken down into simple, understandable actions for the USer to make clear and informed decisions.
+
+My program has strong input handling, with my extensive texting finding that no inputs where found to be invalid, or to be processed with incorrect data.
+
+**Non-Functional Specifications:**
+
+The program delivers strong performance, loading each new game state in an effecive and efficient manner. This is strongly due to my efficient a through use of functions and loops throughout the program, that reduce redundent code, and increase the efficiency of the program.
+
+In terms of accessibility, the system meets its goals by using terminal input, high-contrast visuals, and straightforward commands. These choices make it approachable for a broad audience, including users with low vision or limited technical familiarity.
+
+Lastly, reliability is achieved through validation, input constraints, and modular control of data flow. The program avoids critical errors and, when issues do occur, informs the player how to correct them, through the use of Meaningful Error Messages, best seen in the Casino program.
+
+**Conclusion:**
+
+Overall, the system cohesively fulfills its design intentions. It is reliable, accessible, and functionally complete, offering an engaging and responsive experience to players. All specified requirements are met, with particular strengths in modularity, clarity of interaction, and performance. Areas like the magic system are identified for future enhancement but already meet baseline expectations. The foundation is solid, scalable, and ready for further development.
+
+### Evaluate your processes in terms of project management.
+
+For this project, the Use of the Agile sprint method as opposed to the waterfall method provided a strong curveball in terms of time management. This was the first project I have done with this approach, and it has had a strong impact on the project's time management. The first key difference with the Agile methods time management, is that I found it difficult to estimate the length tasks would take. Such as implimenting a movement system, or adding a inventory. As I have experienced with my other tasks, my estimations for how long implimenting features would take was generally accurate, allowing me to stay on schedule in those tasks. However, in this task, I found time management siginificantly more difficult, with my estimations being extremely wrong, and tasks taking either significantly longer or shorter that I first would have expected. This also meant sticking to the Gantt chart was difficult. My progress does allign with the Gantt charts general direction, but towards the end, my progress does come up a little short, and their is a heavy load of work that was pushed towards the end of the task.
+
+These reasons the resulted in my time management for the task to be quite poor, and being left with significant work to accomplish, very close to the deadline. I'm confident that as I progress with tasks similar to this, using the Agile method, my ability to time manage these projects will improve, but as of now, my skill in the Agile Method, and this task specifically has a lot to work on to get it to the same level of time management I have for my other workflows.
+
+### Evaluate your project in relation to peer feedback.
+
+**Barry:** Miles’s system clearly meets all of his planned criteria and specifications. Core features like movement, combat, inventory, and stat tracking are functional and reliable, and the use of ASCII art and emoji adds friendlyness to the terminal-based interface. However, the biggest weakness is the lack of content. While the foundation is strong, there isn’t much variety in the world, enemies, or interactions, which can make the gameplay feel repetitive after a while. The magic and mana system is also underused and could be expanded to add more depth and strategy. Overall, it’s a well-built system that would really benefit from more content to keep players engaged longer.
+
+**Yyoung:** One of the first things I noticed about Miles’s game is how smooth it runs. There’s no lag between actions, and the text-based UI is clean and easy to follow. I really liked how emojis and ASCII were used to make everything clearer and more interesting, especially for things like stats and the map. The system also does a good job handling user inputs, even when you enter something wrong, it doesn’t crash and instead helps guide you back on track. But after playing for a bit, I found myself getting board of the content. The core mechanics like movement and combat are solid, but it felt like I was doing similar things over and over again. It would be cool to see more random events, characters with actual dialogue, or even decisions that change what happens next. The magic system was there but didn’t really have much of a role, which was a bit of a letdown since it could make combat more interesting. Still, the structure of the game was good, and with a bit more content and uniqueness to each run, it could definately be a fun and engaging game.
+
+One of Barry and Yyoung's key pieces of feedback was the lack of content in the game, and I completely agree with that observation. Even though my game has a good range of features and mechanics—like movement, combat, inventory, and magic, I didn’t really use them to their full potential. Because of that, the game can feel a bit empty or repetitive after a while. There are systems in place, but not enough interesting things happening with them, so the player doesn’t always feel like they’re progressing or discovering new things. In future versions of this project, or even in new projects, I want to spend more time making sure that the features I add actually get used in meaningful ways. That would help the game feel more complete and enjoyable overall.
+
+I was glad that both Barry and Yyoung mentioned the ASCII art in a positive way, as I too feel it contributes positively to the program. I also appricated Yyoungs comment of the imput handling, and it being about to handle a varity of inputs, right or wrong, and still continue. For future projects however, I would like to attempt at a more organised way of dealing with error handling - i.e Giving each error a Unique Code as seen in larger software packages, to make error messagers more meaningful, and solveable. I also think this will increase the productivity of me developing it, as I will have a more thorough process of finding where problems are occuring, and allow me to spend more time working on them.
+
+
+### Justify your use of OOP class features
+Throughout the development of my game, I made strong use of Object-Oriented Programming (OOP) principles to structure and manage the different parts of my system. Using classes allowed me to separate different types of data and behavior into logical groups, which made the code more organised, easier to read, and much easier to update or expand in the future. Each class I created had a clear purpose, and I used key OOP features like encapsulation, attributes, and methods to make the game systems work smoothly.
+
+One of the main classes in my game was the Player class. This class held all of the player’s important data like health, stamina, mana, gold, inventory, and current location. By storing all this in one class, I could easily pass around the player as a single object between different parts of the program. It also made for much more efficient processing of saving data, with every Player Specific Variable being tied to the Player itself, making it easier to load and unload data forr ecah save. I also included methods inside the Player class that impacted the player specifically, such as the combat and saving system. This follows good OOP practice because it keeps both the data and the functions that affect that data in one place, making it easier to control and understand.
+
+Another important class was the Enemy class. This class had attributes like name, type (Fire, Water, Nature), health, and attack damage. I also added an elemental type system, where enemies had strengths and weaknesses based on the weapon used against them. This made use of class inheritance and logic within the methods to calculate damage correctly based on enemy type. Having enemies as a class made it easier to generate different types of enemies and keep their logic consistent, especially when I needed to check their stats or run combat functions.
+
+I also used a Weapon and Armour class to manage equipment. Weapons had attributes like base damage and elemental type, while armour had protection. These classes were used when calculating combat results, so the player’s equipped gear directly affected how much damage they dealt or took. Again, having gear in their own classes made it easy to switch items, store them in inventories. I could also expand these classes easily later on with special effects or unique traits, without changing how the rest of the system works, highlighting the key modularity for Object Oriented Programs.
+
+The final class system I used was for the Villagers. To create these, I create one main Villager class, with attributes such as name, profession, and items. It also contained, importantly, the  Then, I created a variety of subclasses, such as Brewer, Armoursmith, and Swordsmith.
