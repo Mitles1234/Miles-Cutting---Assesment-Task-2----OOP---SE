@@ -5,6 +5,7 @@ import time # Allows for more interactive UI by incorperating time
 import json # Used for saving
 import math # Used to calculate events
 from wcwidth import wcswidth # Used to handle the Emoji and Ascii problems
+import sys
 
 #--- Classes ---
 class Player():
@@ -464,32 +465,46 @@ class Wizard(Villager):
                 PrintMainUI('Wizard1')
             elif User.RareFlower == True:  # If player has brought the flower
                 print()
-                print('Thanks for bringing me my flower, what can I help you enchant today?')
-                enchanted_item = {'item': None}  # Placeholder for enchanted item
-                def make_enchant_lambda(slot):  # Closure to create enchantment functions for items
-                    return lambda: slot.setmultiplyers(Enchantment(slot))  # Apply enchantment to item slot
-                options = {
-                    User.WeaponSlot.name: make_enchant_lambda(User.WeaponSlot)
-                }
-                if User.HelmetSlot.name != "None_Helmet":
-                    options[User.HelmetSlot.name] = make_enchant_lambda(User.HelmetSlot)
-                if User.ChestplateSlot.name != "None_Chestplate":
-                    options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
-                if User.BootSlot.name != "None_Boot":
-                    options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = lambda: PrintMainUI('Wizard1')  # Add exit option
-                Input_Selection(options)  # Allow player to choose item to enchant
+                print('Thanks for bringing me my flower, what can I help you enchant today? Remember, Enachting Requires 40 Mana a Piece')
+                if User.Mana['Mana'] > 40:
+                    enchanted_item = {'item': None}  # Placeholder for enchanted item
+                    def make_enchant_lambda(slot):  # Closure to create enchantment functions for items
+                        print('Would you Like a Type Based Enchant?')
+                        User.Mana['Mana'] -= 40
+                        Input_Selection({
+                            'Fire': lambda: Enchantment(slot, 'Fir'),
+                            'Water': lambda: Enchantment(slot, 'Wat'),
+                            'Nature': lambda: Enchantment(slot, 'Nat'),
+                            'Regular': lambda: Enchantment(slot)
+                        })
+                    options = {
+                        User.WeaponSlot.name: lambda: make_enchant_lambda(User.WeaponSlot)
+                    }
+                    if User.HelmetSlot.name != "None_Helmet":
+                        options[User.HelmetSlot.name] = lambda: make_enchant_lambda(User.HelmetSlot)
+                    if User.ChestplateSlot.name != "None_Chestplate":
+                        options[User.ChestplateSlot.name] = lambda: make_enchant_lambda(User.ChestplateSlot)
+                    if User.BootSlot.name != "None_Boot":
+                        options[User.BootSlot.name] = lambda: make_enchant_lambda(User.BootSlot)
+                    options['Exit'] = lambda: PrintMainUI('Wizard1')  # Add exit option
+                    Input_Selection(options)  # Allow player to choose item to enchant
 
-                item = enchanted_item['item']  # Retrieve the enchanted item
-                if item is not None:
-                    print(f"You enchanted: {item.name}")
-                    print("New multipliers:")
-                    for key, value in item.multiplyers.items():
-                        print(f"  {key}: {value:.2f}")
-        
-        # Second wizard interaction logic (for Rune quest)
+                    print(f'''
+        +---+{'-'*39}+- Wat -+- Fir -+- Nat -+
+        | 1 | Weapon Slot:     {User.WeaponSlot.name:<20} | {User.WeaponSlot.multiplyers['Wat']:<3.3f} | {User.WeaponSlot.multiplyers['Fir']:<3.3f} | {User.WeaponSlot.multiplyers['Nat']:<3.3f} |
+        | 2 | Helmet Slot:     {User.HelmetSlot.name:<20} | {User.HelmetSlot.multiplyers['Wat']:<3.3f} | {User.HelmetSlot.multiplyers['Fir']:<3.3f} | {User.HelmetSlot.multiplyers['Nat']:<3.3f} |
+        | 3 | Chestplate Slot: {User.ChestplateSlot.name:<20} | {User.ChestplateSlot.multiplyers['Wat']:<3.3f} | {User.ChestplateSlot.multiplyers['Fir']:<3.3f} | {User.ChestplateSlot.multiplyers['Nat']:<3.3f} |
+        | 4 | Boot Slot:       {User.BootSlot.name:<20} | {User.BootSlot.multiplyers['Wat']:<3.3f} | {User.BootSlot.multiplyers['Fir']:<3.3f} | {User.BootSlot.multiplyers['Nat']:<3.3f} |
+        +---+{'-'*39}+-------+-------+-------+''')
+                    input('Enter to Continue...')  # Pause before exiting 
+                    PrintMainUI('Wizard1')
+
+                else:
+                    print('You dont have Enough Mana to Enchant - Talk to your local Brewer to get some more')
+                    input('Enter to Continue...')
+                    PrintMainUI('Wizard1')
         elif Room == 'Wizard2':
-            if User.SeenW2 == False:
+            if User.SeenW1 == False:  # If user has not seen Wizard1 before
                 print('''
         Welcome to my Tower!
             
@@ -498,47 +513,54 @@ class Wizard(Villager):
             Up in the high mountains of Sorvo, their is an ancient rune, ensribed with ancient information.
             Bring it to me, and I will help you enchant!
                     ''')
-                User.SeenW2 = True
-                input('     Enter to Continue...')
-                PrintMainUI('Wizard2')
-            elif User.SeenW2 == True and User.RareRune == False:
+                User.SeenW1 = True  # Set flag that user has now seen Wizard1
+                input('     Enter to Continue...')  # Pause for input
+                PrintMainUI('Wizard2')  # Return to main UI
+            elif User.SeenW1 == True and User.RareFlower == False:  # If user has seen wizard but not brought the flower
                 print("Have you Brought me my RareRune Yet? It's in the high mountains of Sorvo")
                 input('Enter to Continue...')
                 PrintMainUI('Wizard2')
-            elif User.RareRune == True:
+            elif User.RareFlower == True:  # If player has brought the flower
                 print()
-                print('Thanks for bringing me my Rune, what can I help you enchant today?')
-                enchanted_item = {'item': None}
-                def make_enchant_lambda(slot):
-                    return lambda: slot.setmultiplyers(Enchantment(slot))
-                options = {
-                    User.WeaponSlot.name: make_enchant_lambda(User.WeaponSlot)
-                }
-                if User.HelmetSlot.name != "None_Helmet":
-                    options[User.HelmetSlot.name] = make_enchant_lambda(User.HelmetSlot)
-                if User.ChestplateSlot.name != "None_Chestplate":
-                    options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
-                if User.BootSlot.name != "None_Boot":
-                    options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = lambda: PrintMainUI('Wizard2')
-                Input_Selection(options)
+                print('Thanks for bringing me my Rune, what can I help you enchant today? Remember, Enachting Requires 40 Mana a Piece')
+                if User.Mana['Mana'] > 40:
+                    enchanted_item = {'item': None}  # Placeholder for enchanted item
+                    def make_enchant_lambda(slot):  # Closure to create enchantment functions for items
+                        print('Would you Like a Type Based Enchant?')
+                        User.Mana['Mana'] -= 40
+                        Input_Selection({
+                            'Fire': lambda: Enchantment(slot, 'Fir'),
+                            'Water': lambda: Enchantment(slot, 'Wat'),
+                            'Nature': lambda: Enchantment(slot, 'Nat'),
+                            'Regular': lambda: Enchantment(slot)
+                        })
+                    options = {
+                        User.WeaponSlot.name: lambda: make_enchant_lambda(User.WeaponSlot)
+                    }
+                    if User.HelmetSlot.name != "None_Helmet":
+                        options[User.HelmetSlot.name] = lambda: make_enchant_lambda(User.HelmetSlot)
+                    if User.ChestplateSlot.name != "None_Chestplate":
+                        options[User.ChestplateSlot.name] = lambda: make_enchant_lambda(User.ChestplateSlot)
+                    if User.BootSlot.name != "None_Boot":
+                        options[User.BootSlot.name] = lambda: make_enchant_lambda(User.BootSlot)
+                    options['Exit'] = lambda: PrintMainUI('Wizard2')  # Add exit option
+                    Input_Selection(options)  # Allow player to choose item to enchant
 
-                item = enchanted_item['item']
-                if item is not None:
-                    print(f"You enchanted: {item.name}")
-                    print("New multipliers:")
-                    for key, value in item.multiplyers.items():
-                        print(f"  {key}: {value:.2f}")
-
-                # Display a formatted stat chart for all gear slots with elemental multipliers
-                print(f'''
+                    print(f'''
         +---+{'-'*39}+- Wat -+- Fir -+- Nat -+
         | 1 | Weapon Slot:     {User.WeaponSlot.name:<20} | {User.WeaponSlot.multiplyers['Wat']:<3.3f} | {User.WeaponSlot.multiplyers['Fir']:<3.3f} | {User.WeaponSlot.multiplyers['Nat']:<3.3f} |
         | 2 | Helmet Slot:     {User.HelmetSlot.name:<20} | {User.HelmetSlot.multiplyers['Wat']:<3.3f} | {User.HelmetSlot.multiplyers['Fir']:<3.3f} | {User.HelmetSlot.multiplyers['Nat']:<3.3f} |
         | 3 | Chestplate Slot: {User.ChestplateSlot.name:<20} | {User.ChestplateSlot.multiplyers['Wat']:<3.3f} | {User.ChestplateSlot.multiplyers['Fir']:<3.3f} | {User.ChestplateSlot.multiplyers['Nat']:<3.3f} |
         | 4 | Boot Slot:       {User.BootSlot.name:<20} | {User.BootSlot.multiplyers['Wat']:<3.3f} | {User.BootSlot.multiplyers['Fir']:<3.3f} | {User.BootSlot.multiplyers['Nat']:<3.3f} |
         +---+{'-'*39}+-------+-------+-------+''')
-                input('Enter to Continue...')  # Pause before exiting            
+                    input('Enter to Continue...')  # Pause before exiting 
+                    PrintMainUI('Wizard2')
+
+                else:
+                    print('You dont have Enough Mana to Enchant - Talk to your local Brewer to get some more')
+                    input('Enter to Continue...')
+                    PrintMainUI('Wizard2')
+        # Second wizard interaction logic (for Rune quest)
 
 class LumberJack(Villager):
     def __init__(self, name):
@@ -569,8 +591,8 @@ class LumberJack(Villager):
             print('CHOP') # Prints 'Chop' to Symbolise Something Happend
             print() # Creates a Spacer in the Terminal
             time.sleep(random.randint(10, 20) / 10) # Waites Between 1 and 2 seconds
-        print('Good Job, Heres a piece of Gold!') # Tells the User they have earnt a piuce of Gold
-        User.Gold += 1 # Gives the User a Piece of Gold
+        print('Good Job, Heres 5 Gold!') # Tells the User they have earnt a piuce of Gold
+        User.Gold += 5 # Gives the User a Piece of Gold
         
         input('Enter to Continue...') # Waits for the User to Continue
 
@@ -834,8 +856,8 @@ def Combat(Enemy, Room):
                 print(f"You have defeated the {Enemy.name}!")  # Informs the Player they won
                 User.WeaponSlot.level += Enemy.level / 2  # Increases the Weapon Level by Half the Enemy Level
                 input("Press Enter to continue...")
-                ClearLines(1)
-                break  # Breaks the Loop
+                setattr(User, Room, True) # Set the Room variable for the Player to be True
+                PrintMainUI(Room)
 
             else:
                 DefeatedGK()
@@ -890,9 +912,13 @@ def PrintMainUI(Room):
     
     print() # Creates a Spacer in the Terminal
 
-    print(Story(Room)) # Prints the Story for the Room
-    
-    print() # Creates a Spacer in the Terminal
+    for char in Story(Room):
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(0.03)
+
+    print('''
+''') # Creates a Spacer in the Terminal
     while True: # Run until broken
 
         if Room == 'GoblinKing':
@@ -1233,16 +1259,16 @@ def Enchantment(item, type=None):
     Multiplyer = (random.randint(0, round(Level)+10)/10) # This calculate the strength of the Enchant - with a higher level allowing for a higher chance of a better enchantment
 
     if type == None: # If Player wants a Neuteral Buff
-        item.setmultipliers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a overall Neutral Buff
+        item.setmultiplyers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a overall Neutral Buff
     else:
         if type == 'Fir': # If Player wants a Fire Buff 
-            item.setmultipliers({'Wat': (1-((Multiplyer)/4)), 'Fir': (1+(Multiplyer)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a stronge buff to Fire, but at the cost of Water Strength
+            item.setmultiplyers({'Wat': (1-((Multiplyer)/4)), 'Fir': (1+(Multiplyer)), 'Nat': (1+((Multiplyer)/4))}) # If the Player wants a stronge buff to Fire, but at the cost of Water Strength
         
         elif type == 'Wat': # If Player wants a Water Buff
-            item.setmultipliers({'Wat': (1+(Multiplyer)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1-((Multiplyer)/4))}) # If the Player wants a strong buff to Water, but at the cost of Nature Strength
+            item.setmultiplyers({'Wat': (1+(Multiplyer)), 'Fir': (1+((Multiplyer)/4)), 'Nat': (1-((Multiplyer)/4))}) # If the Player wants a strong buff to Water, but at the cost of Nature Strength
         
         elif type == 'Nat': # If Player wants a Nature Buff
-            item.setmultipliers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1-((Multiplyer)/4)), 'Nat': (1+(Multiplyer))}) # If the Player wants a strong buff to Nature, but at the cost of Fire Strenth
+            item.setmultiplyers({'Wat': (1+((Multiplyer)/4)), 'Fir': (1-((Multiplyer)/4)), 'Nat': (1+(Multiplyer))}) # If the Player wants a strong buff to Nature, but at the cost of Fire Strenth
 # Movement
 def MoveOptions(Room):
     '''Curates the Avaliable Moves for the Player based on their current Location'''
@@ -1301,7 +1327,7 @@ def MoveOptions(Room):
             }
         elif Room == 'Village3':
             return {
-                "Enter Village": lambda: (ClearLines(5), EnterVillage('Village1')),  # Clears 5 lines, enters Village1
+                "Enter Village": lambda: (ClearLines(5), EnterVillage('Village3')),  # Clears 5 lines, enters Village1
                 "North West (Forest4) (4)": lambda: (RemoveStamina(4), PrintMainUI('Forest4')),  # -4 stamina, loads Forest4
             }
         elif Room == 'Forest1':

@@ -1,4 +1,4 @@
-# Dungeon Crawler Text Adventurer Program
+# Dungeon Crawler Text Adventurer Program - (Niadon - The Lost Realm)
 
 This Python program allows you to see statistics, and equipment. 
 
@@ -25,7 +25,7 @@ To install the required dependencies, you can run:
 
 ```bash
 pip install -r requirements.txt
-
+```
 ### How to Play:
 
 #### How to Interact:
@@ -39,3 +39,7 @@ When the program is loaded, their is 4 options for save files. This means you ca
 To select which save, pick from 1-4. Option 5 allows you to overwrite an existing save, and option 6 lets you leave the program.
 
 Once this has happend, simply follow the prompts on screen, where you will enter your name, and begin your journey.
+
+Too Obtain Items, such as Potions, Armour, and Weapons, talk to your local villagers, who will give you a fair price, on a range of Items
+
+If you need more money to purchase your items, feel free to chop some wood with the Lumberjack, or live on the edge at the Casino
