@@ -518,20 +518,15 @@ BEGIN PrintMainUI (Room)
 
 
 	IF User Health is less than or Equal to 0 THEN
-		Player (Died)
+		Player Died
     ELIF Enemy Health is less than or Equal to 0 THEN
         Died (‘No Stamina’)
     ENDIF
 
     FOR i IN 1 TO max_lines STEP 1
-            map_line = map_lines[i] if i < len(map_lines) else ""
-            side_line = side_panel[i] if i < len(side_panel) else ""
+            Display Mapline Row i + SidePanel Row i
 
-            map_width = wcswidth (map_line)
-            padding = max(0, 60 - map_width)
-            print(map_line + ' ' * padding + side_line)
-
-    User.Location = Room
+    Users_Location = Room
 
     Display
 
@@ -543,7 +538,7 @@ BEGIN PrintMainUI (Room)
         IF Exited is False THEN
             SET User.Room to True
             Input_Selection(MoveOptions(Room))
-                        ClearLines ( len (MoveOptions (Room) ) + 3)
+                        ClearLines ( length of (MoveOptions (Room) ) + 3)
         ELSE
             BREAK
         ENDIF
@@ -556,11 +551,11 @@ END PrintMainUI (Room)
 #### Subroutine (Combat)
 ```
 BEGIN Combat (Enemy, Room)
-	IF Enemy.type = ‘Fir’ THEN
+	IF Enemy Type is ‘Fir’ THEN
 		Type = ‘Fire’
-	ELIF Enemy.type = ‘Wat’ THEN
+	ELIF Enemy Type is ‘Wat’ THEN
 		Type = ‘Water’
-	ELIF Enemy.type = ‘Nat’ THEN
+	ELIF Enemy Type is ‘Nat’ THEN
 		Type = ‘Nature’
 	ENDIF
 	
@@ -569,23 +564,22 @@ BEGIN Combat (Enemy, Room)
 	WHILE true
 		Exited = False
 		Display Enemy and Player Statistics
-		IF Enemy.Health <= 0 THEN
-			ClearLines (17)
+		IF Enemy Health is Less than or Equal to 0 THEN
+			Clear 17 Lines of the Terminal
 			Display You have Defeated Enemy
-			User.WeaponSlot.level += Enemy.Level/2
-			User.Room = True
+			Increase Players Weapon Level by Half of the Level of the Enemy
 			END Combat (Enemy, Room)
 
-		ELIF User.Health[‘Health’] <= 0 THEN
+		ELIF Player Health is Less than or Equal to 0 THEN
 			Died (Enemy.name)
 			END Combat (Enemy, Room)
 
         Input_Selection (Attack, Use Item)
 
-        IF Exited = False THEN
+        IF Exited is False THEN
             Enemy.Attacking (User)
 
-        Clearlines (20)
+        Clear 20 Lines of the Terminal
 
     ENDWHILE
 
@@ -596,16 +590,16 @@ END Combat (Enemy, Room)
 #### Subroutine (Statbar)
 ```
 BEGIN Statbar (Stat, Max_Stat)
-	StatBar = (math.floor(Stat/(Max_Stat/10)))*'█'
-	Deadbar = ‘’
+    StatBar = Create stat bar with blocks based on percentage of max
+	Deadbar = Blank
 	
-	IF StatBar = ‘’ AND Stat > 0 THEN
+	IF StatBar is Blank AND Stat Greater than 0 THEN
 		StatBar = '█'
-	ELIF len (StatBar) > 10 THEN
+	ELIF lenngth of (StatBar) is greater than 10 THEN
 		StatBar = '█'*10
 
-	FOR i IN 1 TO 10 - len (StatBar) STEP 1
-		Deadbar += ‘-’
+	FOR i IN 1 TO (10 - len (StatBar)) STEP 1
+		Add One Unit to Deadbar
 
 	Return StatBar + *White* Deadbar
 
@@ -781,3 +775,20 @@ Another important class was the Enemy class. This class had attributes like name
 I also used a Weapon and Armour class to manage equipment. Weapons had attributes like base damage and elemental type, while armour had protection. These classes were used when calculating combat results, so the player’s equipped gear directly affected how much damage they dealt or took. Again, having gear in their own classes made it easy to switch items, store them in inventories. I could also expand these classes easily later on with special effects or unique traits, without changing how the rest of the system works, highlighting the key modularity for Object Oriented Programs.
 
 The final class system I used was for the Villagers. To create these, I create one main Villager class, with attributes such as name, profession, and items. It also contained, importantly, the  Then, I created a variety of subclasses, such as Brewer, Armoursmith, and Swordsmith.
+
+
+
+
+
+
+
+
+
+
+
+
+
+### riley
+
+
+Miles's game is a polished and fun text adventure that is interactive experience with a good story and characters.  I really enjoyed the variety of things you can do in this world and the diffrent ways you can level up and upgrade your gear. I particularly enjoyed the UI which was very polished and made the game experience more enjoyable.  While Miles's game is very detailed in his game world, there is a lack of variety and content as the player can only face the same type of enemy. The villages and map remains the same on all of the story lines. The polished UI outweighs the simple map and the fun nature of making your choices about what to do allow crativity to shine. Overall the fun and interactive world outwieghs the repetitve nature of the same game world and allows to use their creativity in this charming world. It's defeintely an amazing game that I would play in my own time!

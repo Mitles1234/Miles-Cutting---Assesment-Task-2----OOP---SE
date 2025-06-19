@@ -5,9 +5,6 @@ import time # Allows for more interactive UI by incorperating time
 import json # Used for saving
 import math # Used to calculate events
 from wcwidth import wcswidth # Used to handle the Emoji and Ascii problems
-from functools import partial 
-
-
 
 #--- Classes ---
 class Player():
@@ -222,15 +219,18 @@ class Enemy():
             self.health -= round(Damage)
 
 class Villager:
+    '''This class handles the Villager Creation Process'''
     def __init__(self, name, profession):
-        self.name = name
-        self.profession = profession
-        self.items = {}
+        '''This function initalizes the Villager attributes'''
+        self.name = name # Creates a Villager Name 
+        self.profession = profession # Gives the Villager a Profession
+        self.items = {} # Creates a dicitonary for each item the User Sells
 
     def Inventory_Trading(self):
         '''This Function allows the user to purchase the items that each villager sells'''
-        os.system('cls') # Clears Screen
+        os.system('cls')  # Clear the terminal screen for a clean display
 
+        # Print villager's shop interface with their name, profession, and the user's gold
         print(f'''
     +------------------==| Villager Menu |==------------------+
     |                                                         |
@@ -241,123 +241,152 @@ class Villager:
     +---------------------------------------------------------+
     |   Player Gold:    {str(User.Gold) + ' 🪙':<38}|
     +---------------------------------------------------------+
-    ''')
-        count = 1
-        print(f'+---+{'-'*34}+{'-'*19}+{"-"*19}+')
-        for item in self.items.values():
-            print(f"|{count:<3}| {item['Item'].name:<30}   |   Cost: {item['Cost']:<4} 🪙    |   Qty: {item['Qty']:<10} |")
-            print(f'+---+{'-'*34}+{'-'*19}+{"-"*19}+')
-            count += 1
+    ''') 
 
-        lines_printed = (count * 2) + 1  # Gold + header + each item (2 lines per item)
-        while True:
-            try:
+        count = 1  # Start item count at 1 for menu numbering
+
+        # Print the table header with item structure
+        print(f'+---+{'-'*34}+{'-'*19}+{"-"*19}+')  
+        for item in self.items.values():  # Loop through each item the villager sells
+            # Print item number, name, cost, and quantity available
+            print(f"|{count:<3}| {item['Item'].name:<30}   |   Cost: {item['Cost']:<4} 🪙    |   Qty: {item['Qty']:<10} |")
+            # Print divider line between items
+            print(f'+---+{'-'*34}+{'-'*19}+{"-"*19}+')
+            count += 1  # Increment count for the next item
+
+        # Calculate number of lines printed to later clear the screen
+        lines_printed = (count * 2) + 1  # Includes rows and dividers
+
+        while True:  # Start purchase loop until the player exits or breaks
+            try:  # Attempt to get valid input from the player
+                # Ask user to select an item to buy or 0 to exit
                 Puchase_Input = int(input('Enter the number of the item you want to purchase (0 to exit): '))
-                if Puchase_Input == 0:
-                    ClearLines(lines_printed + 1)  # +1 for the input prompt line
-                    break
-                elif 1 > Puchase_Input or Puchase_Input >= count:
-                    print('Not a Valid Number')
-                elif 1 <= Puchase_Input < count:
-                    selected_item = list(self.items.values())[Puchase_Input - 1]
-                    item = selected_item['Item']
-                    if selected_item['Qty'] > 0:
-                        if User.Gold >= selected_item['Cost']:
-                            # Determine item type and assign to correct slot
-                            goto_inventory = False
-                            equipped = False
+                
+                if Puchase_Input == 0:  # If player chose to exit
+                    ClearLines(lines_printed + 1)  # Clear the printed table
+                    break  # Exit the while loop
+                
+                elif 1 > Puchase_Input or Puchase_Input >= count:  # Input outside valid range
+                    print('Not a Valid Number')  # Print error message
+                
+                elif 1 <= Puchase_Input < count:  # Valid item selection
+                    selected_item = list(self.items.values())[Puchase_Input - 1]  # Get selected item
+                    item = selected_item['Item']  # Extract the actual item object
+
+                    if selected_item['Qty'] > 0:  # Check if the item is in stock
+                        if User.Gold >= selected_item['Cost']:  # Check if player has enough gold
+                            goto_inventory = False  # Flag for sending item to inventory (if not equippable)
+
+                            # If the item is a Weapon, equip it directly
                             if isinstance(item, Weapons):
                                 print(f"Equipped {item.name} to Weapon Slot (replacing {User.WeaponSlot.name}).")
-                                User.WeaponSlot = item
-                                equipped = True
+                                User.WeaponSlot = item  # Replace player's weapon
+
+                            # If the item is Armour, check which slot it belongs to
                             elif isinstance(item, Armour):
-                                if item.type == 'Helmet':
+                                if item.type == 'Helmet':  # If it's a helmet
                                     print(f"Equipped {item.name} to Helmet Slot (replacing {User.HelmetSlot.name}).")
                                     User.HelmetSlot = item
-                                    equipped = True
-                                elif item.type == 'ChestPlate':
+                                elif item.type == 'ChestPlate':  # If it's a chestplate
                                     print(f"Equipped {item.name} to Chestplate Slot (replacing {User.ChestplateSlot.name}).")
                                     User.ChestplateSlot = item
-                                    equipped = True
-                                elif item.type == 'Boot':
+                                elif item.type == 'Boot':  # If it's boots
                                     print(f"Equipped {item.name} to Boot Slot (replacing {User.BootSlot.name}).")
                                     User.BootSlot = item
-                                    equipped = True
-                                else:
+                                else:  # Unknown armour type, treat as regular item
                                     print(f"Unknown armour type: {item.type}. Placing in inventory.")
-                                    goto_inventory = True
+                                    goto_inventory = True  # Send to inventory
                             else:
-                                goto_inventory = True
+                                goto_inventory = True  # All other item types go to inventory
 
+                            # Define player's inventory slots for other items
                             inventory_slots = [User.OtherSlot1, User.OtherSlot2, User.OtherSlot3, User.OtherSlot4]
-                            found = False
-                            replace_cancelled = False
+                            found = False  # Track if item was already in inventory
+                            replace_cancelled = False  # Track if player cancelled replace prompt
 
                             if goto_inventory:
+                                # Check if the item is already in inventory
                                 for slot in inventory_slots:
-                                    if slot['Item'] is item:
-                                        slot['Qty'] += 1
+                                    if slot['Item'] is item:  # Found matching item
+                                        slot['Qty'] += 1  # Increase quantity
                                         found = True
                                         break
-                                if not found:
-                                    # Find first empty slot
-                                    empty_slot = None
-                                    for slot in inventory_slots:
-                                        if slot['Item'].name == 'None':
+
+                                if not found:  # If item not found in existing slots
+                                    empty_slot = None  # Track first empty slot
+                                    for slot in inventory_slots:  # Search for an empty slot
+                                        if slot['Item'].name == 'None':  # Empty if item is 'None'
                                             empty_slot = slot
                                             break
-                                    if empty_slot:
+                                    
+                                    if empty_slot:  # Place item in empty slot
                                         empty_slot['Item'] = item
                                         empty_slot['Qty'] = 1
                                     else:
-                                        # No empty slot, prompt user to bin or cancel
+                                        # No empty slot: ask player to replace an item or cancel
                                         print("Your inventory is full. Choose an item to replace or cancel:")
-                                        for idx, slot in enumerate(inventory_slots, 1):
+                                        for idx, slot in enumerate(inventory_slots, 1):  # List current items
                                             print(f"{idx}. {slot['Item'].name} (x{slot['Qty']})")
                                         print(f"{len(inventory_slots)+1}. Cancel purchase")
-                                        while True:
+
+                                        while True:  # Loop until valid input
                                             try:
-                                                replace_choice = int(input("Enter number to replace or cancel: "))
-                                                if 1 <= replace_choice <= len(inventory_slots):
-                                                    slot = inventory_slots[replace_choice-1]
-                                                    print(f"Replaced {slot['Item'].name} with {item.name}.")
-                                                    slot['Item'] = item
+                                                replace_choice = int(input("Enter number to replace or cancel: "))  # Get replace input
+                                                if 1 <= replace_choice <= len(inventory_slots):  # Valid replace
+                                                    slot = inventory_slots[replace_choice - 1]  # Chosen slot
+                                                    print(f"Replaced {slot['Item'].name} with {item.name}.")  # Feedback
+                                                    slot['Item'] = item  # Replace item
                                                     slot['Qty'] = 1
                                                     break
-                                                elif replace_choice == len(inventory_slots)+1:
-                                                    print("Purchase cancelled.")
+                                                elif replace_choice == len(inventory_slots) + 1:  # Cancel option
+                                                    print("Purchase cancelled.")  # Cancelled
                                                     replace_cancelled = True
                                                     break
                                                 else:
-                                                    print("Invalid choice.")
+                                                    print("Invalid choice.")  # Error
                                             except ValueError:
-                                                print("Invalid input.")
-                            if not goto_inventory or not replace_cancelled:
-                                selected_item['Qty'] -= 1
-                                User.Gold -= selected_item['Cost']
-                                print(f"You bought 1x {item.name} for {selected_item['Cost']} 🪙.")
-                            else:
-                                continue
-                    else:
-                        print("Sorry, this item is out of stock.")
-                else:
-                    print("You do not have enough gold to purchase this item.")
+                                                print("Invalid input.")  # Error for non-numbers
 
-            except Exception:
-                print("Invalid input. Please enter a number.")
+                            # Finalize purchase if not cancelled
+                            if not goto_inventory or not replace_cancelled:
+                                selected_item['Qty'] -= 1  # Reduce villager’s item stock
+                                User.Gold -= selected_item['Cost']  # Deduct gold from user
+                                print(f"You bought 1x {item.name} for {selected_item['Cost']} 🪙.")  # Confirm purchase
+                            else:
+                                continue  # If cancelled, skip rest of loop
+                        else:
+                            print("You do not have enough gold to purchase this item.")  # Not enough gold
+                    else:
+                        print("Sorry, this item is out of stock.")  # Item unavailable
+            except Exception:  # Catch any unexpected error
+                print("Invalid input. Please enter a number.")  # Prompt retry
 
 class Brewer(Villager):
+    """A villager that specializes in selling health, mana, and stamina potions."""
     def __init__(self, name):
-        super().__init__(name, 'Brewer')
-        self.items = {
-            'Health Potion': {'Item': random.choice([Health_Potion_Small, Health_Potion_Medium, Health_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)},
-            'Mana Potion': {'Item': random.choice([Mana_Potion_Small, Mana_Potion_Medium, Mana_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)},
-            'Stamina Potion': {'Item': random.choice([Stamina_Potion_Small, Stamina_Potion_Medium, Stamina_Potion_Large]), 'Cost': random.randint(3, 10), 'Qty': random.randint(3, 12)}
+        super().__init__(name, 'Brewer')  # Call the base Villager constructor with name and profession
+        self.items = {  # Dictionary of potion types sold by the Brewer
+            'Health Potion': {
+                'Item': random.choice([Health_Potion_Small, Health_Potion_Medium, Health_Potion_Large]),  # Random potion size
+                'Cost': random.randint(3, 10),  # Random cost for the potion
+                'Qty': random.randint(3, 12)  # Random quantity available
+            },
+            'Mana Potion': {
+                'Item': random.choice([Mana_Potion_Small, Mana_Potion_Medium, Mana_Potion_Large]),
+                'Cost': random.randint(3, 10),
+                'Qty': random.randint(3, 12)
+            },
+            'Stamina Potion': {
+                'Item': random.choice([Stamina_Potion_Small, Stamina_Potion_Medium, Stamina_Potion_Large]),
+                'Cost': random.randint(3, 10),
+                'Qty': random.randint(3, 12)
+            }
         }
 
 class SwordSmith(Villager):
+    """A villager that sells swords made of different materials."""
     def __init__(self, name):
-        super().__init__(name, 'SwordSmith')
+        super().__init__(name, 'SwordSmith')  # Call base Villager constructor
         self.items = {
             'Wooden Sword': {'Item': Wooden_Sword, 'Cost': random.randint(5, 15), 'Qty': random.randint(1, 3)},
             'Bronze Sword': {'Item': Bronze_Sword, 'Cost': random.randint(10, 20), 'Qty': random.randint(1, 3)},
@@ -366,6 +395,7 @@ class SwordSmith(Villager):
         }
 
 class AxeSmith(Villager):
+    """A villager that sells axes made of different materials."""
     def __init__(self, name):
         super().__init__(name, 'AxeSmith')
         self.items = {
@@ -376,6 +406,7 @@ class AxeSmith(Villager):
         }
 
 class MaceSmith(Villager):
+    """A villager that sells maces made of different materials."""
     def __init__(self, name):
         super().__init__(name, 'MaceSmith')
         self.items = {
@@ -386,6 +417,7 @@ class MaceSmith(Villager):
         }
 
 class ArmourSmith(Villager):
+    """A villager that sells different pieces of armor, including helmets, chestplates, and boots."""
     def __init__(self, name):
         super().__init__(name, 'ArmourSmith')
         self.items = {
@@ -404,14 +436,18 @@ class ArmourSmith(Villager):
         }
 
 class Wizard(Villager):
+    """A villager that enchants gear after the player completes certain quests."""
     def __init__(self, name):
-        super().__init__(name, 'Wizard')
+        super().__init__(name, 'Wizard')  # Set name and role as Wizard
     
     def WizardStore(self, Room):
-        global User
-        os.system('cls')
+        """Handles player interaction with the Wizard based on the room (Wizard1 or Wizard2)."""
+        global User  # Access the global User object
+        os.system('cls')  # Clear the screen
+        
+        # First wizard interaction logic
         if Room == 'Wizard1':
-            if User.SeenW1 == False:
+            if User.SeenW1 == False:  # If user has not seen Wizard1 before
                 print('''
         Welcome to my Tower!
             
@@ -419,21 +455,19 @@ class Wizard(Villager):
                     
             Their is a rare flower in the south forest, bring it to me, and I will help you enchant!
                     ''')
-                User.SeenW1 = True
-                input('     Enter to Continue...')
-                PrintMainUI('Wizard1')
-            elif User.SeenW1 == True and User.RareFlower == False:
+                User.SeenW1 = True  # Set flag that user has now seen Wizard1
+                input('     Enter to Continue...')  # Pause for input
+                PrintMainUI('Wizard1')  # Return to main UI
+            elif User.SeenW1 == True and User.RareFlower == False:  # If user has seen wizard but not brought the flower
                 print("Have you Brought me my Flower Yet? It's in the South Forest")
                 input('Enter to Continue...')
                 PrintMainUI('Wizard1')
-
-            elif User.RareFlower == True:
-                print() # Creates a Spacer in the Terminal
+            elif User.RareFlower == True:  # If player has brought the flower
+                print()
                 print('Thanks for bringing me my flower, what can I help you enchant today?')
-                
-                enchanted_item = {'item': None}
-                def make_enchant_lambda(slot):
-                    return lambda: slot.setmultiplyers(Enchantment(slot))
+                enchanted_item = {'item': None}  # Placeholder for enchanted item
+                def make_enchant_lambda(slot):  # Closure to create enchantment functions for items
+                    return lambda: slot.setmultiplyers(Enchantment(slot))  # Apply enchantment to item slot
                 options = {
                     User.WeaponSlot.name: make_enchant_lambda(User.WeaponSlot)
                 }
@@ -443,19 +477,17 @@ class Wizard(Villager):
                     options[User.ChestplateSlot.name] = make_enchant_lambda(User.ChestplateSlot)
                 if User.BootSlot.name != "None_Boot":
                     options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
-                options['Exit'] = lambda: PrintMainUI('Wizard1')
-                Input_Selection(options)
-                
-                # Print the enchanted item and its new multipliers
-                item = enchanted_item['item']
+                options['Exit'] = lambda: PrintMainUI('Wizard1')  # Add exit option
+                Input_Selection(options)  # Allow player to choose item to enchant
+
+                item = enchanted_item['item']  # Retrieve the enchanted item
                 if item is not None:
                     print(f"You enchanted: {item.name}")
                     print("New multipliers:")
                     for key, value in item.multiplyers.items():
                         print(f"  {key}: {value:.2f}")
-
-                        
-
+        
+        # Second wizard interaction logic (for Rune quest)
         elif Room == 'Wizard2':
             if User.SeenW2 == False:
                 print('''
@@ -473,12 +505,9 @@ class Wizard(Villager):
                 print("Have you Brought me my RareRune Yet? It's in the high mountains of Sorvo")
                 input('Enter to Continue...')
                 PrintMainUI('Wizard2')
-
             elif User.RareRune == True:
-                print() # Creates a Spacer in the Terminal
+                print()
                 print('Thanks for bringing me my Rune, what can I help you enchant today?')
-                
-                
                 enchanted_item = {'item': None}
                 def make_enchant_lambda(slot):
                     return lambda: slot.setmultiplyers(Enchantment(slot))
@@ -493,8 +522,7 @@ class Wizard(Villager):
                     options[User.BootSlot.name] = make_enchant_lambda(User.BootSlot)
                 options['Exit'] = lambda: PrintMainUI('Wizard2')
                 Input_Selection(options)
-                
-                # Print the enchanted item and its new multipliers
+
                 item = enchanted_item['item']
                 if item is not None:
                     print(f"You enchanted: {item.name}")
@@ -502,7 +530,7 @@ class Wizard(Villager):
                     for key, value in item.multiplyers.items():
                         print(f"  {key}: {value:.2f}")
 
-
+                # Display a formatted stat chart for all gear slots with elemental multipliers
                 print(f'''
         +---+{'-'*39}+- Wat -+- Fir -+- Nat -+
         | 1 | Weapon Slot:     {User.WeaponSlot.name:<20} | {User.WeaponSlot.multiplyers['Wat']:<3.3f} | {User.WeaponSlot.multiplyers['Fir']:<3.3f} | {User.WeaponSlot.multiplyers['Nat']:<3.3f} |
@@ -510,13 +538,15 @@ class Wizard(Villager):
         | 3 | Chestplate Slot: {User.ChestplateSlot.name:<20} | {User.ChestplateSlot.multiplyers['Wat']:<3.3f} | {User.ChestplateSlot.multiplyers['Fir']:<3.3f} | {User.ChestplateSlot.multiplyers['Nat']:<3.3f} |
         | 4 | Boot Slot:       {User.BootSlot.name:<20} | {User.BootSlot.multiplyers['Wat']:<3.3f} | {User.BootSlot.multiplyers['Fir']:<3.3f} | {User.BootSlot.multiplyers['Nat']:<3.3f} |
         +---+{'-'*39}+-------+-------+-------+''')
-                input('Enter to Continue...')
-                
+                input('Enter to Continue...')  # Pause before exiting            
+
 class LumberJack(Villager):
     def __init__(self, name):
-        super().__init__(name, 'LumberJack')
+        '''This function initiates the parameters for the Lumberjack'''
+        super().__init__(name, 'LumberJack') # Sets Profession to Lumberjack
 
     def ChopWood(self):
+        '''This function allows the User to gain gold - this prevent softlocking the progression if gear'''
         os.system('cls') # Clears the Screen
 
         # Tells the User the Amount of gold they have, and the Villager Statistics
@@ -759,6 +789,9 @@ Mana_Potion_Small = Potion('Mana_Potion_Small', 1, 'Mana', 10) # Creates a Potio
 Mana_Potion_Medium = Potion('Mana_Potion_Medium', 3, 'Mana', 25) # Creates a Potion named Mana_Potion_Medium that replenishes 25 Mana
 Mana_Potion_Large = Potion('Mana_Potion_Large', 5, 'Mana', 50) # Creates a Potion named Mana_Potion_Large that replenishes 50 Mana
 
+# Creation of Goblin King Enemy (This does not need to be saved, as once the User has interacted with the Boss, that is the end of their run)
+Goblin_King = Enemy('Goblin_King', 100, 100, 15, 'Fir', 100)
+
 #--- Functions ---
 # Combat
 def Combat(Enemy, Room):
@@ -796,12 +829,16 @@ def Combat(Enemy, Room):
         """) # Displays Full Combat UI with Stats for Both the Player and Enemy
 
         if Enemy.health <= 0:  # If the Enemy has run out of Health
-            ClearLines(17)  # Clears the Combat UI
-            print(f"You have defeated the {Enemy.name}!")  # Informs the Player they won
-            User.WeaponSlot.level += Enemy.level / 2  # Increases the Weapon Level by Half the Enemy Level
-            input("Press Enter to continue...")
-            ClearLines(1)
-            break  # Breaks the Loop
+            if Room != 'GoblinKing': # If the Player is not battling GoblinKing
+                ClearLines(17)  # Clears the Combat UI
+                print(f"You have defeated the {Enemy.name}!")  # Informs the Player they won
+                User.WeaponSlot.level += Enemy.level / 2  # Increases the Weapon Level by Half the Enemy Level
+                input("Press Enter to continue...")
+                ClearLines(1)
+                break  # Breaks the Loop
+
+            else:
+                DefeatedGK()
 
         elif User.Health['Health'] <= 0:  # If the Player has run out of Health
             Died(Enemy.name)
@@ -857,7 +894,11 @@ def PrintMainUI(Room):
     
     print() # Creates a Spacer in the Terminal
     while True: # Run until broken
-        if Exited == False: # If player has Exited
+
+        if Room == 'GoblinKing':
+            break
+
+        elif Exited == False: # If player has Exited
             setattr(User, Room, True) # Set the Room variable for the Player to be True
             Input_Selection(MoveOptions(Room)) # Runs the Input selection for the Room - Based on the Options from MoveOptions
             ClearLines(len(MoveOptions(Room))+3)
@@ -885,32 +926,32 @@ def StatBar(Stat, Max_Stat):
 
 def DisplayStats():
     '''This function displates the Stats Block of the UI'''
-    return f'''+───────────--==| Stats |==--───────────+
-│                                       │
-│   Health:  ♥️  \033[31m{StatBar(User.Health['Health'], User.Health['Max_Health'])} \033[0m {f'({User.Health['Health']}/{User.Health['Max_Health']})':<12}│
-│   Stamina: 🔋 \033[32m{StatBar(User.Stamina['Stamina'], User.Stamina['Max_Stamina'])} \033[0m {f'({User.Stamina['Stamina']}/{User.Stamina['Max_Stamina']})':<12}│
-│   Mana:    {f'💠 \033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}' if MountainIssue == True else f'💠\033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}'}│
-│                                       │
-+───────────────────────────────────────+''' # The Mana function is different because that is what lines up with the Mountain and causes problems (More context in Map Comment)
+    return f''' +───────────--==| Stats |==--───────────+
+ │                                       │
+ │   Health:  ♥️  \033[31m{StatBar(User.Health['Health'], User.Health['Max_Health'])} \033[0m {f'({User.Health['Health']}/{User.Health['Max_Health']})':<12}│
+ │   Stamina: 🔋 \033[32m{StatBar(User.Stamina['Stamina'], User.Stamina['Max_Stamina'])} \033[0m {f'({User.Stamina['Stamina']}/{User.Stamina['Max_Stamina']})':<12}│
+ │   Mana:    {f'💠 \033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}' if MountainIssue == True else f'💠\033[34m{StatBar(User.Mana['Mana'], User.Mana['Max_Mana'])} \033[0m {f'({User.Mana['Mana']}/{User.Mana['Max_Mana']})':<12}'}│
+ │                                       │
+ +───────────────────────────────────────+''' # The Mana function is different because that is what lines up with the Mountain and causes problems (More context in Map Comment)
 
 def DisplayInventory():
     '''This function returns the Users Inventory in a Asethetic way'''
-    return f'''+──────────────────────────────────--==| Inventory |==--──────────────────────────────────+
-│   {'🪙  Gold':<12} -   {User.Gold:<68} │
-│   {'Weapon':<12} -   {User.WeaponSlot.name:<25} {'Chestplate':<12} -   {User.ChestplateSlot.name:<25} │
-│   {'Helmet':<12} -   {User.HelmetSlot.name:<25} {'Boots':<12} -   {User.BootSlot.name:<25} │
-+{'─'*89}+ 
-│   {User.OtherSlot1['Item'].name:<28} -   {User.OtherSlot1['Qty']:<9} {User.OtherSlot2['Item'].name:<28} -   {User.OtherSlot2['Qty']:<9} │
-│   {User.OtherSlot3['Item'].name:<28} -   {User.OtherSlot3['Qty']:<9} {User.OtherSlot4['Item'].name:<28} -   {User.OtherSlot4['Qty']:<9} │
-+{'─'*89}+'''
+    return f''' +──────────────────────────────────--==| Inventory |==--──────────────────────────────────+
+ │   {'🪙  Gold':<12} -   {User.Gold:<68} │
+ │   {'Weapon':<12} -   {User.WeaponSlot.name:<25} {'Chestplate':<12} -   {User.ChestplateSlot.name:<25} │
+ │   {'Helmet':<12} -   {User.HelmetSlot.name:<25} {'Boots':<12} -   {User.BootSlot.name:<25} │
+ +{'─'*89}+ 
+ │   {User.OtherSlot1['Item'].name:<28} -   {User.OtherSlot1['Qty']:<9} {User.OtherSlot2['Item'].name:<28} -   {User.OtherSlot2['Qty']:<9} │
+ │   {User.OtherSlot3['Item'].name:<28} -   {User.OtherSlot3['Qty']:<9} {User.OtherSlot4['Item'].name:<28} -   {User.OtherSlot4['Qty']:<9} │
+ +{'─'*89}+'''
 
 def DisplayMapKey():
     '''This function returns the Map key - Allowing the User to figure out which symbols mean what'''
-    return f'''+─────────────────────────--==| Map Key |==--─────────────────────────+
-│   ██ - You              🔮 - Wizard Tower                           │
-│   🏠 - Village          💀 - Enemy             👑 - Goblin King     │
-│   🌲 - Forest           🏔️  - Mountain                               │
-+─────────────────────────────────────────────────────────────────────+'''
+    return f''' +─────────────────────────--==| Map Key |==--─────────────────────────+
+ │   ██ - You              🔮 - Wizard Tower                           │
+ │   🏠 - Village          💀 - Enemy             👑 - Goblin King     │
+ │   🌲 - Forest           🏔️  - Mountain                               │
+ +─────────────────────────────────────────────────────────────────────+'''
 
 def DisplayInventoryScreen():
     global Exited
@@ -918,9 +959,18 @@ def DisplayInventoryScreen():
     def SetItemUsed():
         global Exited
         Exited = True
-
+        
+    print(f'''
+    {' '*40}       -= Dmg / Pro =-   -= Fir =-= Wat =-= Nat =-
+    WeaponSlot:       {User.WeaponSlot.name:<30}     {User.WeaponSlot.damage:<13}  {str(User.WeaponSlot.multiplyers['Fir'])[:3]:<5}   {str(User.WeaponSlot.multiplyers['Wat'])[:5]:<5}   {str(User.WeaponSlot.multiplyers['Nat'])[:5]:<5}
+    HelmetSlot:       {User.HelmetSlot.name:<30}     {User.HelmetSlot.protection:<13}  {str(User.HelmetSlot.multiplyers['Fir'])[:3]:<5}   {str(User.HelmetSlot.multiplyers['Wat'])[:5]:<5}   {str(User.HelmetSlot.multiplyers['Nat'])[:5]:<5}
+    ChestplateSlot:   {User.ChestplateSlot.name:<30}     {User.ChestplateSlot.protection:<13}  {str(User.ChestplateSlot.multiplyers['Fir'])[:3]:<5}   {str(User.ChestplateSlot.multiplyers['Wat'])[:5]:<5}   {str(User.ChestplateSlot.multiplyers['Nat'])[:5]:<5}
+    BootSlot:         {User.BootSlot.name:<30}     {User.BootSlot.protection:<13}  {str(User.BootSlot.multiplyers['Fir'])[:3]:<5}   {str(User.BootSlot.multiplyers['Wat'])[:5]:<5}   {str(User.BootSlot.multiplyers['Nat'])[:5]:<5}
+    
+    Gold:             {str(User.Gold)} 🪙
+''')
     print('''
-    Which Item would you like to use?
+Which Item would you like to use?
     ''')
     
     options = {}
@@ -933,7 +983,7 @@ def DisplayInventoryScreen():
     
     Input_Selection(options)
         
-    ClearLines(6 + len(options))
+    ClearLines(15 + len(options))
 
 def TitleScreen():
     '''This Function Handles Displaying and calculating what happens in the TitleScreen'''
@@ -1175,8 +1225,6 @@ def CreateCharacter():
 
     User = Player(Player_Data) # Creates a Player based off of those attributes
 
-
-
 # Magic
 def Enchantment(item, type=None):
     '''This function Enchants items to be more effective against enemy types'''    
@@ -1316,106 +1364,124 @@ def MoveOptions(Room):
     options.update(RoomOptions())  # Add movement options for the current room
     return options  # Return all available options
 
-def Story(Room):
-    '''This function returns story elements depending on the Room, and whether the player has been in the room, it also starts Combat sequences'''
-    if Room == 'Enemy1':
-        if User.Enemy1 == False:
+def Story(Room):    
+    '''
+    This function handles the story events based on the current Room the Player is in.
+    It checks whether the Player has already visited the Room, and triggers combat if it is the first encounter
+    with an enemy. Otherwise, it returns a descriptive story message for the area.
+    '''
+    
+    # Enemy Encounter: Goblin
+    if Room == 'Enemy1':  # The function is requesting the storyline for room Enemy1
+        if User.Enemy1 == False:  # The user has not been in this room before
             input('Press Enter to Enter Combat...')
-            Combat(Goblin, 'Enemy1')
+            Combat(Goblin, 'Enemy1')  # Start combat with the Goblin
             return ''
-        else:
-            return f'''You See the remains of a battle fought here. The ground is scorched, and the air is heavy with the scent of burnt wood and blood.'''
-    
-    elif Room == 'Enemy2':
-        if User.Enemy2 == False:
-            input('Press Enter to Enter Combat...')
-            Combat(Orc, 'Enemy2')
-            return ''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Enemy3':
-        if User.Enemy3 == False:
-            input('Press Enter to Enter Combat...')
-            Combat(Druid, 'Enemy3')
-            return ''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Enemy4':
-        if User.Enemy4 == False:
-            input('Press Enter to Enter Combat...')
-            Combat(Ogre, 'Enemy4')
-            return ''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Village1':
-        if User.Village1 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Village2':
-        if User.Village2 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Village3':
-        if User.Village3 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Forest1':
-        if User.Forest1 == False:
-            return f'''Your Eyes flutter open...'''
-        else:
-            return f'''You return to the Dark Forest, where you first awoke. The trees are still as dark and foreboding as ever, but you feel a sense of familiarity here.'''
-    
-    elif Room == 'Forest2':
-        if User.Forest2 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Forest3':
-        if User.Forest3 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Forest4':
-        if User.Forest4 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Wizard1':
-        if User.Wizard1 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Wizard2':
-        if User.Wizard2 == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'Mountain':
-        if User.Mountain == False:
-            return f'''None'''
-        else:
-            return f'''None'''
-    
-    elif Room == 'GoblinKing':
-        if User.GoblinKing == False:
-            return f'''None'''
-        else:
-            return f'''None'''
+        else:  # The user has been in this room before
+            return '''Ash and smoke linger in the air, the battlefield now eerily quiet. You remember the heat of combat, and the pain it brought.'''
 
+    # Enemy Encounter: Orc
+    elif Room == 'Enemy2':  # The function is requesting the storyline for room Enemy2
+        if User.Enemy2 == False:  # The user has not been in this room before
+            input('Press Enter to Enter Combat...')
+            Combat(Orc, 'Enemy2')  # Start combat with the Orc
+            return ''
+        else:  # The user has been in this room before
+            return '''The blue blood still stains the earth. You breathe heavily, remembering the brute strength of the Orc and your narrow survival.'''
+
+    # Enemy Encounter: Druid
+    elif Room == 'Enemy3':  # The function is requesting the storyline for room Enemy3
+        if User.Enemy3 == False:  # The user has not been in this room before
+            input('Press Enter to Enter Combat...')
+            Combat(Druid, 'Enemy3')  # Start combat with the Druid
+            return ''
+        else:  # The user has been in this room before
+            return '''A circle of withered trees marks the place where the Druid fell. The silence feels sacred now, almost like a grave.'''
+
+    # Enemy Encounter: Ogre
+    elif Room == 'Enemy4':  # The function is requesting the storyline for room Enemy4
+        if User.Enemy4 == False:  # The user has not been in this room before
+            input('Press Enter to Enter Combat...')
+            Combat(Ogre, 'Enemy4')  # Start combat with the Ogre
+            return ''
+        else:  # The user has been in this room before
+            return '''You stare into the distance, the final road ahead. This was the last guardian before the Goblin King. Are you truly ready?'''
+
+    # Village 1
+    elif Room == 'Village1':  # The function is requesting the storyline for room Village1
+        if User.Village1 == False:  # The user has not been in this room before
+            return '''You step into a lively village where children laugh and fires crackle. Peace, it seems, still exists in this world.'''
+        else:  # The user has been in this room before
+            return '''The village greets you like an old friend. The same smiles, the same warmth — a comforting familiarity.'''
+
+    # Village 2
+    elif Room == 'Village2':  # The function is requesting the storyline for room Village2
+        if User.Village2 == False:  # The user has not been in this room before
+            return '''You enter a quiet village under dark clouds. Every shadow feels longer, every glance colder — danger is in the air.'''
+        else:  # The user has been in this room before
+            return '''The uneasy tension remains. Though it's quiet, you can’t shake the feeling that something watches from the trees.'''
+
+    # Village 3
+    elif Room == 'Village3':  # The function is requesting the storyline for room Village3
+        if User.Village3 == False:  # The user has not been in this room before
+            return '''A haunting wind whistles between crooked houses. You wonder how people survive out here, so far from the known world.'''
+        else:  # The user has been in this room before
+            return '''The villagers wave to you, their faces lit by warm fires. You smile — even in isolation, kindness endures.'''
+
+    # Forest 1 (Starting Point)
+    elif Room == 'Forest1':  # The function is requesting the storyline for room Forest1
+        if User.Forest1 == False:  # The user has not been in this room before
+            return '''Your eyes flutter open among twisted trees and mist. A worn pouch of gold sits beside you, and a crooked stick gleams faintly nearby.'''
+        else:  # The user has been in this room before
+            return '''You return to where it all began. The darkness of the forest no longer scares you — it feels like home.'''
+
+    # Forest 2
+    elif Room == 'Forest2':  # The function is requesting the storyline for room Forest2
+        if User.Forest2 == False:  # The user has not been in this room before
+            return '''Bright blossoms dot the forest floor. For a moment, the beauty distracts you from the weight of your journey.'''
+        else:  # The user has been in this room before
+            return '''You pluck a flower and smile. Among all this chaos, even nature finds time to bloom.'''
+
+    # Forest 3 (Center of the World)
+    elif Room == 'Forest3':  # The function is requesting the storyline for room Forest3
+        if User.Forest3 == False:  # The user has not been in this room before
+            return '''Strangely calm, the center of the world offers no grand treasure or battle — just peace, and a whisper of serenity.'''
+        else:  # The user has been in this room before
+            return '''Returning here eases your mind. The silence heals, and you consider staying... just a little longer.'''
+
+    # Forest 4
+    elif Room == 'Forest4':  # The function is requesting the storyline for room Forest4
+        if User.Forest4 == False:  # The user has not been in this room before
+            return '''After a long hike, you crest a hill to find endless mountains stretching beneath a golden sky. The wind is crisp, the view breathtaking.'''
+        else:  # The user has been in this room before
+            return '''The wind greets you again as you look out across the vast wilds. Some things never lose their wonder.'''
+
+    # Wizard Tower 1
+    elif Room == 'Wizard1':  # The function is requesting the storyline for room Wizard1
+        if User.Wizard1 == False:  # The user has not been in this room before
+            return '''A crooked stone tower leans impossibly to one side. How it still stands is beyond reason or physics.'''
+        else:  # The user has been in this room before
+            return '''The tower creaks in the wind, still standing against all odds. You wonder how many more visits it can endure.'''
+
+    # Wizard Tower 2
+    elif Room == 'Wizard2':  # The function is requesting the storyline for room Wizard2
+        if User.Wizard2 == False:  # The user has not been in this room before
+            return '''The second tower is even stranger — half-buried, with missing stones and an angle so steep it defies gravity.'''
+        else:  # The user has been in this room before
+            return '''Each time you gaze upon this broken tower, you're filled with both dread and awe — magic, no doubt, is involved.'''
+
+    # Mountain Peak
+    elif Room == 'Mountain':  # The function is requesting the storyline for room Mountain
+        if User.Mountain == False:  # The user has not been in this room before
+            return '''You climb higher than you ever have. The biting wind stings your face, but the sight of endless snow is unforgettable.'''
+        else:  # The user has been in this room before
+            return '''You trudge through the snow again. Nothing has changed — white, cold, endless. Why did you return?'''
+
+    # Final Battle: Goblin King
+    elif Room == 'GoblinKing':  # The function is requesting the storyline for room GoblinKing
+        Combat(Goblin_King, 'GoblinKing')
+        return''
+    
 def Map(Room):
     global MountainIssue
     if Room == 'Mountain': # If the Room is Mountain
@@ -1595,5 +1661,53 @@ You Died to {DeathCause}
 
     TitleScreen() # Loads the Titlescreen Program - Restating the Program
 
+def DefeatedGK():
+    '''
+    This function is called when the player defeats the Goblin King.
+    It clears the terminal and displays a heartfelt, cinematic conclusion to the game.
+    '''
+    global Load_File
+    os.system('cls')  # Clears the terminal for a clean ending screen
+
+    # Prints the Victory Message to the Player
+    print('''
+╔══════════════════════════════════════════════════════════════╗
+║                   ✨ VICTORY IN NIADON ✨                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+With a final cry, the Goblin King falls — his reign of terror ended,
+his crown shattered on the stone floor of his dark throne room.
+
+The skies above Niadon begin to clear for the first time in years.
+Sunlight pierces the once-eternal gloom, casting golden light
+across the mountains, forests, and forgotten ruins.
+
+Villages rejoice. Children sing your name. Stories of your bravery
+echo across every continent, whispered around fires and carved into stone.
+
+You are no longer just a wanderer...
+
+               You are the Hero of Niadon.
+
+Thank you, brave adventurer, for your courage, your sacrifice,
+and your unyielding spirit. You restored balance to a world on the brink.
+
+                 May peace follow in your footsteps.
+
+════════════════════════════════════════════════════════════════
+
+                ~ THE END ~     (for now...)
+
+    ''')
+
+    input('Enter to Complete Game (This Resets Save File Information)...')
+
+    with open(f'Save{Load_File}.json', 'w') as file: # Opens the Current save file
+        json.dump({}, file) # Dumps an empty dictionary to the file - Causing it to get deleted
+    
+    Load_File = 0
+
+    TitleScreen() # Loads the Titlescreen Program - Restating the Program
 
 TitleScreen() # Runs the Program from Titlescreen
+
